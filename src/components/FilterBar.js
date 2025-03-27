@@ -7,21 +7,24 @@ const FilterBar = ({ onApplyFilters }) => {
     college: '',
     companyIndustry: '',
     currentLocation: '',
-    followersMin: '',
-    followersMax: '',
-    sortBy: 'college'
+    followersMin: '0',
+    followersMax: '50000'
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setLocalFilters(prev => ({
+    setLocalFilters((prev) => ({
       ...prev,
       [name]: value
     }));
   };
 
   const handleApply = () => {
-    onApplyFilters(localFilters);
+    onApplyFilters({
+      ...localFilters,
+      followersMin: parseInt(localFilters.followersMin, 10),
+      followersMax: parseInt(localFilters.followersMax, 10)
+    });
   };
 
   const handleClear = () => {
@@ -29,17 +32,20 @@ const FilterBar = ({ onApplyFilters }) => {
       college: '',
       companyIndustry: '',
       currentLocation: '',
-      followersMin: '',
-      followersMax: '',
-      sortBy: 'college'
+      followersMin: '0',
+      followersMax: '50000'
     };
     setLocalFilters(cleared);
-    onApplyFilters(cleared);
+    onApplyFilters({
+      ...cleared,
+      followersMin: 0,
+      followersMax: 50000
+    });
   };
 
   return (
     <div className="advanced-filter-bar">
-      <h3 className="filter-heading">Decontaminaters!</h3>
+      <h3 className="filter-heading">Advanced Filters</h3>
       <div className="filter-group">
         <div className="filter-item">
           <label htmlFor="college">College:</label>
@@ -65,8 +71,11 @@ const FilterBar = ({ onApplyFilters }) => {
             <option value="">All Industries</option>
             <option value="Computer Software">Computer Software</option>
             <option value="Financial Services">Financial Services</option>
-            <option value="Higher Education">Higher Education</option>
-            {/* Add more options as required */}
+            <option value="Information Technology & Services">Information Technology & Services</option>
+            <option value="Hospital & Health Care">Hospital & Health Care</option>
+            <option value="Marketing & Advertising">Marketing & Advertising</option>
+            <option value="Professional Training & Coaching">Professional Training & Coaching</option>
+            {/* Add more options as needed */}
           </select>
         </div>
         <div className="filter-item">
@@ -81,48 +90,35 @@ const FilterBar = ({ onApplyFilters }) => {
             className="filter-input"
           />
         </div>
-        <div className="filter-item">
-          <label htmlFor="followersMin">Min Followers:</label>
-          <input
-            type="number"
-            id="followersMin"
-            name="followersMin"
-            value={localFilters.followersMin}
-            onChange={handleChange}
-            placeholder="0"
-            className="filter-input"
-          />
-        </div>
-        <div className="filter-item">
-          <label htmlFor="followersMax">Max Followers:</label>
-          <input
-            type="number"
-            id="followersMax"
-            name="followersMax"
-            value={localFilters.followersMax}
-            onChange={handleChange}
-            placeholder="Any"
-            className="filter-input"
-          />
-        </div>
-        <div className="filter-item">
-          <label htmlFor="sortBy">Sort By:</label>
-          <select
-            id="sortBy"
-            name="sortBy"
-            value={localFilters.sortBy}
-            onChange={handleChange}
-            className="filter-input"
-          >
-            <option value="college">College</option>
-            <option value="companyName">Company Name</option>
-            <option value="linkedinFollowersCount">Followers Count</option>
-          </select>
+        <div className="filter-item" style={{ width: '100%' }}>
+          <label>Followers Range:</label>
+          <div className="range-inputs">
+            <input
+              type="number"
+              name="followersMin"
+              value={localFilters.followersMin}
+              onChange={handleChange}
+              placeholder="Min"
+              className="filter-input"
+            />
+            <input
+              type="number"
+              name="followersMax"
+              value={localFilters.followersMax}
+              onChange={handleChange}
+              placeholder="Max"
+              className="filter-input"
+            />
+          </div>
         </div>
       </div>
       <div className="filter-actions">
-        <button className="apply-button" onClick={handleApply}>Apply Filters</button>
-        <button className="clear-button" onClick={handleClear}>Clear Filters</button>
+        <button className="apply-button" onClick={handleApply}>
+          Apply Filters
+        </button>
+        <button className="clear-button" onClick={handleClear}>
+          Clear Filters
+        </button>
       </div>
     </div>
   );

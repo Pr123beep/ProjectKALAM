@@ -6,31 +6,23 @@ import StartupCard from './components/StartupCard';
 import './App.css';
 
 function App() {
-  // State to hold the randomized and deduplicated dataset
   const [data, setData] = useState([]);
-  // Advanced filters state
   const [filters, setFilters] = useState({
     college: '',
     companyIndustry: '',
     currentLocation: '',
-    followersMin: '',
-    followersMax: '',
-    sortBy: 'random'  // Default sort is random
+    followersMin: 0,
+    followersMax: 50000
   });
-  // Lazy loading: initially show 5 items
   const [visibleCount, setVisibleCount] = useState(5);
-  // Popup visibility state
   const [popupVisible, setPopupVisible] = useState(false);
 
-  // On initial load: shuffle and deduplicate the data
   useEffect(() => {
     const dataToShuffle = [...copyData];
-    // Fisher-Yates shuffle
     for (let i = dataToShuffle.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [dataToShuffle[i], dataToShuffle[j]] = [dataToShuffle[j], dataToShuffle[i]];
     }
-    // Deduplicate records by companyName + firstName + lastName and merge college values
     const deduped = Object.values(
       dataToShuffle.reduce((acc, item) => {
         const key = `${item.companyName}_${item.firstName}_${item.lastName}`;
@@ -47,62 +39,46 @@ function App() {
     setData(deduped);
   }, []);
 
-  // Callback for applying filters from FilterBar
   const applyFilters = (newFilters) => {
     setFilters(newFilters);
-    setVisibleCount(5); // Reset lazy load count on filter change
-    // Show popup notification with count update
+    setVisibleCount(5);
     setPopupVisible(true);
     setTimeout(() => {
       setPopupVisible(false);
     }, 3000);
   };
 
-  const filteredData = data.filter(item => {
+  const filteredData = data.filter((item) => {
     const collegeStr = Array.isArray(item.colleges)
       ? item.colleges.join(' ').toLowerCase()
       : (item.college || "").toLowerCase();
     const industry = (item.companyIndustry || "").toLowerCase();
-    const location = (
-      item.currentLocation ||
-      item.linkedinJobLocation ||
-      item.linkedinPreviousJobLocation ||
-      ""
-    ).toLowerCase();
+    const location =
+      (
+        item.currentLocation ||
+        item.linkedinJobLocation ||
+        item.linkedinPreviousJobLocation ||
+        ""
+      ).toLowerCase();
     const followers = item.linkedinFollowersCount || 0;
-    const minFollowers = filters.followersMin ? parseInt(filters.followersMin, 10) : 0;
-    const maxFollowers = filters.followersMax ? parseInt(filters.followersMax, 10) : Infinity;
-
     return (
       collegeStr.includes(filters.college.toLowerCase()) &&
       industry.includes(filters.companyIndustry.toLowerCase()) &&
       location.includes(filters.currentLocation.toLowerCase()) &&
-      followers >= minFollowers &&
-      followers <= maxFollowers
+      followers >= filters.followersMin &&
+      followers <= filters.followersMax
     );
   });
 
-  // Sorting logic
+  // Always randomize 
   let displayedData = [...filteredData];
-  if (filters.sortBy === 'random') {
-    for (let i = displayedData.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [displayedData[i], displayedData[j]] = [displayedData[j], displayedData[i]];
-    }
-  } else if (filters.sortBy === 'college') {
-    displayedData.sort((a, b) => {
-      const aColleges = Array.isArray(a.colleges) ? a.colleges.join(' ') : (a.college || "");
-      const bColleges = Array.isArray(b.colleges) ? b.colleges.join(' ') : (b.college || "");
-      return aColleges.localeCompare(bColleges);
-    });
-  } else if (filters.sortBy === 'companyName') {
-    displayedData.sort((a, b) => (a.companyName || "").localeCompare(b.companyName || ""));
-  } else if (filters.sortBy === 'linkedinFollowersCount') {
-    displayedData.sort((a, b) => (b.linkedinFollowersCount || 0) - (a.linkedinFollowersCount || 0));
+  for (let i = displayedData.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [displayedData[i], displayedData[j]] = [displayedData[j], displayedData[i]];
   }
 
   const handleLoadMore = () => {
-    setVisibleCount(prev => prev + 5);
+    setVisibleCount((prev) => prev + 5);
   };
 
   return (
