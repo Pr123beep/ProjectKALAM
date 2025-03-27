@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 2,
+            "activePatchIndex": 7,
             "patches": [
                 {
                     "date": 1743071064923,
@@ -16,6 +16,26 @@
                 {
                     "date": 1743074694850,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -8,29 +8,47 @@\n   const toggleDetails = () => {\r\n     setShowDetails(prev => !prev);\r\n   };\r\n \r\n+  const collegeDisplay = Array.isArray(data.colleges)\r\n+    ? data.colleges.join(', ')\r\n+    : data.college;\r\n+\r\n   return (\r\n     <div className=\"card\">\r\n       <div className=\"card-header\">\r\n         <h4 className=\"card-name\">\r\n-          {data.firstName} {data.lastName}\r\n+          <a\r\n+            href={data.linkedinProfileUrl}\r\n+            target=\"_blank\"\r\n+            rel=\"noopener noreferrer\"\r\n+          >\r\n+            {data.firstName} {data.lastName}\r\n+          </a>\r\n+          {\" - \"}\r\n+          <a\r\n+            href={data.linkedinCompanyUrl}\r\n+            target=\"_blank\"\r\n+            rel=\"noopener noreferrer\"\r\n+          >\r\n+            {data.companyName}\r\n+          </a>\r\n         </h4>\r\n         <p className=\"card-headline\">{data.linkedinHeadline}</p>\r\n       </div>\r\n       <div className=\"card-info\">\r\n-        <p><strong>College:</strong> {data.college}</p>\r\n+        <p><strong>College:</strong> {collegeDisplay}</p>\r\n         <p><strong>Industry:</strong> {data.companyIndustry}</p>\r\n-        <p><strong>Location:</strong> {data.currentLocation}</p>\r\n+        <p><strong>Company:</strong> {data.companyName}</p>\r\n       </div>\r\n       <button onClick={toggleDetails} className=\"card-button\">\r\n         {showDetails ? 'Hide Details' : 'Show Details'}\r\n       </button>\r\n       {showDetails && (\r\n         <div className=\"card-details\">\r\n           <p><strong>Description:</strong> {data.linkedinDescription}</p>\r\n           <p><strong>Job Description:</strong> {data.linkedinJobDescription}</p>\r\n-          {/* Add additional fields as needed */}\r\n+          {/* Additional fields can be added here */}\r\n         </div>\r\n       )}\r\n     </div>\r\n   );\r\n"
+                },
+                {
+                    "date": 1743075940370,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -8,8 +8,9 @@\n   const toggleDetails = () => {\r\n     setShowDetails(prev => !prev);\r\n   };\r\n \r\n+  // Determine the college display: use merged colleges if available\r\n   const collegeDisplay = Array.isArray(data.colleges)\r\n     ? data.colleges.join(', ')\r\n     : data.college;\r\n \r\n@@ -44,11 +45,21 @@\n         {showDetails ? 'Hide Details' : 'Show Details'}\r\n       </button>\r\n       {showDetails && (\r\n         <div className=\"card-details\">\r\n-          <p><strong>Description:</strong> {data.linkedinDescription}</p>\r\n-          <p><strong>Job Description:</strong> {data.linkedinJobDescription}</p>\r\n-          {/* Additional fields can be added here */}\r\n+          {data.linkedinDescription ? (\r\n+            <p><strong>Description:</strong> {data.linkedinDescription}</p>\r\n+          ) : (\r\n+            <p><strong>Headline:</strong> {data.linkedinHeadline}</p>\r\n+          )}\r\n+          {data.linkedinJobDescription ? (\r\n+            <p><strong>Job Description:</strong> {data.linkedinJobDescription}</p>\r\n+          ) : (\r\n+            <p>\r\n+              <strong>Job Info:</strong> {data.linkedinPreviousJobDescription || data.linkedinJobTitle}\r\n+            </p>\r\n+          )}\r\n+          {/* You can add more fallback fields as needed */}\r\n         </div>\r\n       )}\r\n     </div>\r\n   );\r\n"
+                },
+                {
+                    "date": 1743076186182,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -58,8 +58,9 @@\n               <strong>Job Info:</strong> {data.linkedinPreviousJobDescription || data.linkedinJobTitle}\r\n             </p>\r\n           )}\r\n           {/* You can add more fallback fields as needed */}\r\n+          {}\r\n         </div>\r\n       )}\r\n     </div>\r\n   );\r\n"
+                },
+                {
+                    "date": 1743076192809,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -58,9 +58,11 @@\n               <strong>Job Info:</strong> {data.linkedinPreviousJobDescription || data.linkedinJobTitle}\r\n             </p>\r\n           )}\r\n           {/* You can add more fallback fields as needed */}\r\n-          {}\r\n+          {data.linkedinPreviousJobDescription && (\r\n+            \r\n+          )}\r\n         </div>\r\n       )}\r\n     </div>\r\n   );\r\n"
+                },
+                {
+                    "date": 1743076549889,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -61,9 +61,9 @@\n           {/* You can add more fallback fields as needed */}\r\n           {data.linkedinPreviousJobDescription && (\r\n             <p><strong>Previous Job Description:</strong> {data.linkedinPreviousJobDescription}</p>\r\n           )}\r\n-          {}\r\n+          {da}\r\n         </div>\r\n       )}\r\n     </div>\r\n   );\r\n"
+                },
+                {
+                    "date": 1743077298371,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -65,9 +65,9 @@\n           {data.linkedinJobTitle && (\r\n             <p><strong>Job Title:</strong> {data.linkedinJobTitle}</p>\r\n           )}\r\n           {data.location && (\r\n-            <p><strong>Location:</strong>{}</p>\r\n+            <p><strong>Location:</strong>{data}</p>\r\n           )}\r\n           \r\n         </div>\r\n       )}\r\n"
                 }
             ],
             "date": 1743071064923,

@@ -9,6 +9,7 @@ const StartupCard = ({ data }) => {
     setShowDetails(prev => !prev);
   };
 
+  // Determine the college display: use merged colleges if available
   const collegeDisplay = Array.isArray(data.colleges)
     ? data.colleges.join(', ')
     : data.college;
@@ -45,9 +46,29 @@ const StartupCard = ({ data }) => {
       </button>
       {showDetails && (
         <div className="card-details">
-          <p><strong>Description:</strong> {data.linkedinDescription}</p>
-          <p><strong>Job Description:</strong> {data.linkedinJobDescription}</p>
-          {/* Additional fields can be added here */}
+          {data.linkedinDescription ? (
+            <p><strong>Description:</strong> {data.linkedinDescription}</p>
+          ) : (
+            <p><strong>Headline:</strong> {data.linkedinHeadline}</p>
+          )}
+          {data.linkedinJobDescription ? (
+            <p><strong>Job Description:</strong> {data.linkedinJobDescription}</p>
+          ) : (
+            <p>
+              <strong>Job Info:</strong> {data.linkedinPreviousJobDescription || data.linkedinJobTitle}
+            </p>
+          )}
+          {/* You can add more fallback fields as needed */}
+          {data.linkedinPreviousJobDescription && (
+            <p><strong>Previous Job Description:</strong> {data.linkedinPreviousJobDescription}</p>
+          )}
+          {data.linkedinJobTitle && (
+            <p><strong>Job Title:</strong> {data.linkedinJobTitle}</p>
+          )}
+          {data.location && (
+            <p><strong>Location:</strong>{data.location}</p>
+          )}
+          
         </div>
       )}
     </div>

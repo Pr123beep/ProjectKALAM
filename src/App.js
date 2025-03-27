@@ -8,7 +8,7 @@ import './App.css';
 function App() {
   // State to hold the randomized and deduplicated dataset
   const [data, setData] = useState([]);
-  // State for the advanced filters
+  // Advanced filters state
   const [filters, setFilters] = useState({
     college: '',
     companyIndustry: '',
@@ -17,10 +17,12 @@ function App() {
     followersMax: '',
     sortBy: 'random'  // Default sort is random
   });
-  // Lazy-loading: initially show 5 items
+  // Lazy loading: initially show 5 items
   const [visibleCount, setVisibleCount] = useState(5);
+  // Popup visibility state
+  const [popupVisible, setPopupVisible] = useState(false);
 
-  // On initial load, shuffle and deduplicate the data
+  // On initial load: shuffle and deduplicate the data
   useEffect(() => {
     const dataToShuffle = [...copyData];
     // Fisher-Yates shuffle
@@ -28,8 +30,7 @@ function App() {
       const j = Math.floor(Math.random() * (i + 1));
       [dataToShuffle[i], dataToShuffle[j]] = [dataToShuffle[j], dataToShuffle[i]];
     }
-    // Deduplicate records by companyName + firstName + lastName.
-    // Merge the college fields into an array.
+    // Deduplicate records by companyName + firstName + lastName and merge college values
     const deduped = Object.values(
       dataToShuffle.reduce((acc, item) => {
         const key = `${item.companyName}_${item.firstName}_${item.lastName}`;
@@ -49,17 +50,25 @@ function App() {
   // Callback for applying filters from FilterBar
   const applyFilters = (newFilters) => {
     setFilters(newFilters);
-    setVisibleCount(5); // Reset visible count on filter change
+    setVisibleCount(5); // Reset lazy load count on filter change
+    // Show popup notification with count update
+    setPopupVisible(true);
+    setTimeout(() => {
+      setPopupVisible(false);
+    }, 3000);
   };
 
-  // Filter data based on the advanced filter criteria.
   const filteredData = data.filter(item => {
-    // Use the merged "colleges" field if available, otherwise the single college value.
     const collegeStr = Array.isArray(item.colleges)
       ? item.colleges.join(' ').toLowerCase()
       : (item.college || "").toLowerCase();
     const industry = (item.companyIndustry || "").toLowerCase();
-    const location = (item.currentLocation || "").toLowerCase();
+    const location = (
+      item.currentLocation ||
+      item.linkedinJobLocation ||
+      item.linkedinPreviousJobLocation ||
+      ""
+    ).toLowerCase();
     const followers = item.linkedinFollowersCount || 0;
     const minFollowers = filters.followersMin ? parseInt(filters.followersMin, 10) : 0;
     const maxFollowers = filters.followersMax ? parseInt(filters.followersMax, 10) : Infinity;
@@ -73,9 +82,9 @@ function App() {
     );
   });
 
+  // Sorting logic
   let displayedData = [...filteredData];
   if (filters.sortBy === 'random') {
-    //Fisher-Yates Algorithm
     for (let i = displayedData.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [displayedData[i], displayedData[j]] = [displayedData[j], displayedData[i]];
@@ -102,6 +111,11 @@ function App() {
         <FilterBar onApplyFilters={applyFilters} />
       </aside>
       <main className="content">
+        {popupVisible && (
+          <div className="filter-popup">
+            Found {displayedData.length} results.
+          </div>
+        )}
         {displayedData.length ? (
           <>
             {displayedData.slice(0, visibleCount).map((item, index) => (
