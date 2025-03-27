@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/pages/HomePage.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1743071080815,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1743071080815,
+            "name": "Commit-0",
+            "content": "// src/pages/HomePage.js\r\nimport React, { useState } from 'react';\r\nimport { Box, Pagination } from '@mui/material';\r\nimport { startups } from '../data/sampleData';\r\nimport FilterBar from '../components/FilterBar';\r\nimport StartupCard from '../components/StartupCard';\r\nimport '../global.css'; // optional global styles\r\n\r\nfunction HomePage() {\r\n  // Filters state object\r\n  const [filters, setFilters] = useState({\r\n    college: null,\r\n    industry: null,\r\n    minExperience: '',\r\n  });\r\n\r\n  const [appliedFilters, setAppliedFilters] = useState({\r\n    college: '',\r\n    industry: '',\r\n    minExperience: '',\r\n  });\r\n\r\n  // Pagination state\r\n  const [currentPage, setCurrentPage] = useState(1);\r\n  const itemsPerPage = 5;\r\n\r\n  const handleApplyFilters = () => {\r\n    setAppliedFilters({\r\n      college: filters.college ? filters.college.toLowerCase() : '',\r\n      industry: filters.industry ? filters.industry.toLowerCase() : '',\r\n      minExperience: filters.minExperience,\r\n    });\r\n    setCurrentPage(1);\r\n  };\r\n\r\n  const handleClearFilters = () => {\r\n    setFilters({ college: null, industry: null, minExperience: '' });\r\n    setAppliedFilters({ college: '', industry: '', minExperience: '' });\r\n    setCurrentPage(1);\r\n  };\r\n\r\n  // Filter the startups array based on applied filters\r\n  const filteredStartups = startups.filter((startup) => {\r\n    let match = true;\r\n    if (appliedFilters.college) {\r\n      match =\r\n        match &&\r\n        startup.college.toLowerCase().includes(appliedFilters.college);\r\n    }\r\n    if (appliedFilters.industry) {\r\n      match =\r\n        match &&\r\n        startup.companyIndustry.toLowerCase().includes(appliedFilters.industry);\r\n    }\r\n    if (appliedFilters.minExperience) {\r\n      match =\r\n        match &&\r\n        startup.yearsExperience >= Number(appliedFilters.minExperience);\r\n    }\r\n    return match;\r\n  });\r\n\r\n  const totalItems = filteredStartups.length;\r\n  const totalPages = Math.ceil(totalItems / itemsPerPage);\r\n  const startIndex = (currentPage - 1) * itemsPerPage;\r\n  const currentItems = filteredStartups.slice(startIndex, startIndex + itemsPerPage);\r\n\r\n  return (\r\n    <Box sx={{ display: 'flex', minHeight: '100vh' }}>\r\n      {/* Left side Filter Bar */}\r\n      <FilterBar\r\n        filters={filters}\r\n        setFilters={setFilters}\r\n        onApply={handleApplyFilters}\r\n        onClear={handleClearFilters}\r\n      />\r\n\r\n      {/* Right side content */}\r\n      <Box sx={{ flexGrow: 1, padding: '2rem' }}>\r\n        {currentItems.map((startup, index) => (\r\n          <StartupCard key={index} startup={startup} />\r\n        ))}\r\n        {totalPages > 1 && (\r\n          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>\r\n            <Pagination\r\n              count={totalPages}\r\n              page={currentPage}\r\n              onChange={(e, page) => setCurrentPage(page)}\r\n              color=\"primary\"\r\n            />\r\n          </Box>\r\n        )}\r\n      </Box>\r\n    </Box>\r\n  );\r\n}\r\n\r\nexport default HomePage;\r\n"
+        }
+    ]
+}

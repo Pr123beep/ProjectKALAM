@@ -1,0 +1,30 @@
+{
+    "sourceFile": "src/copyData.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 3,
+            "patches": [
+                {
+                    "date": 1743071978001,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1743071984572,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -38,5 +38,6 @@\n       linkedinSchoolDateRange: \"\"\r\n     },\r\n     // ... add more objects as needed\r\n   ];\r\n-  \n\\ No newline at end of file\n+  \r\n+  export default copyData;  \n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1743072131778,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -37,7 +37,5 @@\n       linkedinSchoolDescription: \"\",\r\n       linkedinSchoolDateRange: \"\"\r\n     },\r\n     // ... add more objects as needed\r\n-  ];\r\n-  \r\n-  export default copyData;  \n\\ No newline at end of file\n+  ];\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1743072159070,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -36,6 +36,6 @@\n       linkedinPreviousSchoolDescription: \"\",\r\n       linkedinSchoolDescription: \"\",\r\n       linkedinSchoolDateRange: \"\"\r\n     },\r\n-    // ... add more objects as needed\r\n+   \r\n   ];\n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1743071978001,
+            "name": "Commit-0",
+            "content": "// src/copyData.js\r\nexport const copyData = [\r\n    {\r\n      college: \"IIT Bombay\",\r\n      linkedinProfileUrl: \"https://linkedin.com/in/girishph\",\r\n      companyIndustry: \"Computer Software\",\r\n      companyName: \"ImpactCraft\",\r\n      firstName: \"Girish\",\r\n      lastName: \"Phansalkar\",\r\n      linkedinCompanyUrl: \"https://linkedin.com/company/impactcraftai\",\r\n      linkedinDescription:\r\n        \"With technology product experience across diverse sectors, I specialize at the intersection of Digital Product Management, Analytics, and Marketing & Sales.\",\r\n      linkedinFollowersCount: 2728,\r\n      linkedinHeadline: \"Co-Founder & CEO at ImpactCraft, Ex-McKinsey Partner\",\r\n      linkedinJobDescription:\r\n        \"ImpactCraft is on a mission to help global SaaS companies reimagine revenue retention using AI driven solutions.\",\r\n      linkedinJobDateRange: \"Jun 2024 - Present\",\r\n      linkedinJobLocation: \"Pune, Maharashtra, India\",\r\n      linkedinJobTitle: \"Co-Founder & CEO\",\r\n      linkedinPreviousJobDateRange: \"Jul 2018 - Apr 2024\",\r\n      linkedinPreviousJobDescription:\r\n        \"I was a leader in Marketing and Sales and Digital & Analytics practices focused on embedding digital tools.\",\r\n      linkedinPreviousJobLocation: \"Mumbai, Maharashtra, India\",\r\n      linkedinPreviousJobTitle: \"Partner\",\r\n      linkedinPreviousSchoolUrl: \"https://linkedin.com/school/njit\",\r\n      linkedinPreviousSchoolDateRange: \"Sep 1995 - Jan 1997\",\r\n      linkedinPreviousSchoolDegree: \"M.S.\",\r\n      linkedinPreviousSchoolName: \"New Jersey Institute of Technology\",\r\n      linkedinSchoolUrl: \"https://linkedin.com/school/iimahmedabad\",\r\n      linkedinSchoolDegree: \"PGPX (One-year MBA)\",\r\n      linkedinSchoolName: \"Indian Institute of Management Ahmedabad\",\r\n      linkedinSkillsLabel:\r\n        \"Digital Transformation, CRM, SaaS, AI, Data Analytics, Business Strategy\",\r\n      currentLocation: \"Pune, Maharashtra, India\",\r\n      previousCompanyName: \"McKinsey & Company\",\r\n      linkedinPreviousSchoolDescription: \"\",\r\n      linkedinSchoolDescription: \"\",\r\n      linkedinSchoolDateRange: \"\"\r\n    },\r\n    // ... add more objects as needed\r\n  ];\r\n  "
+        }
+    ]
+}

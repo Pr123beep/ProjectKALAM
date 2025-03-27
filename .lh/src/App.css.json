@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/App.css",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1743071880834,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1743071880834,
+            "name": "Commit-0",
+            "content": "/* Global Styles & Variables */\n:root {\n  --primary-color: #007bff;\n  --secondary-color: #6c757d;\n  --background-color: #e9ecef;\n  --card-bg: #ffffff;\n  --border-color: #ced4da;\n  --font-family: 'Roboto', sans-serif;\n}\n\n* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}\n\nbody {\n  font-family: var(--font-family);\n  background-color: var(--background-color);\n  color: #343a40;\n}\n\n/* Layout */\n.app-container {\n  display: flex;\n  height: 100vh;\n}\n\n/* Sidebar / Filter Bar */\n.sidebar {\n  width: 250px;\n  background-color: #f8f9fa;\n  border-right: 1px solid var(--border-color);\n  padding: 20px;\n  overflow-y: auto;\n}\n\n.filter-bar {\n  display: flex;\n  flex-direction: column;\n}\n\n.filter-heading {\n  margin-bottom: 20px;\n  font-size: 1.25rem;\n  color: #212529;\n}\n\n.filter-item {\n  margin-bottom: 15px;\n  display: flex;\n  flex-direction: column;\n}\n\n.filter-item label {\n  margin-bottom: 5px;\n  font-weight: 500;\n}\n\n.filter-input {\n  padding: 8px;\n  border-radius: 4px;\n  border: 1px solid var(--border-color);\n  font-size: 0.9rem;\n  transition: border 0.3s ease;\n}\n\n.filter-input:focus {\n  outline: none;\n  border-color: var(--primary-color);\n}\n\n/* Main Content */\n.content {\n  flex: 1;\n  padding: 20px;\n  overflow-y: auto;\n}\n\n/* Card Styles */\n.card {\n  background-color: var(--card-bg);\n  border: 1px solid var(--border-color);\n  border-radius: 8px;\n  padding: 15px;\n  margin-bottom: 15px;\n  box-shadow: 0 2px 5px rgba(0,0,0,0.1);\n  transition: transform 0.2s ease, box-shadow 0.2s ease;\n}\n\n.card:hover {\n  transform: translateY(-3px);\n  box-shadow: 0 4px 10px rgba(0,0,0,0.15);\n}\n\n.card-header {\n  margin-bottom: 10px;\n}\n\n.card-name {\n  font-size: 1.2rem;\n  margin-bottom: 5px;\n  color: #212529;\n}\n\n.card-headline {\n  font-size: 0.9rem;\n  color: var(--secondary-color);\n}\n\n.card-info {\n  font-size: 0.9rem;\n  margin-bottom: 10px;\n  color: #495057;\n}\n\n.card-info p {\n  margin: 4px 0;\n}\n\n.card-button {\n  padding: 8px 12px;\n  background-color: var(--primary-color);\n  color: #fff;\n  border: none;\n  border-radius: 4px;\n  cursor: pointer;\n  transition: background-color 0.3s ease;\n}\n\n.card-button:hover {\n  background-color: darken(var(--primary-color), 10%);\n}\n\n.card-details {\n  margin-top: 10px;\n  font-size: 0.9rem;\n  color: #343a40;\n  line-height: 1.4;\n  animation: fadeIn 0.3s ease-in-out;\n}\n\n/* Fade-in Animation */\n@keyframes fadeIn {\n  from { opacity: 0; }\n  to { opacity: 1; }\n}\n\n/* No results message */\n.no-results {\n  font-size: 1rem;\n  text-align: center;\n  color: var(--secondary-color);\n  margin-top: 50px;\n}\n\n/* Responsive */\n@media (max-width: 768px) {\n  .app-container {\n    flex-direction: column;\n  }\n  \n  .sidebar {\n    width: 100%;\n    border-right: none;\n    border-bottom: 1px solid var(--border-color);\n  }\n  \n  .content {\n    padding: 15px;\n  }\n}\n"
+        }
+    ]
+}

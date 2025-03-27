@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/data/sampleData.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1743071038378,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1743071038378,
+            "name": "Commit-0",
+            "content": "// src/data/sampleData.js\r\n\r\nexport const startups = [\r\n    {\r\n      startupName: \"TechNova\",\r\n      founderNames: [\"Kshitij Gupta\", \"Aniket Behera\"],\r\n      college: \"Indian Institute of Technology\",\r\n      companyIndustry: \"Healthcare\",\r\n      description:\r\n        \"TechNova is revolutionizing healthcare administration with an AI-powered platform that speeds up revenue cycle management. Our founders come from strong technical backgrounds at leading global companies and are now applying that expertise to streamline hospital operations.\",\r\n      website: \"https://www.technova.com\",\r\n      linkedInPage: \"https://www.linkedin.com/company/technova\",\r\n      yearsExperience: 8\r\n    },\r\n    {\r\n      startupName: \"InnoFund\",\r\n      founderNames: [\"Atul Todi\", \"Mayank Chowdhary\"],\r\n      college: \"Indian Institute of Management\",\r\n      companyIndustry: \"Events & Networking\",\r\n      description:\r\n        \"InnoFund is an innovative platform connecting professionals through events and curated networking experiences. With an emphasis on technology and data, InnoFund offers powerful insights into event success and attendee engagement.\",\r\n      website: \"https://www.innofund.com\",\r\n      linkedInPage: \"https://www.linkedin.com/company/innofund\",\r\n      yearsExperience: 10\r\n    },\r\n    {\r\n      startupName: \"BuildX\",\r\n      founderNames: [\"Ashish Daga\"],\r\n      college: \"Indian Institute of Technology\",\r\n      companyIndustry: \"Construction/Robotics\",\r\n      description:\r\n        \"BuildX leverages robotics and advanced AI to automate construction tasks, reducing costs and boosting safety. Our founder’s background in deeptech and engineering drives BuildX’s vision for a safer, more efficient future in construction.\",\r\n      website: \"https://www.buildx.ai\",\r\n      linkedInPage: \"https://www.linkedin.com/company/buildx\",\r\n      yearsExperience: 7\r\n    },\r\n    // Add as many startup objects as needed...\r\n  ];\r\n  "
+        }
+    ]
+}

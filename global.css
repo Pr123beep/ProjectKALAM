@@ -1,0 +1,13 @@
+/* src/global.css */
+
+body {
+  margin: 0;
+  background: #fafafa;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Responsive adjustments can go here */
