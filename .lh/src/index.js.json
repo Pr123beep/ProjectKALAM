@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 6,
+            "activePatchIndex": 7,
             "patches": [
                 {
                     "date": 1743071100583,
@@ -32,6 +32,10 @@
                 {
                     "date": 1743072343885,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -10,10 +10,6 @@\n root.render(\n   <React.StrictMode>\n     <App />\n   </React.StrictMode>\n+  \n );\n-\n-impor[t Ofwo ] podjwop #qwej2w op@@diwj hdij kfjwp\n-\n-wdj \n\\ No newline at end of file\n-wih#}||plPL={diowd oih}\n"
+                },
+                {
+                    "date": 1743074764306,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -2,9 +2,8 @@\n import React from 'react';\n import { createRoot } from 'react-dom/client';\n import App from './App';\n import './App.css';\n-import { plPL } from '@mui/material/locale';\n \n const container = document.getElementById('root');\n const root = createRoot(container);\n root.render(\n"
                 }
             ],
             "date": 1743071100583,

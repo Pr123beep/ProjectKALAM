@@ -73,10 +73,9 @@ function App() {
     );
   });
 
-  // Sorting logic based on the selected sort option.
   let displayedData = [...filteredData];
   if (filters.sortBy === 'random') {
-    // Shuffle the filtered array using Fisher-Yates
+    //Fisher-Yates Algorithm
     for (let i = displayedData.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [displayedData[i], displayedData[j]] = [displayedData[j], displayedData[i]];

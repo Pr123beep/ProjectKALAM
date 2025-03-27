@@ -9,7 +9,6 @@ const StartupCard = ({ data }) => {
     setShowDetails(prev => !prev);
   };
 
-  // Determine the college string: either a list of colleges or a single college.
   const collegeDisplay = Array.isArray(data.colleges)
     ? data.colleges.join(', ')
     : data.college;
