@@ -45,7 +45,7 @@ const FilterBar = ({ onApplyFilters }) => {
 
   return (
     <div className="advanced-filter-bar">
-      <h3 className="filter-heading">Advanced Filters</h3>
+      <h3 className="filter-heading">Decontaminators!</h3>
       <div className="filter-group">
         <div className="filter-item">
           <label htmlFor="college">College:</label>
