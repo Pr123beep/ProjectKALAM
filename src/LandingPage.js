@@ -4,12 +4,16 @@ import { useState, useEffect, useRef } from "react"
 import { motion, useScroll, useTransform, useSpring, useMotionValue, useInView, AnimatePresence } from "framer-motion"
 import "./LandingPage.css"
 
+// eslint-disable-next-line no-unused-vars
+import { copyData } from './copyData'
+
 function LandingPage({ onNavigate }) {
   // eslint-disable-next-line no-unused-vars
   const [scrollY, setScrollY] = useState(0)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeFeature, setActiveFeature] = useState(0)
   const [isDarkMode, setIsDarkMode] = useState(false)
+  const [testimonials, setTestimonials] = useState([])
   const heroRef = useRef(null)
   const isHeroInView = useInView(heroRef, { once: false, amount: 0.3 })
   const { scrollYProgress } = useScroll()
@@ -37,6 +41,30 @@ function LandingPage({ onNavigate }) {
   const gradientRotate = useMotionValue(0)
 
   useEffect(() => {
+    // Instead of random selection, we'll use fixed testimonials
+    const fixedTestimonials = [
+      {
+        name: "Alex Chen",
+        role: "Founder & CEO, NeuralSphere",
+        image: "https://via.placeholder.com/100",
+        content: "Building NeuralSphere from the ground up required more than just technical expertise—it demanded vision and strategic partnerships. This platform connected us with investors who truly understood our AI infrastructure goals and helped us scale operations across three continents in just 18 months."
+      },
+      {
+        name: "Sophia Rodriguez",
+        role: "Co-founder, BioGenesis Healthcare",
+        image: "https://via.placeholder.com/100",
+        content: "After developing our breakthrough therapy, we faced the challenge of scaling production while navigating complex regulatory environments. The mentorship and capital resources we accessed through this network proved invaluable—we've since secured approval in 7 countries and helped over 50,000 patients."
+      },
+      {
+        name: "Marcus Johnson",
+        role: "Founder, Quantum Finance Solutions",
+        image: "https://via.placeholder.com/100",
+        content: "When we set out to democratize enterprise-grade financial tools for small businesses, we knew we needed partners who shared our vision. Through connections made here, we secured not just funding but strategic guidance that helped us grow our customer base from 200 to over 15,000 businesses in just two years."
+      }
+    ];
+    
+    setTestimonials(fixedTestimonials);
+
     const handleScroll = () => setScrollY(window.scrollY)
     window.addEventListener("scroll", handleScroll, { passive: true })
 
@@ -356,7 +384,7 @@ function LandingPage({ onNavigate }) {
                 <div className="hero-image-wrapper">
                   <div className="hero-image">
                     <img
-                      src="https://via.placeholder.com/800x600"
+                      src="/Screenshot%202025-03-29%20231427.png"
                       alt="Financial Growth Dashboard"
                       className="dashboard-image"
                     />
@@ -677,29 +705,7 @@ function LandingPage({ onNavigate }) {
             </motion.div>
 
             <div className="testimonials-grid">
-              {[
-                {
-                  name: "Sarah Johnson",
-                  role: "CEO, TechGrowth Inc.",
-                  image: "https://via.placeholder.com/100",
-                  content:
-                    "Undivided Capital's scaling methodology helped us achieve 3x growth in just 18 months. Their strategic approach to capital allocation was game-changing for our business.",
-                },
-                {
-                  name: "Michael Chen",
-                  role: "Founder, Nexus Solutions",
-                  image: "https://via.placeholder.com/100",
-                  content:
-                    "The analytics platform provided insights we never had before. We were able to identify key growth opportunities and optimize our investment strategy accordingly.",
-                },
-                {
-                  name: "Priya Sharma",
-                  role: "CFO, Global Innovations",
-                  image: "https://via.placeholder.com/100",
-                  content:
-                    "Working with Undivided Capital transformed our approach to scaling. Their team's expertise and the platform's capabilities exceeded our expectations.",
-                },
-              ].map((testimonial, index) => (
+              {testimonials.map((testimonial, index) => (
                 <motion.div
                   key={index}
                   className="testimonial-card"
@@ -714,7 +720,7 @@ function LandingPage({ onNavigate }) {
                   </div>
                   <div className="testimonial-author">
                     <div className="author-avatar">
-                      <img src={testimonial.image || "/placeholder.svg"} alt={testimonial.name} />
+                      <img src={testimonial.image} alt={testimonial.name} />
                     </div>
                     <div className="author-info">
                       <h4>{testimonial.name}</h4>
@@ -854,12 +860,13 @@ function LandingPage({ onNavigate }) {
                 Innovative financial solutions to help businesses scale efficiently and sustainably.
               </p>
               <div className="footer-social">
-                {["twitter", "linkedin", "facebook", "github"].map((social) => (
-                  <a key={social} href={`#${social}`} className="social-link" aria-label={`${social} link`}>
-                    <span className="sr-only">{social}</span>
-                    <SocialIcon type={social} />
-                  </a>
-                ))}
+              {["twitter", "linkedin", "facebook", "github"].map((social) => (
+  <a key={social} href={`#${social}`} className="social-link" aria-label={`${social} link`}>
+    <span className="sr-only">{social}</span>
+    <SocialIcon type={social} />
+  </a>
+))}
+
               </div>
             </div>
 

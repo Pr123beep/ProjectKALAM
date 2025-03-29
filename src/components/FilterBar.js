@@ -1,6 +1,7 @@
 // src/components/FilterBar.js
 import React, { useState } from 'react';
 import '../App.css';
+import './FilterBar.css';
 
 const FilterBar = ({ onApplyFilters }) => {
   const [localFilters, setLocalFilters] = useState({
@@ -11,6 +12,12 @@ const FilterBar = ({ onApplyFilters }) => {
     followersMax: '50000'
   });
 
+  // New state for profile source filters
+  const [profileSources, setProfileSources] = useState({
+    linkedin: true,
+    wellfound: true
+  });
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setLocalFilters((prev) => ({
@@ -19,11 +26,19 @@ const FilterBar = ({ onApplyFilters }) => {
     }));
   };
 
+  const handleSourceChange = (source) => {
+    setProfileSources(prev => ({
+      ...prev,
+      [source]: !prev[source]
+    }));
+  };
+
   const handleApply = () => {
     onApplyFilters({
       ...localFilters,
       followersMin: parseInt(localFilters.followersMin, 10),
-      followersMax: parseInt(localFilters.followersMax, 10)
+      followersMax: parseInt(localFilters.followersMax, 10),
+      profileSources
     });
   };
 
@@ -39,7 +54,11 @@ const FilterBar = ({ onApplyFilters }) => {
     onApplyFilters({
       ...cleared,
       followersMin: 0,
-      followersMax: 50000
+      followersMax: 50000,
+      profileSources: {
+        linkedin: true,
+        wellfound: true
+      }
     });
   };
 
@@ -110,6 +129,30 @@ const FilterBar = ({ onApplyFilters }) => {
               className="filter-input"
             />
           </div>
+        </div>
+      </div>
+      <div className="filter-section">
+        <h3>Profile Source</h3>
+        <div className="profile-source-filters">
+          <label className="custom-checkbox">
+            <input
+              type="checkbox"
+              checked={profileSources.linkedin}
+              onChange={() => handleSourceChange('linkedin')}
+            />
+            <span className="checkbox-icon"></span>
+            <span className="checkbox-label">LinkedIn</span>
+          </label>
+          
+          <label className="custom-checkbox">
+            <input
+              type="checkbox"
+              checked={profileSources.wellfound}
+              onChange={() => handleSourceChange('wellfound')}
+            />
+            <span className="checkbox-icon"></span>
+            <span className="checkbox-label">Wellfound</span>
+          </label>
         </div>
       </div>
       <div className="filter-actions">

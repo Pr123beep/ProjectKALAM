@@ -452,10 +452,8 @@ button {
 .hero-section {
   position: relative;
   overflow: hidden;
-  padding: 6rem 0;
-  
+  padding: var(--spacing-20) 0;
 }
-
 
 @media (min-width: 768px) {
   .hero-section {
@@ -710,15 +708,13 @@ button {
 }
 
 .top-right {
-  top: -2rem;    /* push it up a bit more */
+  top: -1.5rem;
   right: -1.5rem;
-  z-index: 20; 
 }
 
 .bottom-left {
-  bottom: -2rem; /* push it lower if needed */
+  bottom: -1.5rem;
   left: -1.5rem;
-  z-index: 20;
 }
 
 .floating-card-content {
@@ -790,8 +786,7 @@ button {
 /* Scroll indicator */
 .scroll-indicator {
   position: absolute;
-  bottom: 1rem; /* or 0.5rem, or whatever offset works */
-  z-index: 9999; /* ensure it's above other elements */
+  bottom: 2rem;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -1448,7 +1443,11 @@ button {
 .social-link {
   margin-right: 0.5rem;
 }
-
+.social-link svg {
+  color: #555; /* or some darker color */
+  width: 1.75rem;
+  height: 1.75rem;
+}
 .social-link:last-child {
   margin-right: 0;
 }
@@ -1582,6 +1581,34 @@ button {
   }
   100% {
     background-position: 0% 50%;
+  }
+}
+
+/* Styling for the dashboard image */
+.dashboard-image-container {
+  margin-top: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dashboard-image-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.dashboard-preview-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+}
+
+/* For larger screens, limit the maximum width */
+@media (min-width: 768px) {
+  .dashboard-preview-image {
+    max-width: 100%;
   }
 }
 

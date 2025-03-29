@@ -1,0 +1,262 @@
+Product Requirements Document
+
+Project Name: Kalam
+Date: 12th February, 2025
+Prepared by: Suraaj Hasija
+
+Managing Partners: Roel Janssen, Undivided Capital
+Approvers: Abhimanyu Saxena, Anshuman Singh
+
+1. Introduction
+Undivided Capital, a $40M fund investing in early-stage Indian startups, needs a robust tool to identify and evaluate promising founders globally. Project “Kalam” aims to build a comprehensive platform for sourcing and analyzing talent, enabling data-driven investment decisions. This PRD outlines the requirements for Project Kalam.
+2. Goals
+●	Identify exceptional Indian-origin individuals globally with high entrepreneurial potential.
+●	Provide a data-driven approach to sourcing and evaluating potential founders.
+●	Enable Undivided Capital to make early-stage investments in promising ventures.
+●	Continuously improve the talent identification process through machine learning.
+●	Streamline the deal sourcing and due diligence process.
+3. Target Audience
+The primary users are Undivided Capital's investment team, including partners, analysts, and associates.
+4. Scope
+Project Kalam encompasses:
+●	Data collection from diverse online sources.
+●	Data processing, analysis, and talent scoring.
+●	A user-friendly interface for candidate management.
+●	Continuous improvement via machine learning.
+●	Integration with existing workflows (CRM, deal management).
+5. Functional Requirements 
+5.1 Data Collection
+●	Sources:
+
+○	Professional Networks: LinkedIn (Sales Navigator API, Recruiter API), Wellfound (AngelList API, scraping), Crunchbase API, Xing API, other regional professional networks.
+○	Developer Platforms: GitHub API, Stack Overflow API, GitLab API, Bitbucket API, Kaggle API, HackerRank API, LeetCode API, Topcoder API.
+○	Educational Institutions: University websites (scraping - alumni directories, faculty profiles, research publications), alumni databases (if accessible via API or partnership), research publication databases (Scopus, Web of Science, Google Scholar API), university-affiliated incubators/accelerators.
+○	Hackathons & Competitions: Devpost API, Major League Hacking API, Kaggle API, data from hackathon/competition websites (scraping), local hackathon/competition organizers (partnerships for data sharing).
+○	Tech Conferences & Events: Conference websites (scraping - speaker lists, attendee lists, program schedules), event platforms (e.g., Eventbrite API), partnerships with conference organizers.
+○	Media & Publications: TechCrunch API, YourStory API, Inc42 API, FactorDaily API, other tech news outlets (scraping, RSS feeds), blogs of prominent investors/founders (scraping, RSS feeds), industry-specific publications.
+○	Social Media: Twitter API (carefully respecting rate limits and terms of service), LinkedIn API (public profiles, company pages), limited Facebook data (if accessible and ethical), other relevant social media platforms (e.g., Medium, Substack).
+○	Open Source Projects: Data from repositories and package managers (npm, PyPI, Maven, etc.), open-source project communities.
+○	Patent Databases: USPTO API, EPO API, Indian patent office API, other relevant patent databases.
+○	Company Registries: MCA (India), Companies House (UK), SEC (US), other relevant company registries.
+○	News & Blogs: RSS feeds, web scraping (with careful consideration of legal and ethical implications).
+○	Financial Data (if accessible and ethical): Previous funding rounds for startups (Crunchbase API, PitchBook API), crowdfunding campaigns (Kickstarter API, Indiegogo API), with strict adherence to privacy regulations.
+○	Creative Work Platforms: Behance API, Dribbble API (for designers), Soundcloud API (for musicians), etc. - if relevant to the fund's investment focus.
+○	Forum & Communities: Reddit API, Stack Exchange API, relevant industry-specific forums.
+
+●	Methods:
+
+○	API Prioritization: Maximize API usage for data quality and consistency. Develop robust API integration modules with error handling and rate limiting.
+○	Web Scraping (Robust & Ethical):
+■	Headless Browsers (Playwright, Puppeteer): For dynamic content rendering.
+■	Scraping Frameworks (Scrapy): Managing complex scraping tasks, data extraction, pipelines.
+■	Error Handling & Retry: Graceful error handling, retry mechanisms with exponential backoff.
+■	robots.txt & Legal Compliance (Crucial): Strict adherence, legal consultation.
+■	Scraping Frequency & Scheduling: Implement intelligent scraping schedules to avoid overloading target websites and respect rate limits.
+○	Data Enrichment: Supplement data with external information (demographics, company data) from reputable providers, respecting privacy.
+○	Data Validation: Implement data validation rules at the point of collection to catch errors early.
+○	Data Transformation: Transform data into a consistent format for analysis.
+○	Manual Data Entry/Integration (Minimization): For unstructured data (event notes), integrate with CRM or dedicated data entry tools. Design efficient input forms.
+
+●	Data Collection Challenges (Mitigation Strategies):
+
+○	Data Silos: Develop robust data integration pipelines to combine data from different sources. Entity resolution is key.
+○	Data Volume: Use scalable data storage and processing solutions. Implement data partitioning and indexing.
+○	Data Velocity: Real-time or near real-time data pipelines. Consider using message queues (e.g., Kafka) for streaming data. 
+○	Website Structure Changes: Implement automated monitoring of scrapers. Use robust selectors and error handling. Consider versioning scrapers.
+○	Rate Limiting & IP Blocking: Advanced proxy management. Respect rate limits. Implement backoff strategies.
+○	Data Quality: Data validation, data cleaning pipelines, data quality monitoring.
+○	Data Privacy: GDPR, CCPA compliance. Data anonymization, pseudonymization. Transparency in data usage. Data retention policies. 
+○	Ethical Considerations: Respect website terms of service. Be transparent about data collection practices. Avoid collecting sensitive data without consent.
+
+●	Automation (Orchestration & Scheduling):
+
+○	Orchestration Tools: Managing data pipelines, scheduling tasks, monitoring data quality.
+○	Scheduling: Schedule data collection tasks based on data update frequency.
+○	Alerting: Implement alerting systems to notify the team of data collection failures or data quality issues.
+
+●	Data Storage (Scalability & Security):
+
+○	Data Lake/Warehouse (Cloud-Based): Centralized repository. Consider object storage (S3, Azure Blob Storage) for raw data and a data warehouse (Snowflake, BigQuery) for processed data.
+○	Database (PostgreSQL with TimescaleDB, MongoDB Atlas): For structured and semi-structured data.
+○	Data Governance: Implement data governance policies to ensure data quality, consistency, and security.
+○	Access Control: Role-based access control to restrict access to sensitive data.
+○	Data Backup & Recovery: Implement robust data backup and recovery procedures.
+5.2 Data Processing and Analysis :
+●	Data Cleaning & Standardization :
+
+○	Entity Resolution (Advanced): Implement fuzzy matching algorithms, record linkage techniques, and machine learning-based entity resolution to identify and merge duplicate profiles.
+○	Data Deduplication: Identify and remove duplicate records.
+○	Data Imputation: Handle missing values using appropriate imputation techniques (e.g., mean imputation, median imputation, KNN imputation).
+○	Outlier Detection: Identify and handle outliers in the data.
+○	Data Transformation: Feature scaling (standardization, normalization), encoding categorical variables (one-hot encoding, label encoding).
+●	Talent Evaluation Algorithm (Customizable & Weighted):
+
+○	Weighted Scoring (Dynamic): Assign weights to indicators based on investment criteria. Allow users to customize weights.
+○	Rule-Based System (Initial Stage): Start with a rule-based system based on expert knowledge.
+○	Machine Learning Integration (Iterative): Integrate machine learning models to refine the scoring algorithm and identify complex patterns.
+
+●	Machine Learning (Detailed ML Pipeline):
+
+○	Training Data (Advanced Strategies):
+■	Bootstrapping (Iterative): Start with high-confidence labels, iteratively expand the labeled dataset.
+■	Crowdsourcing (Quality Control): Use crowdsourcing with strict quality control measures (e.g., gold standard data, consensus voting).
+■	Active Learning (Strategic Labeling): Prioritize data points for manual labeling to maximize model improvement.
+■	Weak Supervision (Automated Labeling): Use heuristics, rules, or external knowledge bases to automatically generate labels.
+■	Data Augmentation: Generate synthetic data to increase the size and diversity of the training dataset.  
+○	Feature Engineering (Deep Dive):
+■	Network Features (Advanced): Centrality measures, community detection, network influence scores.
+■	Text Features (NLP): Sentiment analysis, topic modeling, named entity recognition, keyword extraction.
+■	Time-Series Features: Trends in skills, experience, projects over time.
+■	Behavioral Features: Engagement patterns on developer platforms, social media, etc.
+○	Model Selection (Rigorous Evaluation):
+■	Ensemble Methods (Advanced): Stacking, blending.
+■	Deep Learning (Specialized Architectures): RNNs for sequential data, Transformers for text data.
+■	Hyperparameter Tuning: Optimize model parameters using techniques like grid search, random search, or Bayesian optimization.
+■	Cross-Validation: Rigorous cross-validation to prevent overfitting.
+○	Model Explainability (Crucial for Trust):
+■	SHAP Values (Detailed): Explain feature importance for individual predictions.
+■	LIME (Local Explanations): Interpret individual predictions using local approximations.
+■	Rule Extraction: Extract rules from complex models to make them more interpretable.
+○	Bias Detection and Mitigation:
+■	Adversarial Debiasing: Train models to be less sensitive to biased features.
+■	Data Augmentation (Bias Balancing): Augment data to balance representation of different groups.
+■	Monitoring for Bias (Continuous): Regularly monitor model predictions for bias and adjust accordingly. Track metrics disaggregated by sensitive attributes (e.g., gender, race) to identify disparities.
+■	Fairness Metrics: Use fairness metrics (e.g., demographic parity, equalized odds) to evaluate model fairness. 
+
+○	Ranking & Filtering (Advanced):
+
+■	Multi-Criteria Ranking: Rank candidates based on a combination of factors, with customizable weights.
+■	Fuzzy Matching: Implement fuzzy matching for searching and filtering (e.g., for names, skills).
+■	Personalized Recommendations: Recommend candidates based on user preferences and past interactions.
+5.3 User Interface
+●	Dashboard
+
+○	Key Metrics: Number of candidates, deal flow, investment activity, model performance.
+○	Trending Talent: Highlight emerging talent pools and technology trends.
+○	Recent Activity: Display recent updates and activity related to candidates and deals.
+○	Customizable Widgets: Allow users to customize the dashboard with relevant widgets.
+●	Search & Filtering (Advanced Capabilities):
+
+○	Faceted Search: Allow users to filter by multiple criteria simultaneously.
+○	Saved Searches: Allow users to save frequently used search queries. 
+
+●	Candidate Profiles-
+
+○	Interactive Network Graph: Visualize connections, identify influencers, explore network relationships.
+○	Skills Matrix : Show proficiency levels, endorsements, and related skills.
+○	Timeline View (Interactive): Visualize experience, projects, publications over time.
+○	Document Repository (Integrated): Store resumes, cover letters, references, and other documents.
+○	ML Score Explanation (Detailed): Show feature contributions to the score, explain model reasoning.
+○	Contact Information (Secure & Controlled): Display contact information only to authorized users, with appropriate access controls.
+
+●	Collaboration Tools:
+
+○	Candidate Reviews (Structured Feedback): Allow users to provide structured feedback on candidates using predefined templates.
+○	Shared Notes and Tags: Enable shared notes, tags, and custom labels for organizing candidates.
+○	Workflow Management Implement customizable workflows for managing the candidate pipeline (screening, interviews, due diligence).
+○	Task Management (Integration): Integrate with task management tools (e.g., Jira, Asana) for assigning tasks and tracking progress.
+
+●	Reporting & Export (Flexible & Customizable):
+
+○	Customizable Reports: Allow users to generate custom reports based on specific criteria.
+○	Data Export (Multiple Formats): Export data in CSV, Excel, JSON, and other formats.
+○	Report Scheduling: Schedule regular report generation and delivery.
+
+●	CRM Integration (Seamless Data Flow):
+
+○	Two-Way Sync: Synchronize data between Project Kalam and the CRM system.
+○	Automated Data Transfer: Automate the transfer of candidate information and deal updates.
+
+●	Deal Management Integration (End-to-End Workflow):
+
+○	Deal Tracking: Track the progress of deals from initial sourcing to investment.
+○	Due Diligence Tools: Integrate with due diligence platforms and tools.
+○	Portfolio Management: Manage portfolio companies and track their performance.
+
+6. Non-Functional Requirements (Emphasis on Quality & Security):
+●	Performance :
+
+○	Load Testing: Conduct thorough load testing to ensure the system can handle expected user traffic.
+○	Performance Monitoring: Monitor system performance and identify bottlenecks.
+○	Caching Strategies: Implement caching strategies to improve response times.
+●	Scalability (Horizontal & Vertical):
+
+○	Cloud-Based Infrastructure: Leverage cloud services for scalability and elasticity.
+○	Horizontal Scaling: Scale the system horizontally by adding more servers.
+○	Vertical Scaling: Scale the system vertically by increasing server resources.
+
+●	Security (Robust & Multi-Layered):
+
+○	Data Encryption (At Rest & In Transit): Encrypt sensitive data using strong encryption algorithms.
+○	Access Control (Role-Based): Implement role-based access control to restrict access to sensitive data.
+○	Authentication & Authorization (Secure): Use strong authentication and authorization mechanisms.
+○	Vulnerability Scanning: Regularly scan for vulnerabilities and address them promptly.
+○	Security Audits: Conduct regular security audits to identify and mitigate potential risks.
+○	Compliance (GDPR, CCPA, etc.): Ensure compliance with all relevant data privacy regulations.
+
+●	Reliability (High Availability & Fault Tolerance):
+
+○	Redundancy: Implement redundancy at all levels (hardware, software, data).
+○	Failover Mechanisms: Implement automatic failover mechanisms to ensure high availability.
+○	Disaster Recovery: Develop a disaster recovery plan to ensure business continuity.
+●	Usability (Intuitive & User-Friendly):
+
+○	User Research: Conduct user research to understand user needs and preferences.
+○	Usability Testing: Conduct usability testing to identify and address usability issues.
+○	Intuitive Interface: Design an intuitive and user-friendly interface.
+●	Maintainability (Clean Code & Documentation):
+
+○	Code Reviews: Conduct regular code reviews to ensure code quality.
+○	Comprehensive Documentation: Maintain comprehensive documentation for the system.
+○	Modular Design: Use a modular design to make the system easier to maintain.
+●	Data Privacy (Strict Adherence):
+
+○	Data Minimization: Collect only the data that is necessary for the intended purpose.
+○	Data Anonymization & Pseudonymization: Anonymize or pseudonymize sensitive data whenever possible.
+○	Data Retention Policies: Define and enforce data retention policies.
+○	Consent Management: Implement mechanisms for managing user consent for data collection and use.
+●	Ethical Considerations (Fairness & Transparency):
+
+○	Bias Detection & Mitigation: Actively look for and mitigate bias in the data and models.
+○	Transparency: Be transparent about data collection and use practices.
+○	Accountability: Take responsibility for the ethical implications of the system.
+7. Technical Requirements (Detailed Stack):
+●	Programming Languages: Python (with libraries like Beautiful Soup, Scrapy, Pandas, NumPy, Scikit-learn, NLTK, Playwright, TensorFlow/PyTorch).
+●	Database: PostgreSQL with TimescaleDB (for time-series data) or MongoDB Atlas.
+●	Cloud Infrastructure: AWS (EC2, S3, Lambda, RDS, ECS, EKS, CloudWatch, CloudTrail), or GCP, or Azure.
+●	APIs & Libraries: LinkedIn Sales Navigator API, GitHub API, Twitter API, Wellfound API, Crunchbase API, etc.
+●	Scraping Tools: Beautiful Soup, Scrapy, Playwright, Selenium.
+●	ML Tools: Scikit-learn, TensorFlow/PyTorch
+●	Frontend Framework: React/Next.js
+●	Backend Framework: Django REST Framework
+●	Search: Elasticsearch or Solr.
+●	Containerization: Docker, Kubernetes.
+●	Orchestration: Airflow or Prefect.
+●	Monitoring & Logging: MlFlow
+●	CI/CD: GitHub Actions.
+8. Success Metrics (Quantifiable Goals):
+●	Model Accuracy (Precision, Recall, F1-score, AUC): Track model performance on held-out data.
+●	Improvement in Deal Flow Quality (Number of Qualified Leads): Measure the number of high-quality leads generated by the platform.
+●	Reduction in Time-to-Investment (Days/Weeks Saved): Track the time saved in the investment process.
+●	User Satisfaction (Surveys, Feedback): Regularly collect user feedback to assess satisfaction.
+●	Number of Investments Sourced Through the Platform: Track the number of successful investments sourced through Project Kalam.
+●	Return on Investment (ROI) of Investments Sourced Through the Platform: Measure the ROI of investments sourced through the platform.
+
+9. Timeline and Budget (TBD):
+
+
+Phase 1: MVP (Minimum Viable Product) - (3 months):
+
+●	Core data collection from key sources (LinkedIn, GitHub, Wellfound), basic data processing, initial talent evaluation algorithm, simple user interface with search and filtering.
+●	Deliverables: Functional platform with core features, trained ML model with initial accuracy, basic reporting capabilities.
+●	Budget: Allocate budget for development team, cloud infrastructure, API subscriptions, and data enrichment services.  
+Phase 2: Enhanced Functionality (Timeline- TBD)
+
+●	Expanding data sources (hackathons, conferences, media), advanced data processing and analysis (entity resolution, NLP), enhanced talent evaluation algorithm, improved user interface with network visualization and collaboration tools.
+Phase 3: Scaling and Optimization - (TBD):
+
+●	Scaling the platform for larger data volumes and user load, optimizing model performance, implementing robust security measures, integrating with deal management systems, developing reporting and analytics dashboards.
+Phase 4: Continuous Improvement and Innovation - (TBD):
+
+●	Continuous monitoring and improvement of the platform, exploring new data sources and technologies, developing advanced features (e.g., AI-powered recommendations, predictive analytics), ongoing maintenance and support.
+
