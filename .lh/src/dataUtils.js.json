@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/dataUtils.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1743245235299,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1743245235299,
+            "name": "Commit-0",
+            "content": "// src/dataUtils.js\r\n\r\n/**\r\n * Transforms a row of data into a structured object.\r\n * @param {Object} row - An object representing a single row from your data source.\r\n * @returns {Object} A structured data object containing relevant properties.\r\n */\r\nexport function createStructuredData(row) {\r\n    const structured = {\r\n      college: row.college || null,\r\n      companyIndustry: row.companyIndustry || null,\r\n      companyName: row.companyName || null,\r\n      firstName: row.firstName || null,\r\n      lastName: row.lastName || null,\r\n      linkedinCompanyUrl: row.linkedinCompanyUrl || null,\r\n      linkedinDescription: row.linkedinDescription || null,\r\n      linkedinFollowersCount: row.linkedinFollowersCount || null,\r\n      linkedinHeadline: row.linkedinHeadline || null,\r\n      linkedinProfileUrl: row.linkedinProfileUrl || null,\r\n      location: row.location || null,\r\n      previousCompanyName: row.previousCompanyName || null,\r\n      linkedinSkillsLabel: row.linkedinSkillsLabel || null,\r\n    };\r\n  \r\n    // Current Job details (only if a job title is available)\r\n    if (row.linkedinJobTitle) {\r\n      structured.currentJob = {\r\n        jobTitle: row.linkedinJobTitle,\r\n        jobDateRange: row.linkedinJobDateRange || null,\r\n        jobDescription: row.linkedinJobDescription || null,\r\n        jobLocation: row.linkedinJobLocation || null,\r\n      };\r\n    }\r\n  \r\n    // Previous Job details (only if a previous job title is available)\r\n    if (row.linkedinPreviousJobTitle) {\r\n      structured.previousJob = {\r\n        previousJobTitle: row.linkedinPreviousJobTitle,\r\n        previousJobDateRange: row.linkedinPreviousJobDateRange || null,\r\n        previousJobLocation: row.linkedinPreviousJobLocation || null,\r\n        previousJobDescription: row.linkedinPreviousJobDescription || null,\r\n      };\r\n    }\r\n  \r\n    // School/Education details (only if a school name is available)\r\n    if (row.linkedinSchoolName) {\r\n      structured.currentSchool = {\r\n        schoolName: row.linkedinSchoolName,\r\n        schoolDegree: row.linkedinSchoolDegree || null,\r\n        schoolDateRange: row.linkedinSchoolDateRange || null,\r\n        schoolDescription: row.linkedinSchoolDescription || null,\r\n        schoolUrl: row.linkedinSchoolUrl || null,\r\n      };\r\n    }\r\n  \r\n    // Previous School details (only if a previous school name is available)\r\n    if (row.linkedinPreviousSchoolName) {\r\n      structured.previousSchool = {\r\n        previousSchoolName: row.linkedinPreviousSchoolName,\r\n        previousSchoolDegree: row.linkedinPreviousSchoolDegree || null,\r\n        previousSchoolDateRange: row.linkedinPreviousSchoolDateRange || null,\r\n        previousSchoolDescription: row.linkedinPreviousSchoolDescription || null,\r\n        previousSchoolUrl: row.linkedinPreviousSchoolUrl || null,\r\n      };\r\n    }\r\n  \r\n    return structured;\r\n  }\r\n  "
+        }
+    ]
+}

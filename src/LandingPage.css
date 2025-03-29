@@ -452,8 +452,10 @@ button {
 .hero-section {
   position: relative;
   overflow: hidden;
-  padding: var(--spacing-20) 0;
+  padding: 6rem 0;
+  
 }
+
 
 @media (min-width: 768px) {
   .hero-section {
@@ -708,13 +710,15 @@ button {
 }
 
 .top-right {
-  top: -1.5rem;
+  top: -2rem;    /* push it up a bit more */
   right: -1.5rem;
+  z-index: 20; 
 }
 
 .bottom-left {
-  bottom: -1.5rem;
+  bottom: -2rem; /* push it lower if needed */
   left: -1.5rem;
+  z-index: 20;
 }
 
 .floating-card-content {
@@ -786,7 +790,8 @@ button {
 /* Scroll indicator */
 .scroll-indicator {
   position: absolute;
-  bottom: 2rem;
+  bottom: 1rem; /* or 0.5rem, or whatever offset works */
+  z-index: 9999; /* ensure it's above other elements */
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -1437,7 +1442,26 @@ button {
 
 .footer-social {
   display: flex;
-  gap: var(--spacing-4);
+  gap: 1rem; /* Increase this value if needed */
+  align-items: center;
+}
+.social-link {
+  margin-right: 0.5rem;
+}
+
+.social-link:last-child {
+  margin-right: 0;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .social-link {
