@@ -5,6 +5,7 @@ import { motion, useScroll, useTransform, useSpring, useMotionValue, useInView, 
 import "./LandingPage.css"
 
 function LandingPage({ onNavigate }) {
+  // eslint-disable-next-line no-unused-vars
   const [scrollY, setScrollY] = useState(0)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeFeature, setActiveFeature] = useState(0)
@@ -25,6 +26,7 @@ function LandingPage({ onNavigate }) {
   const smoothRotation = useSpring(rotation, springConfig)
 
   // Mouse parallax effect
+  // eslint-disable-next-line no-unused-vars
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
