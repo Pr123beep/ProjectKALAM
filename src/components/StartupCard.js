@@ -121,18 +121,24 @@ const StartupCard = ({ data }) => {
 
   const toggleDetails = (e) => {
     // Prevent event bubbling
-    if (e) e.stopPropagation();
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     
     // Only toggle if not already in transition
-    // Add a small debounce to prevent double-toggling
     if (!isToggling) {
       setIsToggling(true);
-      setShowDetails((prev) => !prev);
       
-      // Reset toggle flag after a small delay
-      setTimeout(() => {
-        setIsToggling(false);
-      }, 300);
+      // Use requestAnimationFrame for smoother timing
+      requestAnimationFrame(() => {
+        setShowDetails((prev) => !prev);
+        
+        // Reset toggle flag after the animation duration
+        setTimeout(() => {
+          setIsToggling(false);
+        }, 350); // Slightly longer than animation duration
+      });
     }
   };
 
@@ -193,11 +199,16 @@ const StartupCard = ({ data }) => {
           >
             <div className="detail-overlay" onClick={toggleDetails}>
               <motion.div
-                className="detail-modal"
+                className="detail-modal no-animation"
                 initial={{ opacity: 0, scale: 0.8, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.8, y: 20 }}
-                transition={{ type: "spring", damping: 25 }}
+                transition={{ 
+                  type: "spring", 
+                  damping: 30, 
+                  stiffness: 300, 
+                  duration: 0.3 
+                }}
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Close button in top-right corner */}
@@ -208,12 +219,19 @@ const StartupCard = ({ data }) => {
                 {/* Modal Header */}
                 <div className="modal-header">
                   <div className="profile-info">
-                    {/* Large Avatar with initials */}
+                    {/* Source badge at the top right */}
+                    {data.source && (
+                      <div className={`source-badge ${data.source}`}>
+                        {data.source === 'linkedin' ? 'LinkedIn' : 'Wellfound'}
+                      </div>
+                    )}
+                    
+                    {/* Profile avatar */}
                     <div className="profile-avatar">
                       {data.firstName?.charAt(0)}
                       {data.lastName?.charAt(0)}
                     </div>
-
+                    
                     <div className="profile-main">
                       <h2 className="profile-name">
                         {data.firstName} {data.lastName}
@@ -221,25 +239,41 @@ const StartupCard = ({ data }) => {
                       <p className="profile-headline">
                         {data.linkedinHeadline || data.wellfoundHeadline}
                       </p>
+                      
+                      {/* Location */}
                       {data.location && (
                         <p className="profile-location">
                           <LocationIcon /> {data.location}
                         </p>
                       )}
+                      
+                      {/* Profile links section - now properly formatted below name/headline */}
+                      <div className="profile-links">
+                        {data.linkedinProfileUrl && (
+                          <a 
+                            href={data.linkedinProfileUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="profile-link linkedin-link"
+                          >
+                            <LinkedInIcon /> View LinkedIn Profile
+                          </a>
+                        )}
+                        
+                        {data.wellfoundProfileUrl && (
+                          <a 
+                            href={data.wellfoundProfileUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="profile-link wellfound-link"
+                          >
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm-.97 14.975H8.76v-6.98h2.27v6.98zm-1.14-7.93c-.79 0-1.29-.5-1.29-1.13 0-.64.5-1.13 1.29-1.13.79 0 1.28.49 1.3 1.13 0 .63-.51 1.13-1.3 1.13zm8.77 7.93h-2.26v-3.77c0-.97-.41-1.49-1.25-1.49-.91 0-1.44.61-1.44 1.49v3.77h-2.19v-6.98h2.19v.97c.57-.68 1.31-1.07 2.31-1.07 1.73 0 2.64 1.03 2.64 3.15v3.93z"/>
+                            </svg> View Wellfound Profile
+                          </a>
+                        )}
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="profile-link-section">
-                    {data.source === 'linkedin' && data.linkedinProfileUrl && (
-                      <a
-                        href={data.linkedinProfileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="profile-link-btn"
-                      >
-                        <LinkedInIcon /> Profile
-                      </a>
-                    )}
                   </div>
                 </div>
 
