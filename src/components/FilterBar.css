@@ -225,4 +225,270 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+}
+
+/* Add these styles to make the filter bar responsive */
+
+/* Mobile sticky header */
+.filter-sticky {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  z-index: 9999 !important; /* Much higher z-index */
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2) !important;
+  background-color: white !important;
+  padding: 0 !important; /* Remove padding when sticky */
+  margin: 0 !important;
+  border-radius: 0 !important;
+  transform: translateZ(0); /* Force hardware acceleration */
+  will-change: position; /* Hint to browser */
+  -webkit-backface-visibility: hidden; /* Prevent flickering */
+}
+
+/* Mobile filter header */
+.filter-mobile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px !important; /* Larger touch target on mobile */
+  cursor: pointer;
+  background: white !important;
+  border-bottom: 1px solid #eee;
+}
+
+.filter-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Collapsed state */
+.advanced-filter-bar.collapsed {
+  min-height: 60px;
+}
+
+.filter-content.hidden {
+  display: none;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+  .advanced-filter-bar {
+    border-radius: 0;
+    width: 100%;
+    padding: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .filter-sticky {
+    width: 100%;
+    border-radius: 0;
+  }
+  
+  .filter-item {
+    width: 100%;
+  }
+  
+  .range-inputs {
+    flex-direction: row;
+  }
+  
+  .profile-source-filters {
+    flex-wrap: wrap;
+  }
+  
+  /* When collapsed, show only header */
+  .advanced-filter-bar.collapsed .filter-mobile-header {
+    border-bottom: none;
+  }
+  
+  /* Create space at top of page when filter is sticky */
+  body.has-sticky-filter {
+    padding-top: 60px !important; /* Match the height of collapsed filter */
+  }
+  
+  /* Make filter heading more visible */
+  .filter-mobile-header {
+    padding: 15px !important;
+    background: linear-gradient(to right, #f8f9fa, #ffffff) !important;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  /* More attractive filter heading */
+  .filter-mobile-header .filter-heading {
+    margin: 0;
+    padding: 0;
+    border: none;
+    font-size: 16px;
+    color: #2a9d8f;
+  }
+  
+  /* Enhance toggle button */
+  .filter-toggle-btn {
+    background-color: #f0f7f6;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(42, 157, 143, 0.2);
+  }
+  
+  .filter-toggle-btn:active {
+    transform: scale(0.98);
+  }
+  
+  /* Better padding for filter content */
+  .filter-content {
+    padding: 15px;
+  }
+  
+  /* Improve form inputs */
+  .filter-input {
+    padding: 12px;
+    font-size: 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+  }
+  
+  /* Enhance range inputs */
+  .range-inputs {
+    gap: 12px;
+  }
+  
+  /* Better section spacing */
+  .filter-section {
+    margin-bottom: 24px;
+    padding-top: 20px;
+  }
+  
+  /* Improve checkbox experience */
+  .profile-source-filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  
+  .custom-checkbox {
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 6px;
+    margin-bottom: 0;
+    transition: background-color 0.2s;
+  }
+  
+  .custom-checkbox:active {
+    background-color: #e5e5e5;
+  }
+  
+  /* Make action buttons more touch-friendly */
+  .filter-actions {
+    flex-direction: row;
+    gap: 12px;
+    margin-top: 30px;
+  }
+  
+  .apply-button, .clear-button {
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    flex: 1;
+  }
+  
+  /* Add extra spacing to bottom */
+  .filter-content {
+    padding-bottom: 30px;
+  }
+  
+  /* Animation for expanded content */
+  .filter-content {
+    animation: expandDown 0.3s ease-out;
+  }
+  
+  @keyframes expandDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* Better sticky appearance */
+  .filter-sticky {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  .filter-sticky .filter-mobile-header {
+    background: white !important; 
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+  }
+}
+
+/* Animation for expanding/collapsing */
+.filter-content {
+  transition: max-height 0.3s ease;
+  overflow: hidden;
+}
+
+/* Autocomplete suggestions styling */
+.suggestion-container {
+  position: relative;
+  width: 100%;
+}
+
+.suggestions-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10000;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-height: 200px;
+  overflow-y: auto;
+  animation: suggestionsAppear 0.2s ease-out;
+}
+
+@keyframes suggestionsAppear {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.suggestions-list li {
+  padding: 12px 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+}
+
+.suggestions-list li:last-child {
+  border-bottom: none;
+}
+
+.suggestions-list li:hover {
+  background-color: #f5f9f9;
+}
+
+/* Mobile-specific styles for suggestions */
+@media (max-width: 768px) {
+  .suggestions-list {
+    position: fixed;
+    left: 15px;
+    right: 15px;
+    max-height: 220px;
+    border-radius: 10px;
+  }
+  
+  .suggestions-list li {
+    padding: 14px;
+    font-size: 15px;
+  }
 } 
