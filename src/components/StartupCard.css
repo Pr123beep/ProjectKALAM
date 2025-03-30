@@ -70,7 +70,9 @@
 
 /* Modal Header */
 .modal-header {
-  background: #f4f9fc;
+  background: linear-gradient(135deg, #f4f9fc, #e6f2f8, #daeef5);
+  background-size: 200% 200%;
+  animation: gradientShift 15s ease infinite;
   padding: 30px;
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
@@ -98,6 +100,12 @@
   font-size: 28px;
   font-weight: bold;
   color: #fff;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+.profile-avatar:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 .profile-main {
   display: flex;
@@ -391,4 +399,29 @@
 /* Remove CSS animation for elements using Framer Motion */
 .no-animation {
   animation: none !important;
+}
+
+/* Add these decorative animations */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Add a subtle gradient background to the modal header */
+.modal-header {
+  background: linear-gradient(135deg, #f4f9fc, #e6f2f8, #daeef5);
+  background-size: 200% 200%;
+  animation: gradientShift 15s ease infinite;
+}
+
+/* Add a subtle shadow effect to the profile avatar */
+.profile-avatar {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.profile-avatar:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }

@@ -193,62 +193,112 @@ const StartupCard = ({ data }) => {
       {/* The modal with details - now using createPortal */}
       {showDetails && 
         ReactDOM.createPortal(
-          <div 
-            className="modal-root"
-            key="detail-modal-portal"
-          >
-            <div className="detail-overlay" onClick={toggleDetails}>
+          <div className="modal-root" key="detail-modal-portal">
+            <motion.div 
+              className="detail-overlay" 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              onClick={toggleDetails}
+            >
               <motion.div
                 className="detail-modal no-animation"
-                initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                initial={{ opacity: 0, scale: 0.9, y: 50 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.8, y: 20 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
                 transition={{ 
                   type: "spring", 
-                  damping: 30, 
-                  stiffness: 300, 
-                  duration: 0.3 
+                  damping: 25, 
+                  stiffness: 300,
                 }}
                 onClick={(e) => e.stopPropagation()}
               >
-                {/* Close button in top-right corner */}
-                <button className="close-button" onClick={toggleDetails}>
+                {/* Close button in top-right corner with animation */}
+                <motion.button 
+                  className="close-button" 
+                  onClick={toggleDetails}
+                  whileHover={{ scale: 1.1, backgroundColor: "rgba(0, 0, 0, 0.2)" }}
+                  whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, rotate: -90 }}
+                  animate={{ opacity: 1, rotate: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
                   <CloseIcon />
-                </button>
+                </motion.button>
 
-                {/* Modal Header */}
-                <div className="modal-header">
+                {/* Modal Header with staggered animation */}
+                <motion.div 
+                  className="modal-header"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  {/* Rest of the header content */}
                   <div className="profile-info">
-                    {/* Source badge at the top right */}
+                    {/* Source badge with animation */}
                     {data.source && (
-                      <div className={`source-badge ${data.source}`}>
+                      <motion.div 
+                        className={`source-badge ${data.source}`}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2, duration: 0.4 }}
+                      >
                         {data.source === 'linkedin' ? 'LinkedIn' : 'Wellfound'}
-                      </div>
+                      </motion.div>
                     )}
                     
-                    {/* Profile avatar */}
-                    <div className="profile-avatar">
+                    {/* Avatar with animation */}
+                    <motion.div 
+                      className="profile-avatar"
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 0.2, duration: 0.4 }}
+                    >
                       {data.firstName?.charAt(0)}
                       {data.lastName?.charAt(0)}
-                    </div>
+                    </motion.div>
                     
                     <div className="profile-main">
-                      <h2 className="profile-name">
+                      {/* Name with animation */}
+                      <motion.h2 
+                        className="profile-name"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3, duration: 0.4 }}
+                      >
                         {data.firstName} {data.lastName}
-                      </h2>
-                      <p className="profile-headline">
-                        {data.linkedinHeadline || data.wellfoundHeadline}
-                      </p>
+                      </motion.h2>
                       
-                      {/* Location */}
+                      {/* Headline with animation */}
+                      <motion.p 
+                        className="profile-headline"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4, duration: 0.4 }}
+                      >
+                        {data.linkedinHeadline || data.wellfoundHeadline}
+                      </motion.p>
+                      
+                      {/* Location with animation */}
                       {data.location && (
-                        <p className="profile-location">
+                        <motion.p 
+                          className="profile-location"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.5, duration: 0.4 }}
+                        >
                           <LocationIcon /> {data.location}
-                        </p>
+                        </motion.p>
                       )}
                       
-                      {/* Profile links section - now properly formatted below name/headline */}
-                      <div className="profile-links">
+                      {/* Profile links with animation */}
+                      <motion.div 
+                        className="profile-links"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.6, duration: 0.4 }}
+                      >
                         {data.linkedinProfileUrl && (
                           <a 
                             href={data.linkedinProfileUrl} 
@@ -272,23 +322,39 @@ const StartupCard = ({ data }) => {
                             </svg> View Wellfound Profile
                           </a>
                         )}
-                      </div>
+                      </motion.div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
 
-                {/* Modal Body Content */}
-                <div className="modal-content">
-                  {/* About / Summary */}
+                {/* Modal Content with section-by-section reveal */}
+                <motion.div 
+                  className="modal-content"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  {/* Wrap each section in a motion.div for staggered appearance */}
+                  {/* Example for the first section */}
                   {data.linkedinDescription && (
-                    <div className="detail-section">
+                    <motion.div 
+                      className="detail-section"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                    >
                       {formatDescriptionAsList(data.linkedinDescription)}
-                    </div>
+                    </motion.div>
                   )}
 
                   {/* Current Position */}
                   {(data.currentJob || data.linkedinJobTitle || data.companyName) && (
-                    <div className="detail-section">
+                    <motion.div 
+                      className="detail-section"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.4 }}
+                    >
                       <h3 className="section-title">
                         <WorkIcon /> Current Position
                       </h3>
@@ -326,14 +392,19 @@ const StartupCard = ({ data }) => {
                           </a>
                         )}
                       </div>
-                    </div>
+                    </motion.div>
                   )}
 
                   {/* Previous Position */}
                   {(data.previousJob ||
                     data.linkedinPreviousJobTitle ||
                     data.previousCompanyName) && (
-                    <div className="detail-section">
+                    <motion.div 
+                      className="detail-section"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 }}
+                    >
                       <h3 className="section-title">
                         <WorkIcon /> Previous Position
                       </h3>
@@ -358,12 +429,17 @@ const StartupCard = ({ data }) => {
                           </div>
                         )}
                       </div>
-                    </div>
+                    </motion.div>
                   )}
 
                   {/* Education */}
                   {(data.currentSchool || data.linkedinSchoolName || collegeDisplay) && (
-                    <div className="detail-section">
+                    <motion.div 
+                      className="detail-section"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.6 }}
+                    >
                       <h3 className="section-title">
                         <EducationIcon /> Education
                       </h3>
@@ -413,12 +489,17 @@ const StartupCard = ({ data }) => {
                           )}
                         </div>
                       )}
-                    </div>
+                    </motion.div>
                   )}
 
                   {/* Skills */}
                   {data.linkedinSkillsLabel && (
-                    <div className="detail-section">
+                    <motion.div 
+                      className="detail-section"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.7 }}
+                    >
                       <h3 className="section-title">
                         <SkillsIcon /> Skills
                       </h3>
@@ -429,21 +510,26 @@ const StartupCard = ({ data }) => {
                           </span>
                         ))}
                       </div>
-                    </div>
+                    </motion.div>
                   )}
 
                   {/* Followers */}
                   {data.linkedinFollowersCount && (
-                    <div className="detail-section followers">
+                    <motion.div 
+                      className="detail-section followers"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.8 }}
+                    >
                       <h3 className="section-title">LinkedIn Network</h3>
                       <p>
                         <strong>{data.linkedinFollowersCount}</strong> followers
                       </p>
-                    </div>
+                    </motion.div>
                   )}
-                </div>
+                </motion.div>
               </motion.div>
-            </div>
+            </motion.div>
           </div>,
           document.body
         )
