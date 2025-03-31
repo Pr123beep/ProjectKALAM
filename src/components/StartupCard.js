@@ -62,27 +62,165 @@ const CloseIcon = () => (
   </svg>
 );
 
-// Add this function to split text into points for better readability
-const formatDescriptionAsList = (text) => {
+// Replace the existing formatDescriptionAsList function with this enhanced version
+const formatEnhancedDescription = (text) => {
   if (!text) return null;
   
-  // Split text by periods, line breaks, or bullets if they already exist
-  const sentences = text.split(/[.•\n]+/).filter(sentence => 
-    sentence.trim().length > 10 && !sentence.includes('http')
-  );
+  // Split text into paragraphs
+  const paragraphs = text.split(/\n\n+/);
   
-  if (sentences.length <= 1) {
-    return <p className="description">{text}</p>;
-  }
+  // Extract introduction (first paragraph)
+  const introduction = paragraphs[0];
+  
+  // Extract key points from the text
+  const keyPoints = extractKeyPoints(text, paragraphs);
+  
+  // Extract skills
+  const skills = extractSkills(text);
   
   return (
-    <ul className="description-list">
-      {sentences.map((sentence, idx) => {
-        const trimmed = sentence.trim();
-        if (trimmed.length < 10) return null;
-        return <li key={idx}>{trimmed}</li>;
-      })}
-    </ul>
+    <div className="enhanced-profile-content">
+      {/* Introduction section */}
+      <div className="profile-section">
+        <h3 className="profile-section-title">📝 About</h3>
+        <p className="profile-introduction">{introduction}</p>
+      </div>
+      
+      {/* Key Points section */}
+      {keyPoints.length > 0 && (
+        <div className="profile-section">
+          <h3 className="profile-section-title">🔑 Key Highlights</h3>
+          <ul className="profile-points-list">
+            {keyPoints.map((point, idx) => (
+              <li key={idx} className="profile-point-item">
+                <span className="profile-point-icon">✅</span>
+                <span className="profile-point-text">{point}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      
+      {/* Skills section */}
+      {skills.length > 0 && (
+        <div className="profile-section">
+          <h3 className="profile-section-title">🛠️ Expertise</h3>
+          <div className="profile-skills-grid">
+            {skills.map((skill, idx) => (
+              <div key={idx} className="profile-skill-badge">
+                <span className="profile-skill-icon">🔹</span>
+                <span>{skill}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      {/* Connection prompt */}
+      <div className="profile-connect-prompt">
+        <span className="connect-emoji">🤝</span> Interested in connecting? Check out their profile for more details.
+      </div>
+    </div>
+  );
+};
+
+// Extract meaningful key points from the text
+const extractKeyPoints = (text, paragraphs) => {
+  const keyPoints = [];
+  
+  // Look for bullet points in the text
+  const bulletPointRegex = /[•\-*]\s*([^•\-*\n]+)/g;
+  const matches = [...text.matchAll(bulletPointRegex)];
+  
+  if (matches.length > 0) {
+    // If explicit bullet points exist, use them
+    matches.forEach(match => {
+      const point = match[1].trim();
+      if (point.length > 10 && !keyPoints.includes(point)) {
+        keyPoints.push(point);
+      }
+    });
+  } else {
+    // Otherwise extract sentences that seem important
+    const sentences = text.split(/\.\s+/);
+    
+    sentences.forEach(sentence => {
+      const trimmed = sentence.trim();
+      // Look for sentences that might be key points
+      if (trimmed.length > 15 && 
+          trimmed.length < 150 && 
+          (trimmed.includes('expertise') || 
+           trimmed.includes('specializ') || 
+           trimmed.includes('focus') || 
+           trimmed.includes('experience') ||
+           trimmed.includes('skill') ||
+           trimmed.includes('responsible'))) {
+        keyPoints.push(trimmed);
+      }
+    });
+  }
+  
+  // Return up to 5 unique key points
+  return [...new Set(keyPoints)].slice(0, 5);
+};
+
+// Extract skills from the text
+const extractSkills = (text) => {
+  // Look for skills section
+  const skillsSection = text.toLowerCase().includes('skills') ? 
+    text.substring(text.toLowerCase().indexOf('skills')) : text;
+  
+  // Common professional skills to look for
+  const skillKeywords = [
+    'management', 'leadership', 'strategy', 'marketing', 'sales', 'finance',
+    'development', 'programming', 'design', 'analysis', 'research', 'product',
+    'engineering', 'operations', 'consulting', 'data', 'AI', 'machine learning',
+    'blockchain', 'cloud', 'negotiation', 'communication', 'presentation'
+  ];
+  
+  const foundSkills = [];
+  
+  // Look for skill keywords in the text
+  skillKeywords.forEach(skill => {
+    if (skillsSection.toLowerCase().includes(skill.toLowerCase())) {
+      foundSkills.push(capitalizeFirstLetter(skill));
+    }
+  });
+  
+  // If not enough skills found, try to extract from bullet points
+  if (foundSkills.length < 5) {
+    const bulletPointRegex = /[•\-*]\s*([^•\-*\n]+)/g;
+    const matches = [...skillsSection.matchAll(bulletPointRegex)];
+    
+    matches.forEach(match => {
+      const point = match[1].trim();
+      if (point.length < 30 && !foundSkills.includes(point)) {
+        foundSkills.push(capitalizeFirstLetter(point));
+      }
+    });
+  }
+  
+  return [...new Set(foundSkills)].slice(0, 8); // Return up to 8 unique skills
+};
+
+// Helper function to capitalize first letter
+const capitalizeFirstLetter = (string) => {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+};
+
+// Add back the simple description formatter for job positions
+const formatSimpleDescription = (text) => {
+  if (!text) return null;
+  
+  // Basic paragraph formatting
+  return (
+    <div className="simple-description">
+      {text.split(/\n\n+/).map((paragraph, idx) => (
+        <p key={idx} className="description-paragraph">
+          {paragraph}
+        </p>
+      ))}
+    </div>
   );
 };
 
@@ -367,7 +505,7 @@ const StartupCard = ({ data }) => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.3 }}
                     >
-                      {formatDescriptionAsList(data.linkedinDescription)}
+                      {formatEnhancedDescription(data.linkedinDescription)}
                     </motion.div>
                   )}
 
@@ -397,7 +535,7 @@ const StartupCard = ({ data }) => {
                         )}
                         {data.linkedinJobDescription && (
                           <div className="detail-section">
-                            {formatDescriptionAsList(data.linkedinJobDescription)}
+                            {formatSimpleDescription(data.linkedinJobDescription)}
                           </div>
                         )}
                         {data.companyIndustry && (
@@ -449,7 +587,7 @@ const StartupCard = ({ data }) => {
                         )}
                         {data.linkedinPreviousJobDescription && (
                           <div className="detail-section">
-                            {formatDescriptionAsList(data.linkedinPreviousJobDescription)}
+                            {formatSimpleDescription(data.linkedinPreviousJobDescription)}
                           </div>
                         )}
                       </div>
@@ -477,7 +615,7 @@ const StartupCard = ({ data }) => {
                         )}
                         {data.linkedinSchoolDescription && (
                           <div className="detail-section">
-                            {formatDescriptionAsList(data.linkedinSchoolDescription)}
+                            {formatSimpleDescription(data.linkedinSchoolDescription)}
                           </div>
                         )}
                         {data.linkedinSchoolUrl && (
@@ -508,7 +646,7 @@ const StartupCard = ({ data }) => {
                           )}
                           {data.linkedinPreviousSchoolDescription && (
                             <div className="detail-section">
-                              {formatDescriptionAsList(data.linkedinPreviousSchoolDescription)}
+                              {formatSimpleDescription(data.linkedinPreviousSchoolDescription)}
                             </div>
                           )}
                         </div>
