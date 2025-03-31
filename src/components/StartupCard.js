@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import ReactDOM from "react-dom"; // Import ReactDOM for createPortal
+import iitRedditData from "../iit-reddit.json";
+
 import "../App.css";
 import "./StartupCard.css";
 
@@ -146,6 +148,19 @@ const StartupCard = ({ data }) => {
   const collegeDisplay = Array.isArray(data.colleges)
     ? data.colleges.join(", ")
     : data.college;
+    const founderName = `${data.firstName} ${data.lastName}`.toLowerCase();
+
+    // Find the Reddit data for this founder and extract URL if available
+    const redditData = iitRedditData.find(item => 
+      item.query.toLowerCase().includes(founderName)
+    );
+
+    const redditUrl = redditData && 
+                      redditData.results && 
+                      redditData.results.length > 0 ? 
+                      redditData.results[0].url : null;
+
+    const isMentionedOnReddit = Boolean(redditData);
 
   return (
     <div className="card">
@@ -184,6 +199,15 @@ const StartupCard = ({ data }) => {
         <p>
           <strong>Company:</strong> {data.companyName}
         </p>
+        {isMentionedOnReddit && (
+          <div 
+            className="reddit-mention" 
+            onClick={() => redditUrl && window.open(redditUrl, "_blank")}
+            style={{ cursor: redditUrl ? 'pointer' : 'default' }}
+          >
+            <strong>Mentioned on Reddit</strong>
+          </div>
+        )}
       </div>
 
       <button onClick={toggleDetails} className="card-button">

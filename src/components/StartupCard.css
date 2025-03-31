@@ -425,3 +425,126 @@
   transform: translateY(-3px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
+
+/* Enhanced Reddit mention styling */
+.reddit-mention {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 15px;
+  margin-bottom: 12px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #ff4500, #ff6a00);
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 3px 12px rgba(255, 69, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  overflow: hidden;
+  width: fit-content;
+  max-width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Reddit icon and styling for the badge content */
+.reddit-mention strong {
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding-left: 26px; /* Space for the icon */
+}
+
+/* Reddit Snoo icon */
+.reddit-mention strong::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23FFFFFF'%3E%3Cpath d='M10 0C4.478 0 0 4.478 0 10c0 5.523 4.478 10 10 10 5.523 0 10-4.477 10-10 0-5.522-4.477-10-10-10zm5.356 11.9c.02.153.033.308.033.462 0 2.338-2.718 4.236-6.067 4.236-3.348 0-6.065-1.898-6.065-4.236 0-.154.013-.31.033-.463-.72-.404-1.156-1.09-1.156-1.888 0-1.272 1.036-2.305 2.31-2.305.605 0 1.157.214 1.586.567C7.14 7.62 8.52 7.297 10 7.28c.006-.298.033-.587.103-.862l1.702-.327c.147-.428.56-.736 1.05-.736.618 0 1.12.502 1.12 1.12 0 .617-.502 1.12-1.12 1.12-.548 0-1.005-.397-1.097-.92l-1.516.293c-.064.26-.099.53-.11.814 1.464.02 2.824.342 3.927.984.427-.352.977-.565 1.58-.565 1.273 0 2.31 1.032 2.31 2.304 0 .797-.438 1.482-1.156 1.888zm-9.805-.587c0 .632.513 1.145 1.145 1.145.634 0 1.146-.513 1.146-1.145 0-.633-.512-1.145-1.146-1.145-.632 0-1.145.512-1.145 1.145zm6.622 3.818c-1.06.33-2.172.326-3.233-.02-.192-.063-.43.04-.485.237-.055.197.04.404.237.486.6.197 1.225.296 1.848.296.614 0 1.23-.097 1.82-.29.197-.062.294-.27.232-.465-.062-.197-.268-.294-.465-.232l-.004-.012zm.146-2.673c.633 0 1.146-.513 1.146-1.145 0-.633-.513-1.145-1.146-1.145-.632 0-1.145.512-1.145 1.145 0 .632.513 1.145 1.145 1.145z'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Shimmer effect */
+.reddit-mention::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(30deg);
+  animation: shimmer 3s infinite;
+}
+
+/* Pulse effect */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 3px 12px rgba(255, 69, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 3px 15px rgba(255, 69, 0, 0.5);
+  }
+  100% {
+    box-shadow: 0 3px 12px rgba(255, 69, 0, 0.3);
+  }
+}
+
+/* Shimmer animation */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-150%) rotate(30deg);
+  }
+  100% {
+    transform: translateX(150%) rotate(30deg);
+  }
+}
+
+/* Hover effects for clickable version */
+.reddit-mention[style*="cursor: pointer"]:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 16px rgba(255, 69, 0, 0.4);
+  background: linear-gradient(135deg, #ff5722, #ff8a65);
+}
+
+.reddit-mention[style*="cursor: pointer"]:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 8px rgba(255, 69, 0, 0.3);
+}
+
+/* Add subtle animation */
+.reddit-mention {
+  animation: pulse 2s infinite ease-in-out;
+}
+
+/* Media query for mobile responsiveness */
+@media (max-width: 768px) {
+  .reddit-mention {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  
+  .reddit-mention strong {
+    padding-left: 22px; /* Slightly smaller for mobile */
+  }
+  
+  .reddit-mention strong::before {
+    width: 16px;
+    height: 16px;
+  }
+}
