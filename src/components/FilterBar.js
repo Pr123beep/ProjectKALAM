@@ -368,26 +368,14 @@ const FilterBar = ({ onApplyFilters }) => {
     };
   }, []);
 
-  const handleSourceChange = (source) => {
-    // Create new profileSources state with the toggled value
-    const newProfileSources = {
-      ...filters.profileSources,
-      [source]: !filters.profileSources[source]
-    };
-    
-    // Update the state
+  const handleSourceChange = (source, checked) => {
     setFilters(prev => ({
       ...prev,
-      profileSources: newProfileSources
+      profileSources: {
+        ...prev.profileSources,
+        [source]: checked
+      }
     }));
-    
-    // Apply filters immediately when checkbox changes
-    onApplyFilters({
-      ...filters,
-      followersMin: parseInt(filters.followersMin, 10),
-      followersMax: parseInt(filters.followersMax, 10),
-      profileSources: newProfileSources
-    });
   };
 
   const handleApply = () => {
@@ -579,29 +567,13 @@ const FilterBar = ({ onApplyFilters }) => {
                 type="linkedin"
                 label="LinkedIn"
                 checked={filters.profileSources.linkedin}
-                onChange={(e) => {
-                  setFilters({
-                    ...filters,
-                    profileSources: {
-                      ...filters.profileSources,
-                      linkedin: e.target.checked
-                    }
-                  })
-                }}
+                onChange={(e) => handleSourceChange('linkedin', e.target.checked)}
               />
               <CustomCheckbox
                 type="wellfound"
                 label="Wellfound"
                 checked={filters.profileSources.wellfound}
-                onChange={(e) => {
-                  setFilters({
-                    ...filters,
-                    profileSources: {
-                      ...filters.profileSources,
-                      wellfound: e.target.checked
-                    }
-                  })
-                }}
+                onChange={(e) => handleSourceChange('wellfound', e.target.checked)}
               />
             </div>
           </div>
