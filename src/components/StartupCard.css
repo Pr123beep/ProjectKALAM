@@ -433,6 +433,18 @@ body {
     padding: 20px;
   }
 }
+.company-wellfound-link {
+  font-weight: bold;
+  color: #2a9d8f; /* Adjust as desired */
+  margin-left: 10px;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.company-wellfound-link:hover {
+  color: #248f83;
+  text-decoration: underline;
+}
 
 /* Body class for preventing scrolling */
 .body-no-scroll {
@@ -812,4 +824,49 @@ body {
     font-size: 12.5px;
     padding: 5px 10px;
   }
+}
+
+/* Wellfound badge for card header */
+.wellfound-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 5px;
+  transition: opacity 0.2s ease;
+}
+
+.wellfound-badge:hover {
+  opacity: 0.8;
+}
+
+/* Ensure proper image alignment */
+.wellfound-badge img {
+  vertical-align: middle;
+  object-fit: contain;
+}
+
+/* Company links section */
+.company-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.wellfound-company {
+  color: #34aa44;
+}
+
+.wellfound-company:hover {
+  color: #2c9039;
+}
+
+/* For modal profile links */
+.wellfound-link {
+  background-color: #34aa44;
+  color: white;
+}
+
+.wellfound-link:hover {
+  background-color: #2c9039;
 }

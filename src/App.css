@@ -280,3 +280,31 @@ a:hover {
   }
 }
 
+.quick-filter-buttons {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0;
+  padding: 0 16px;
+}
+
+.quick-filter-btn {
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  flex: 1;
+  transition: all 0.2s ease;
+}
+
+.quick-filter-btn:hover {
+  background-color: #e5e7eb;
+}
+
+.quick-filter-btn.active {
+  background-color: #2a9d8f;
+  color: white;
+  border-color: #2a9d8f;
+}
+

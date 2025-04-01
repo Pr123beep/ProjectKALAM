@@ -62,6 +62,15 @@ const CloseIcon = () => (
   </svg>
 );
 
+// Replace the current WellfoundIcon component with this updated version
+const WellfoundIcon = () => (
+  <img 
+    src="/wellfound.png" 
+    alt="Wellfound" 
+    style={{ width: '16px', height: '16px', borderRadius: '2px', verticalAlign: 'middle' }}
+  />
+);
+
 // Replace the existing formatDescriptionAsList function with this enhanced version
 const formatEnhancedDescription = (text) => {
   if (!text) return null;
@@ -312,15 +321,36 @@ const StartupCard = ({ data }) => {
       {/* Basic info shown on the card */}
       <div className="card-header">
         <h4 className="card-name">
-          <a href={data.source === 'wellfound' ? data.wellfoundProfileUrl : data.linkedinProfileUrl} 
-             target="_blank" 
-             rel="noopener noreferrer">
+          {/* Founder name and Wellfound profile link */}
+          <a 
+            href={data.linkedinProfileUrl} 
+            target="_blank" 
+            rel="noopener noreferrer"
+          >
             {data.firstName} {data.lastName}
-          </a>{" "}
-          -{" "}
-          <a href={data.source === 'wellfound' ? data.wellfoundCompanyUrl : data.linkedinCompanyUrl} 
-             target="_blank" 
-             rel="noopener noreferrer">
+          </a>
+          
+          {/* Wellfound profile link if available - on founder name ONLY */}
+          {data.wellFoundProfileURL && (
+            <a 
+              href={data.wellFoundProfileURL}
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="wellfound-badge"
+              title="View on Wellfound"
+            >
+              <WellfoundIcon />
+            </a>
+          )}
+          
+          {" - "}
+          
+          {/* Company link - only LinkedIn URL */}
+          <a 
+            href={data.linkedinCompanyUrl} 
+            target="_blank" 
+            rel="noopener noreferrer"
+          >
             {data.companyName}
           </a>
         </h4>
@@ -454,13 +484,14 @@ const StartupCard = ({ data }) => {
                         </motion.p>
                       )}
                       
-                      {/* Profile links with animation */}
+                      {/* Modal profile links section */}
                       <motion.div 
                         className="profile-links"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.6, duration: 0.4 }}
                       >
+                        {/* LinkedIn profile link */}
                         {data.linkedinProfileUrl && (
                           <a 
                             href={data.linkedinProfileUrl} 
@@ -472,16 +503,15 @@ const StartupCard = ({ data }) => {
                           </a>
                         )}
                         
-                        {data.wellfoundProfileUrl && (
+                        {/* Wellfound profile link */}
+                        {data.wellFoundProfileURL && (
                           <a 
-                            href={data.wellfoundProfileUrl} 
+                            href={data.wellFoundProfileURL} 
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="profile-link wellfound-link"
                           >
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm-.97 14.975H8.76v-6.98h2.27v6.98zm-1.14-7.93c-.79 0-1.29-.5-1.29-1.13 0-.64.5-1.13 1.29-1.13.79 0 1.28.49 1.3 1.13 0 .63-.51 1.13-1.3 1.13zm8.77 7.93h-2.26v-3.77c0-.97-.41-1.49-1.25-1.49-.91 0-1.44.61-1.44 1.49v3.77h-2.19v-6.98h2.19v.97c.57-.68 1.31-1.07 2.31-1.07 1.73 0 2.64 1.03 2.64 3.15v3.93z"/>
-                            </svg> View Wellfound Profile
+                            <WellfoundIcon /> View Wellfound Profile
                           </a>
                         )}
                       </motion.div>
@@ -543,16 +573,31 @@ const StartupCard = ({ data }) => {
                             Industry: {data.companyIndustry}
                           </p>
                         )}
-                        {data.linkedinCompanyUrl && (
-                          <a
-                            href={data.linkedinCompanyUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="company-link"
-                          >
-                            <CompanyIcon /> Company Page
-                          </a>
-                        )}
+                        {/* Company links in a separate section */}
+                        <div className="company-links">
+                          {data.linkedinCompanyUrl && (
+                            <a
+                              href={data.linkedinCompanyUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="company-link"
+                            >
+                              <CompanyIcon /> View on LinkedIn
+                            </a>
+                          )}
+                          
+                          {/* Only show Wellfound company URL in the company section, not next to company name */}
+                          {data.wellFoundURL && (
+                            <a
+                              href={data.wellFoundURL}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="company-link wellfound-company"
+                            >
+                              <CompanyIcon /> View on Wellfound
+                            </a>
+                          )}
+                        </div>
                       </div>
                     </motion.div>
                   )}

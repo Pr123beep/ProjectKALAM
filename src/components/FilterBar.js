@@ -4,11 +4,19 @@ import '../App.css';
 import './FilterBar.css';
 
 const getAbbreviationMatches = (abbreviation, dataList) => {
-  // Common abbreviation mappings
+  // Enhanced abbreviation mappings for worldwide institutions
   const abbreviations = {
+    // Indian Institutes
     'iit': 'indian institute of technology',
     'iim': 'indian institute of management',
-    'nit': 'national institute of technology',
+    'iiit': 'indian institute of information technology',
+    
+    
+    
+  };
+  
+  // Campus/location abbreviations
+  const locationAbbr = {
     'b': 'bombay',
     'd': 'delhi',
     'm': 'madras',
@@ -17,52 +25,97 @@ const getAbbreviationMatches = (abbreviation, dataList) => {
     'r': 'roorkee',
     'g': 'guwahati',
     'a': 'ahmedabad',
-    'blr': 'bangalore',
+    'blore': 'bangalore',
     'bang': 'bangalore',
     'c': 'calcutta',
-    'bits': 'birla institute of technology and science',
-    'du': 'delhi university'
+    'hyd': 'hyderabad',
+    'pune': 'pune',
+    
   };
   
   // Normalize the input
   const normalizedInput = abbreviation.toLowerCase().trim();
   
-  // Split the input into parts
-  const parts = normalizedInput.split(/\s+/);
+  // Clean and split the input into search terms
+  const parts = normalizedInput.split(/[\s,.-]+/).filter(part => part.length > 0);
   
-  // Special handling for patterns like "iit b" or "iim a"
-  if (parts.length === 2) {
-    const firstPart = abbreviations[parts[0]] || parts[0];
-    const secondPart = abbreviations[parts[1]] || parts[1];
-    
-    // Return items matching both parts
-    return dataList.filter(item => {
-      const normalizedItem = item.toLowerCase();
-      return normalizedItem.includes(firstPart) && normalizedItem.includes(secondPart);
-    });
-  }
-  
-  // For single words, check if it's an abbreviation
-  if (abbreviations[normalizedInput]) {
+  // For very short inputs, use more lenient matching
+  if (normalizedInput.length < 3) {
     return dataList.filter(item => 
-      item.toLowerCase().includes(abbreviations[normalizedInput])
+      item.toLowerCase().includes(normalizedInput)
     );
   }
   
-  // For other cases, use flexible matching
-  return dataList.filter(item => {
-    const normalizedItem = item.toLowerCase();
+  // Direct match - if the search term is part of the institution name
+  const directMatches = dataList.filter(item => 
+    item.toLowerCase().includes(normalizedInput)
+  );
+  
+  if (directMatches.length > 0) {
+    return directMatches;
+  }
+  
+  // Expanded search to handle common patterns
+  let allMatches = [];
+  
+  // Check for expanded abbreviations (e.g., "iit" → "indian institute of technology")
+  if (abbreviations[normalizedInput]) {
+    const expandedMatches = dataList.filter(item => 
+      item.toLowerCase().includes(abbreviations[normalizedInput])
+    );
+    allMatches.push(...expandedMatches);
+  }
+  
+  // Handle compound patterns like "iit b" → "indian institute of technology bombay"
+  if (parts.length >= 2) {
+    // Check if first part is an institution abbreviation and second is a location
+    if (abbreviations[parts[0]] && locationAbbr[parts[1]]) {
+      const expandedInst = abbreviations[parts[0]];
+      const expandedLoc = locationAbbr[parts[1]];
+      
+      const patternMatches = dataList.filter(item => {
+        const lowerItem = item.toLowerCase();
+        return lowerItem.includes(expandedInst) && lowerItem.includes(expandedLoc);
+      });
+      
+      allMatches.push(...patternMatches);
+    }
     
-    // Check if item includes the input directly
-    if (normalizedItem.includes(normalizedInput)) return true;
-    
-    // Or check if all parts of the input are in the item
-    return parts.every(part => {
-      // Check direct match or abbreviation match
-      return normalizedItem.includes(part) || 
-             (abbreviations[part] && normalizedItem.includes(abbreviations[part]));
+    // Try matching parts individually (e.g., "harvard business" matches "Harvard Business School")
+    const partMatches = dataList.filter(item => {
+      const lowerItem = item.toLowerCase();
+      return parts.every(part => 
+        lowerItem.includes(part) || 
+        (abbreviations[part] && lowerItem.includes(abbreviations[part]))
+      );
     });
-  });
+    
+    allMatches.push(...partMatches);
+  }
+  
+  // If all else fails, try looser matching with any of the parts
+  if (allMatches.length === 0) {
+    const looseMatches = dataList.filter(item => {
+      const lowerItem = item.toLowerCase();
+      return parts.some(part => {
+        // Check for direct part match
+        if (lowerItem.includes(part)) return true;
+        
+        // Check for expanded abbreviation match
+        if (abbreviations[part] && lowerItem.includes(abbreviations[part])) return true;
+        
+        // Check for location match
+        if (locationAbbr[part] && lowerItem.includes(locationAbbr[part])) return true;
+        
+        return false;
+      });
+    });
+    
+    allMatches.push(...looseMatches);
+  }
+  
+  // Remove duplicates and return
+  return [...new Set(allMatches)];
 };
 
 const FilterBar = ({ onApplyFilters }) => {
@@ -97,6 +150,7 @@ const FilterBar = ({ onApplyFilters }) => {
   // Sample data for suggestions - replace with your actual data
   const sampleData = {
     college: [
+      // IITs
       'Indian Institute of Technology, Bombay', 
       'Indian Institute of Technology, Delhi', 
       'Indian Institute of Technology, Madras',
@@ -104,14 +158,20 @@ const FilterBar = ({ onApplyFilters }) => {
       'Indian Institute of Technology, Kharagpur',
       'Indian Institute of Technology, Roorkee',
       'Indian Institute of Technology, Guwahati',
-      'Indian Institute of Management, Ahmedabad',
+      'Indian Institute of Technology, Hyderabad',
+      
+      // IIMs
       'Indian Institute of Management, Bangalore',
       'Indian Institute of Management, Calcutta',
-      'BITS Pilani',
-      'Delhi University',
-      'National Institute of Technology, Trichy',
-      'National Institute of Technology, Warangal',
-      'National Institute of Technology, Surathkal'
+      'Indian Institute of Management, Lucknow',
+      'Indian Institute of Management, Indore',
+      
+      
+      
+      // Other Indian Institutions 
+      
+      // US Universities
+      
     ],
     currentLocation: [
       'Mumbai, India',
@@ -275,19 +335,37 @@ const FilterBar = ({ onApplyFilters }) => {
   }, []);
 
   const handleSourceChange = (source) => {
-    setProfileSources(prev => ({
-      ...prev,
-      [source]: !prev[source]
-    }));
-  };
-
-  const handleApply = () => {
+    // Create new profileSources state with the toggled value
+    const newProfileSources = {
+      ...profileSources,
+      [source]: !profileSources[source]
+    };
+    
+    // Update the state
+    setProfileSources(newProfileSources);
+    
+    // Apply filters immediately when checkbox changes
     onApplyFilters({
       ...localFilters,
       followersMin: parseInt(localFilters.followersMin, 10),
       followersMax: parseInt(localFilters.followersMax, 10),
-      profileSources
+      profileSources: newProfileSources
     });
+  };
+
+  const handleApply = () => {
+    // Create a copy of the filters to send
+    const filtersToApply = {
+      ...localFilters,
+      // We'll pass the original college name without modifications
+      // The matching function in MainPage.js will handle normalization
+      followersMin: parseInt(localFilters.followersMin, 10),
+      followersMax: parseInt(localFilters.followersMax, 10),
+      profileSources
+    };
+    
+    // Apply filters with the values from our state
+    onApplyFilters(filtersToApply);
   };
 
   const handleClear = () => {
@@ -453,25 +531,22 @@ const FilterBar = ({ onApplyFilters }) => {
           </div>
         </div>
         <div className="filter-section">
-          <h3>Profile Source</h3>
-          <div className="profile-source-filters">
-            <label className="custom-checkbox">
+          <h3>Profile Sources</h3>
+          <div className="filter-source-checkboxes">
+            <label className="filter-checkbox">
               <input
                 type="checkbox"
                 checked={profileSources.linkedin}
                 onChange={() => handleSourceChange('linkedin')}
               />
-              <span className="checkbox-icon"></span>
               <span className="checkbox-label">LinkedIn</span>
             </label>
-            
-            <label className="custom-checkbox">
+            <label className="filter-checkbox">
               <input
                 type="checkbox"
                 checked={profileSources.wellfound}
                 onChange={() => handleSourceChange('wellfound')}
               />
-              <span className="checkbox-icon"></span>
               <span className="checkbox-label">Wellfound</span>
             </label>
           </div>
