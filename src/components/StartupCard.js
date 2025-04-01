@@ -367,13 +367,20 @@ const StartupCard = ({ data }) => {
         <p>
           <strong>Company:</strong> {data.companyName}
         </p>
+        {/* Reddit mention button */}
         {isMentionedOnReddit && (
           <div 
             className="reddit-mention" 
             onClick={() => redditUrl && window.open(redditUrl, "_blank")}
             style={{ cursor: redditUrl ? 'pointer' : 'default' }}
+            title={redditUrl ? "Click to view Reddit discussion" : "Mentioned on Reddit"}
           >
-            <strong>Mentioned on Reddit</strong>
+            <strong>
+              {/* Reddit icon is added via CSS ::before pseudo-element */}
+              Mentioned on Reddit
+            </strong>
+            {/* Add a small indicator if there's a clickable link */}
+            {redditUrl && <span className="reddit-link-indicator">→</span>}
           </div>
         )}
       </div>

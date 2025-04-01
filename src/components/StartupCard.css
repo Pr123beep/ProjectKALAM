@@ -870,3 +870,15 @@ body {
 .wellfound-link:hover {
   background-color: #2c9039;
 }
+
+/* Add this to your existing Reddit mention styles */
+.reddit-link-indicator {
+  margin-left: 6px;
+  font-size: 16px;
+  opacity: 0.8;
+}
+
+.reddit-mention:hover .reddit-link-indicator {
+  transform: translateX(3px);
+  opacity: 1;
+}

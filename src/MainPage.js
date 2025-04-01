@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import wellfoundData from './wellfndAndphantom.json'; // Import Wellfound data
+import iitRedditData from './iit-reddit.json'; // Import Reddit data
 import FilterBar from './components/FilterBar';
 import StartupCard from './components/StartupCard';
 import Pagination from './components/Pagination';
@@ -124,21 +125,64 @@ function MainPage() {
   useEffect(() => {
     // Use wellfoundData directly instead of copyData
     const dataToShuffle = [...wellfoundData];
-    for (let i = dataToShuffle.length - 1; i > 0; i--) {
+    
+    // First filter out entries with no meaningful data
+    const validData = dataToShuffle.filter(item => {
+      // Check for minimum required data
+      const hasBasicInfo = item.firstName && 
+                          item.lastName && 
+                          item.companyName;
+      
+      // Check for at least one source of data
+      const hasLinkedInData = item.linkedinProfileUrl || 
+                             item.linkedinCompanyUrl || 
+                             item.linkedinHeadline;
+      
+      const hasWellfoundData = item.wellFoundURL || 
+                              item.wellFoundProfileURL;
+      
+      // Entry must have basic info AND at least one source of data
+      return hasBasicInfo && (hasLinkedInData || hasWellfoundData);
+    });
+
+    // Then proceed with shuffling the valid data
+    for (let i = validData.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [dataToShuffle[i], dataToShuffle[j]] = [dataToShuffle[j], dataToShuffle[i]];
+      [validData[i], validData[j]] = [validData[j], validData[i]];
     }
     
-    // Deduplicate the data
+    // Add debug logging for Reddit data
+    console.log('Loading Reddit data:', iitRedditData);
+    
+    // Deduplicate the data and add Reddit data
     const deduped = Object.values(
-      dataToShuffle.reduce((acc, item) => {
+      validData.reduce((acc, item) => {
         const key = `${item.companyName}_${item.firstName}_${item.lastName}`;
+        
+        // Debug log for Reddit matching
+        const founderName = `${item.firstName} ${item.lastName}`.toLowerCase();
+        console.log('Checking Reddit mentions for:', founderName);
+        
+        const redditData = iitRedditData.find(redditItem => 
+          redditItem.query.toLowerCase().includes(founderName)
+        );
+        
+        console.log('Found Reddit data:', redditData);
+        
+        const redditUrl = redditData && 
+                         redditData.results && 
+                         redditData.results.length > 0 ? 
+                         redditData.results[0].url : null;
+        
+        const isMentionedOnReddit = Boolean(redditData);
+
         if (!acc[key]) {
           acc[key] = { 
             ...item, 
             colleges: [item.college],
-            // Ensure Wellfound data is preserved
-            hasWellfound: Boolean(item.wellFoundURL || item.wellFoundProfileURL)
+            hasWellfound: Boolean(item.wellFoundURL || item.wellFoundProfileURL),
+            redditUrl,
+            isMentionedOnReddit
           };
         } else {
           if (item.college && !acc[key].colleges.includes(item.college)) {
@@ -161,8 +205,11 @@ function MainPage() {
     );
     
     // Log for debugging
-    console.log(`Total profiles: ${deduped.length}`);
+    console.log(`Total entries: ${wellfoundData.length}`);
+    console.log(`Valid entries: ${validData.length}`);
+    console.log(`Deduped entries: ${deduped.length}`);
     console.log(`Profiles with Wellfound data: ${deduped.filter(item => item.wellFoundURL || item.wellFoundProfileURL).length}`);
+    console.log(`Profiles mentioned on Reddit: ${deduped.filter(item => item.isMentionedOnReddit).length}`);
     
     setData(deduped);
   }, []);
