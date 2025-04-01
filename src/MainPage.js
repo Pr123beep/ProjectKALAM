@@ -179,12 +179,13 @@ function MainPage() {
         if (!acc[key]) {
           acc[key] = { 
             ...item, 
-            colleges: [item.college],
+            colleges: item.college ? [item.college] : [], // Initialize colleges array
             hasWellfound: Boolean(item.wellFoundURL || item.wellFoundProfileURL),
             redditUrl,
             isMentionedOnReddit
           };
         } else {
+          // Add college to colleges array if it exists and isn't already included
           if (item.college && !acc[key].colleges.includes(item.college)) {
             acc[key].colleges.push(item.college);
           }
@@ -210,6 +211,14 @@ function MainPage() {
     console.log(`Deduped entries: ${deduped.length}`);
     console.log(`Profiles with Wellfound data: ${deduped.filter(item => item.wellFoundURL || item.wellFoundProfileURL).length}`);
     console.log(`Profiles mentioned on Reddit: ${deduped.filter(item => item.isMentionedOnReddit).length}`);
+    
+    // Add debug logging for college data
+    console.log('Sample college data:', deduped.slice(0, 3).map(item => ({
+      firstName: item.firstName,
+      lastName: item.lastName,
+      colleges: item.colleges,
+      college: item.college
+    })));
     
     setData(deduped);
   }, []);

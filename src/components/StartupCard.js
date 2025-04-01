@@ -294,7 +294,7 @@ const StartupCard = ({ data }) => {
   // Determine the college display: use merged colleges if available
   const collegeDisplay = Array.isArray(data.colleges)
     ? data.colleges.join(", ")
-    : data.college;
+    : data.college || "Not specified";
     const founderName = `${data.firstName} ${data.lastName}`.toLowerCase();
 
     // Find the Reddit data for this founder and extract URL if available
@@ -362,11 +362,18 @@ const StartupCard = ({ data }) => {
           <strong>College:</strong> {collegeDisplay}
         </p>
         <p>
-          <strong>Industry:</strong> {data.companyIndustry}
+          <strong>Industry:</strong> {data.companyIndustry || "Not specified"}
         </p>
         <p>
           <strong>Company:</strong> {data.companyName}
         </p>
+        {/* Add console.log to debug college data */}
+        {console.log('College data:', {
+          colleges: data.colleges,
+          college: data.college,
+          display: Array.isArray(data.colleges) ? data.colleges.join(", ") : data.college
+        })}
+        
         {/* Reddit mention button */}
         {isMentionedOnReddit && (
           <div 
