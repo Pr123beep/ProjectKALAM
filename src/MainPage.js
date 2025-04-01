@@ -1,7 +1,6 @@
 // src/MainPage.js
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { copyData } from './copyData';
 import wellfoundData from './wellfndAndphantom.json'; // Import Wellfound data
 import FilterBar from './components/FilterBar';
 import StartupCard from './components/StartupCard';
@@ -17,87 +16,28 @@ const normalizeCollegeName = (name) => {
   
   // Expanded abbreviation mappings for various institutions
   const abbreviations = {
-    // Indian Institutes
-    'iit': 'indian institute of technology',
+    // Core IIM abbreviations
     'iim': 'indian institute of management',
-    'nit': 'national institute of technology',
-    'iiit': 'indian institute of information technology',
+    'iim-a': 'indian institute of management ahmedabad',
+    'iima': 'indian institute of management ahmedabad',
+    'iim ahmedabad': 'indian institute of management ahmedabad',
+    
+    // Keep existing IIT mappings
+    'iit': 'indian institute of technology',
     'bits': 'birla institute of technology and science',
-    'du': 'delhi university',
-    'jnu': 'jawaharlal nehru university',
-    'amu': 'aligarh muslim university',
-    'bhu': 'banaras hindu university',
-    'lpu': 'lovely professional university',
-    'vit': 'vellore institute of technology',
-    'srm': 'sri ramaswamy memorial',
-    'iist': 'indian institute of space science and technology',
-    'isi': 'indian statistical institute',
-    'ignou': 'indira gandhi national open university',
-    'nid': 'national institute of design',
-    'nift': 'national institute of fashion technology',
-    'nlsiu': 'national law school of india university',
-    'aiims': 'all india institute of medical sciences',
-    
-    // US universities
-    'mit': 'massachusetts institute of technology',
-    'cmu': 'carnegie mellon university',
-    'nyu': 'new york university',
-    'ucla': 'university of california los angeles',
-    'uc berkeley': 'university of california berkeley',
-    'unc': 'university of north carolina',
-    'upenn': 'university of pennsylvania',
-    'gt': 'georgia tech',
-    'gatech': 'georgia institute of technology',
-    
-    // UK universities
-    'oxon': 'oxford',
-    'cantab': 'cambridge',
-    'ucl': 'university college london',
-    'lse': 'london school of economics',
-    'ic': 'imperial college',
-    'kcl': 'kings college london',
     
     // General terms
-    'univ': 'university',
     'inst': 'institute',
-    'tech': 'technology',
-    'coll': 'college',
-    'mgmt': 'management',
-    'engg': 'engineering'
+    'mgmt': 'management'
   };
   
   // Campus city abbreviations
   const cityAbbreviations = {
-    // Indian cities
-    'b': 'bombay',
-    'd': 'delhi',
-    'm': 'madras',
-    'k': 'kanpur',
-    'kgp': 'kharagpur',
-    'r': 'roorkee',
-    'g': 'guwahati',
     'a': 'ahmedabad',
-    'blore': 'bangalore',
-    'bang': 'bangalore',
-    'blr': 'bangalore',
+    'b': 'bangalore',
     'c': 'calcutta',
-    'hyd': 'hyderabad',
-    'pune': 'pune',
-    'chen': 'chennai',
-    'ncr': 'delhi',
-    
-    // US cities
-    'la': 'los angeles',
-    'nyc': 'new york',
-    'sf': 'san francisco',
-    'chi': 'chicago',
-    'bos': 'boston',
-    'phil': 'philadelphia',
-    
-    // UK cities
-    'ldn': 'london',
-    'manc': 'manchester',
-    'edin': 'edinburgh'
+    'l': 'lucknow',
+    'i': 'indore'
   };
   
   // Replace known abbreviations in the search term
@@ -111,23 +51,23 @@ const normalizeCollegeName = (name) => {
   
   // Handle city abbreviations for campus locations
   for (const [abbr, full] of Object.entries(cityAbbreviations)) {
-    // Handle patterns like "university of c" or "institute, b"
+    // Handle patterns like "management a" or "management, a"
     normalized = normalized.replace(
-      new RegExp(`\\b(university|institute|college|school)\\s+of\\s+${abbr}\\b`, 'g'),
-      `$1 of ${full}`
-    );
-    
-    // Handle patterns like "technology b" or "technology, b"
-    normalized = normalized.replace(
-      new RegExp(`(technology|management|university|institute|college)\\s*[,\\s]+\\b${abbr}\\b`, 'g'),
+      new RegExp(`(management)\\s*[,\\s]+\\b${abbr}\\b`, 'g'),
       `$1 ${full}`
     );
   }
   
+  // Special case for IIM Ahmedabad variations
+  if (normalized.includes('indian institute of management') && 
+      (normalized.includes('ahmedabad') || normalized.includes('-a') || normalized.includes(' a '))) {
+    normalized = 'indian institute of management ahmedabad';
+  }
+  
   // Clean up punctuation and spacing
   normalized = normalized.replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, ' ')  // Replace punctuation with spaces
-                         .replace(/\s+/g, ' ')                          // Normalize spaces
-                         .trim();                                       // Trim ends
+                       .replace(/\s+/g, ' ')                          // Normalize spaces
+                       .trim();                                       // Trim ends
   
   return normalized;
 };
@@ -139,42 +79,29 @@ const matchesCollege = (itemColleges, searchTerm) => {
   
   // Normalize the search term
   const normalizedSearch = normalizeCollegeName(searchTerm);
-  const searchParts = normalizedSearch.split(' ').filter(p => p.length > 1);
   
-  // Function to check match score between two normalized strings
-  const getMatchScore = (collegeString, searchString) => {
-    // Direct inclusion is a strong match
-    if (collegeString.includes(searchString)) return 1.0;
-    if (searchString.includes(collegeString)) return 0.9;
+  // Special case for IIM Ahmedabad
+  const isIIMASearch = normalizedSearch.includes('indian institute of management ahmedabad');
+  
+  // Function to check if a college string matches IIM Ahmedabad
+  const matchesIIMA = (collegeString) => {
+    const normalizedCollege = normalizeCollegeName(collegeString);
     
-    // Check if all significant parts of the search are in the college name
-    const significantPartsMatch = searchParts.filter(part => 
-      part.length > 2 && collegeString.includes(part)
-    ).length;
-    
-    if (significantPartsMatch === searchParts.length) return 0.8;
-    if (significantPartsMatch > 0) {
-      return 0.5 * (significantPartsMatch / searchParts.length);
+    if (isIIMASearch) {
+      return normalizedCollege.includes('indian institute of management ahmedabad');
     }
     
-    return 0;
+    return normalizedCollege.includes(normalizedSearch) || 
+           normalizedSearch.includes(normalizedCollege);
   };
   
   // Process array of colleges
   if (Array.isArray(itemColleges)) {
-    // Get the best match score across all colleges
-    const scores = itemColleges.map(college => {
-      const normalizedCollege = normalizeCollegeName(college);
-      return getMatchScore(normalizedCollege, normalizedSearch);
-    });
-    
-    // Return true if any college has a reasonable match score
-    return Math.max(...scores, 0) > 0.3;
+    return itemColleges.some(college => matchesIIMA(college));
   }
   
   // Process single college string
-  const normalizedCollege = normalizeCollegeName(itemColleges);
-  return getMatchScore(normalizedCollege, normalizedSearch) > 0.3;
+  return matchesIIMA(itemColleges);
 };
 
 function MainPage() {
@@ -195,55 +122,37 @@ function MainPage() {
   const itemsPerPage = 5; // Number of cards per page
   
   useEffect(() => {
-    const dataToShuffle = [...copyData];
+    // Use wellfoundData directly instead of copyData
+    const dataToShuffle = [...wellfoundData];
     for (let i = dataToShuffle.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [dataToShuffle[i], dataToShuffle[j]] = [dataToShuffle[j], dataToShuffle[i]];
     }
     
-    // Merge the Wellfound data with our main data
-    const mergedData = dataToShuffle.map(item => {
-      // Check for a matching record in Wellfound data by name and company
-      const match = wellfoundData.find(wf => 
-        (wf.firstName && wf.lastName && 
-         wf.firstName.toLowerCase() === item.firstName?.toLowerCase() && 
-         wf.lastName.toLowerCase() === item.lastName?.toLowerCase()) || 
-        (wf.companyName && 
-         wf.companyName.toLowerCase() === item.companyName?.toLowerCase())
-      );
-      
-      // If we found a match, add the Wellfound URLs
-      if (match) {
-        return {
-          ...item,
-          wellFoundURL: match.wellFoundURL,
-          wellFoundProfileURL: match.wellFoundProfileURL,
-          hasWellfound: true
-        };
-      }
-      
-      return item;
-    });
-    
-    // Continue with existing deduplication logic
+    // Deduplicate the data
     const deduped = Object.values(
-      mergedData.reduce((acc, item) => {
+      dataToShuffle.reduce((acc, item) => {
         const key = `${item.companyName}_${item.firstName}_${item.lastName}`;
         if (!acc[key]) {
-          acc[key] = { ...item, colleges: [item.college] };
+          acc[key] = { 
+            ...item, 
+            colleges: [item.college],
+            // Ensure Wellfound data is preserved
+            hasWellfound: Boolean(item.wellFoundURL || item.wellFoundProfileURL)
+          };
         } else {
           if (item.college && !acc[key].colleges.includes(item.college)) {
             acc[key].colleges.push(item.college);
           }
           
-          // Preserve Wellfound data through deduplication
+          // Update Wellfound data if present
           if (item.wellFoundURL) {
             acc[key].wellFoundURL = item.wellFoundURL;
           }
           if (item.wellFoundProfileURL) {
             acc[key].wellFoundProfileURL = item.wellFoundProfileURL;
           }
-          if (item.hasWellfound) {
+          if (item.wellFoundURL || item.wellFoundProfileURL) {
             acc[key].hasWellfound = true;
           }
         }
@@ -389,6 +298,27 @@ function MainPage() {
           }))
         );
       }
+    }
+  }, [filters.college, data]);
+
+  // Add debug logging to help track the matching process
+  useEffect(() => {
+    if (filters.college && filters.college.toLowerCase().includes('iim')) {
+      console.log("IIM Search Debug:");
+      console.log("Search term:", filters.college);
+      console.log("Normalized search term:", normalizeCollegeName(filters.college));
+      
+      // Sample the first few items to check matching
+      const sampleItems = data.slice(0, 10);
+      sampleItems.forEach(item => {
+        const collegeData = Array.isArray(item.colleges) ? item.colleges : item.college;
+        console.log("Checking college:", collegeData);
+        console.log("Normalized college:", Array.isArray(collegeData) 
+          ? collegeData.map(c => normalizeCollegeName(c))
+          : normalizeCollegeName(collegeData)
+        );
+        console.log("Matches?", matchesCollege(collegeData, filters.college));
+      });
     }
   }, [filters.college, data]);
 
