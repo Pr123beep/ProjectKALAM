@@ -24,7 +24,7 @@ const getAbbreviationMatches = (abbreviation, dataList) => {
     'kgp': 'kharagpur',
     'r': 'roorkee',
     'g': 'guwahati',
-    'a': 'ahmedabad',
+    'a': 'ahemdabad',
     'blore': 'bangalore',
     'bang': 'bangalore',
     'c': 'calcutta',
@@ -118,19 +118,52 @@ const getAbbreviationMatches = (abbreviation, dataList) => {
   return [...new Set(allMatches)];
 };
 
+const CustomCheckbox = ({ type, label, checked, onChange }) => {
+  const [ripple, setRipple] = useState(false);
+  
+  const triggerRipple = () => {
+    setRipple(true);
+    setTimeout(() => setRipple(false), 600);
+  };
+  
+  return (
+    <label className={`custom-checkbox ${type}`} onClick={triggerRipple}>
+      <input 
+        type="checkbox" 
+        checked={checked} 
+        onChange={onChange}
+      />
+      <div className="checkbox-icon">
+        {type === 'linkedin' ? (
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+          </svg>
+        ) : (
+          <img 
+            src="/wellfound.png" 
+            alt="Wellfound" 
+            style={{ borderRadius: '2px' }}
+          />
+        )}
+      </div>
+      <span className="checkbox-label">{label}</span>
+      <div className={`checkbox-before ${checked ? 'active' : ''}`}></div>
+      <div className={`checkbox-ripple ${ripple ? 'active' : ''}`}></div>
+    </label>
+  );
+};
+
 const FilterBar = ({ onApplyFilters }) => {
-  const [localFilters, setLocalFilters] = useState({
+  const [filters, setFilters] = useState({
     college: '',
     companyIndustry: '',
     currentLocation: '',
-    followersMin: '0',
-    followersMax: '50000'
-  });
-
-  // New state for profile source filters
-  const [profileSources, setProfileSources] = useState({
-    linkedin: true,
-    wellfound: true
+    followersMin: 0,
+    followersMax: 50000,
+    profileSources: {
+      linkedin: false,
+      wellfound: false
+    }
   });
 
   // Instead of starting with a fixed value, we'll initialize it later
@@ -165,6 +198,7 @@ const FilterBar = ({ onApplyFilters }) => {
       'Indian Institute of Management, Calcutta',
       'Indian Institute of Management, Lucknow',
       'Indian Institute of Management, Indore',
+      'Indian Institute of Management, Ahmedabad',
       
       
       
@@ -262,7 +296,7 @@ const FilterBar = ({ onApplyFilters }) => {
   // Handle input change with suggestions
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setLocalFilters((prev) => ({
+    setFilters((prev) => ({
       ...prev,
       [name]: value
     }));
@@ -303,7 +337,7 @@ const FilterBar = ({ onApplyFilters }) => {
   
   // Handle suggestion selection
   const handleSelectSuggestion = (field, value) => {
-    setLocalFilters(prev => ({
+    setFilters(prev => ({
       ...prev,
       [field]: value
     }));
@@ -337,18 +371,21 @@ const FilterBar = ({ onApplyFilters }) => {
   const handleSourceChange = (source) => {
     // Create new profileSources state with the toggled value
     const newProfileSources = {
-      ...profileSources,
-      [source]: !profileSources[source]
+      ...filters.profileSources,
+      [source]: !filters.profileSources[source]
     };
     
     // Update the state
-    setProfileSources(newProfileSources);
+    setFilters(prev => ({
+      ...prev,
+      profileSources: newProfileSources
+    }));
     
     // Apply filters immediately when checkbox changes
     onApplyFilters({
-      ...localFilters,
-      followersMin: parseInt(localFilters.followersMin, 10),
-      followersMax: parseInt(localFilters.followersMax, 10),
+      ...filters,
+      followersMin: parseInt(filters.followersMin, 10),
+      followersMax: parseInt(filters.followersMax, 10),
       profileSources: newProfileSources
     });
   };
@@ -356,12 +393,12 @@ const FilterBar = ({ onApplyFilters }) => {
   const handleApply = () => {
     // Create a copy of the filters to send
     const filtersToApply = {
-      ...localFilters,
+      ...filters,
       // We'll pass the original college name without modifications
       // The matching function in MainPage.js will handle normalization
-      followersMin: parseInt(localFilters.followersMin, 10),
-      followersMax: parseInt(localFilters.followersMax, 10),
-      profileSources
+      followersMin: parseInt(filters.followersMin, 10),
+      followersMax: parseInt(filters.followersMax, 10),
+      profileSources: filters.profileSources
     };
     
     // Apply filters with the values from our state
@@ -373,17 +410,21 @@ const FilterBar = ({ onApplyFilters }) => {
       college: '',
       companyIndustry: '',
       currentLocation: '',
-      followersMin: '0',
-      followersMax: '50000'
+      followersMin: 0,
+      followersMax: 50000,
+      profileSources: {
+        linkedin: false,
+        wellfound: false
+      }
     };
-    setLocalFilters(cleared);
+    setFilters(cleared);
     onApplyFilters({
       ...cleared,
       followersMin: 0,
       followersMax: 50000,
       profileSources: {
-        linkedin: true,
-        wellfound: true
+        linkedin: false,
+        wellfound: false
       }
     });
   };
@@ -413,7 +454,7 @@ const FilterBar = ({ onApplyFilters }) => {
                 type="text"
                 id="college"
                 name="college"
-                value={localFilters.college}
+                value={filters.college}
                 onChange={handleChange}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -447,7 +488,7 @@ const FilterBar = ({ onApplyFilters }) => {
                 type="text"
                 id="companyIndustry" 
                 name="companyIndustry"
-                value={localFilters.companyIndustry}
+                value={filters.companyIndustry}
                 onChange={handleChange}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -481,7 +522,7 @@ const FilterBar = ({ onApplyFilters }) => {
                 type="text"
                 id="currentLocation"
                 name="currentLocation"
-                value={localFilters.currentLocation}
+                value={filters.currentLocation}
                 onChange={handleChange}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -514,7 +555,7 @@ const FilterBar = ({ onApplyFilters }) => {
               <input
                 type="number"
                 name="followersMin"
-                value={localFilters.followersMin}
+                value={filters.followersMin}
                 onChange={handleChange}
                 placeholder="Min"
                 className="filter-input"
@@ -522,7 +563,7 @@ const FilterBar = ({ onApplyFilters }) => {
               <input
                 type="number"
                 name="followersMax"
-                value={localFilters.followersMax}
+                value={filters.followersMax}
                 onChange={handleChange}
                 placeholder="Max"
                 className="filter-input"
@@ -530,25 +571,39 @@ const FilterBar = ({ onApplyFilters }) => {
             </div>
           </div>
         </div>
-        <div className="filter-section">
-          <h3>Profile Sources</h3>
-          <div className="filter-source-checkboxes">
-            <label className="filter-checkbox">
-              <input
-                type="checkbox"
-                checked={profileSources.linkedin}
-                onChange={() => handleSourceChange('linkedin')}
+        <div className="filter-group">
+          <div className="filter-item">
+            <label>Profile Sources</label>
+            <div className="source-checkbox-container">
+              <CustomCheckbox
+                type="linkedin"
+                label="LinkedIn"
+                checked={filters.profileSources.linkedin}
+                onChange={(e) => {
+                  setFilters({
+                    ...filters,
+                    profileSources: {
+                      ...filters.profileSources,
+                      linkedin: e.target.checked
+                    }
+                  })
+                }}
               />
-              <span className="checkbox-label">LinkedIn</span>
-            </label>
-            <label className="filter-checkbox">
-              <input
-                type="checkbox"
-                checked={profileSources.wellfound}
-                onChange={() => handleSourceChange('wellfound')}
+              <CustomCheckbox
+                type="wellfound"
+                label="Wellfound"
+                checked={filters.profileSources.wellfound}
+                onChange={(e) => {
+                  setFilters({
+                    ...filters,
+                    profileSources: {
+                      ...filters.profileSources,
+                      wellfound: e.target.checked
+                    }
+                  })
+                }}
               />
-              <span className="checkbox-label">Wellfound</span>
-            </label>
+            </div>
           </div>
         </div>
         <div className="filter-actions">

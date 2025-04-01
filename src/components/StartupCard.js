@@ -291,23 +291,31 @@ const StartupCard = ({ data }) => {
     }
   };
 
-  // Determine the college display: use merged colleges if available
-  const collegeDisplay = Array.isArray(data.colleges)
-    ? data.colleges.join(", ")
-    : data.college || "Not specified";
-    const founderName = `${data.firstName} ${data.lastName}`.toLowerCase();
+  // Update the college display logic
+  const collegeDisplay = React.useMemo(() => {
+    // First try the colleges array
+    if (Array.isArray(data.colleges) && data.colleges.length > 0) {
+      return data.colleges.join(", ");
+    }
+    // Then try the single college field
+    if (data.college) {
+      return data.college;
+    }
+    // Finally fall back to "Not specified"
+    return "Not specified";
+  }, [data.colleges, data.college]);
 
-    // Find the Reddit data for this founder and extract URL if available
-    const redditData = iitRedditData.find(item => 
-      item.query.toLowerCase().includes(founderName)
-    );
+  // Find the Reddit data for this founder and extract URL if available
+  const redditData = iitRedditData.find(item => 
+    item.query.toLowerCase().includes(data.firstName.toLowerCase())
+  );
 
-    const redditUrl = redditData && 
-                      redditData.results && 
-                      redditData.results.length > 0 ? 
-                      redditData.results[0].url : null;
+  const redditUrl = redditData && 
+                    redditData.results && 
+                    redditData.results.length > 0 ? 
+                    redditData.results[0].url : null;
 
-    const isMentionedOnReddit = Boolean(redditData);
+  const isMentionedOnReddit = Boolean(redditData);
 
   return (
     <div className="card">
@@ -361,18 +369,45 @@ const StartupCard = ({ data }) => {
         <p>
           <strong>College:</strong> {collegeDisplay}
         </p>
+        {/* Debug log for college data */}
+        {console.log('Card college data:', {
+          name: `${data.firstName} ${data.lastName}`,
+          college: data.college,
+          colleges: data.colleges,
+          display: collegeDisplay
+        })}
         <p>
           <strong>Industry:</strong> {data.companyIndustry || "Not specified"}
         </p>
         <p>
           <strong>Company:</strong> {data.companyName}
         </p>
-        {/* Add console.log to debug college data */}
-        {console.log('College data:', {
-          colleges: data.colleges,
-          college: data.college,
-          display: Array.isArray(data.colleges) ? data.colleges.join(", ") : data.college
-        })}
+        
+        {/* Add source badges */}
+        <div className="source-badges">
+          {data.linkedinProfileUrl && (
+            <a 
+              href={data.linkedinProfileUrl}
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="source-badge-small linkedin" 
+              title="View on LinkedIn"
+            >
+              <LinkedInIcon />
+            </a>
+          )}
+          {(data.wellFoundURL || data.wellFoundProfileURL) && (
+            <a 
+              href={data.wellFoundProfileURL || data.wellFoundURL}
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="source-badge-small wellfound" 
+              title="View on Wellfound"
+            >
+              <WellfoundIcon />
+            </a>
+          )}
+        </div>
         
         {/* Reddit mention button */}
         {isMentionedOnReddit && (
@@ -382,11 +417,7 @@ const StartupCard = ({ data }) => {
             style={{ cursor: redditUrl ? 'pointer' : 'default' }}
             title={redditUrl ? "Click to view Reddit discussion" : "Mentioned on Reddit"}
           >
-            <strong>
-              {/* Reddit icon is added via CSS ::before pseudo-element */}
-              Mentioned on Reddit
-            </strong>
-            {/* Add a small indicator if there's a clickable link */}
+            <strong>Mentioned on Reddit</strong>
             {redditUrl && <span className="reddit-link-indicator">→</span>}
           </div>
         )}

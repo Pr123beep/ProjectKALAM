@@ -882,3 +882,44 @@ body {
   transform: translateX(3px);
   opacity: 1;
 }
+
+/* Source badges for card display */
+.source-badges {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.source-badge-small {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  padding: 6px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-decoration: none; /* Ensure no underlines appear */
+}
+
+.source-badge-small:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.source-badge-small.linkedin {
+  background-color: #0077b5;
+  color: white;
+}
+
+.source-badge-small.wellfound {
+  background-color: #34aa44;
+  color: white;
+}
+
+.source-badge-small svg,
+.source-badge-small img {
+  width: 16px;
+  height: 16px;
+}

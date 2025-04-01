@@ -299,14 +299,12 @@ function LandingPage({ onNavigate }) {
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95])
   const rotation = useTransform(scrollYProgress, [0, 1], [0, 10])
 
-  // Smooth spring animations
   const springConfig = useMemo(() => ({ stiffness: 100, damping: 30, mass: 1 }), []);
   const smoothY = useSpring(parallaxY, springConfig)
   const smoothOpacity = useSpring(opacity, springConfig)
   const smoothScale = useSpring(scale, springConfig)
   const smoothRotation = useSpring(rotation, springConfig)
 
-  // Mouse parallax effect
   // eslint-disable-next-line no-unused-vars
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const mouseX = useMotionValue(0)
@@ -613,7 +611,7 @@ UNDIVIDED CAPITAL&nbsp;&lt;&gt;&nbsp;Scaler
                   animate={isHeroInView ? { opacity: 1, scale: 1 } : {}}
                   transition={{ duration: 0.5 }}
                 >
-                  Revolutionizing Capital Scaling
+                  Project Kalam
                 </motion.div>
 
                 <motion.h1
@@ -622,16 +620,7 @@ UNDIVIDED CAPITAL&nbsp;&lt;&gt;&nbsp;Scaler
                   animate={isHeroInView ? { opacity: 1 } : {}}
                   transition={{ duration: 0.7, delay: 0.3 }}
                 >
-                  Scaling Capital for{" "}
-                  <motion.span
-                    className="hero-highlight"
-                    animate={{
-                      backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-                    }}
-                    transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-                  >
-                    Maximum Growth
-                  </motion.span>
+                  Identify <span className="hero-highlight">exceptional founders</span> with data-driven insights
                 </motion.h1>
 
                 <motion.p
@@ -640,8 +629,7 @@ UNDIVIDED CAPITAL&nbsp;&lt;&gt;&nbsp;Scaler
                   animate={isHeroInView ? { opacity: 1 } : {}}
                   transition={{ duration: 0.7, delay: 0.4 }}
                 >
-                  Innovative financial solutions to help businesses scale efficiently and sustainably in today's dynamic
-                  market.
+                  A comprehensive platform for sourcing and analyzing promising Indian-origin entrepreneurs globally, enabling data-driven investment decisions.
                 </motion.p>
 
                 <motion.div
@@ -659,17 +647,17 @@ UNDIVIDED CAPITAL&nbsp;&lt;&gt;&nbsp;Scaler
                     whileTap={{ scale: 0.98 }}
                     onClick={onNavigate}
                   >
-                    <span>Start Investing</span>
-                    <ArrowRightIcon className="icon-sm" />
+                    <span>Start exploring</span>
                   </motion.button>
 
-                  <motion.button
+                  <motion.a
                     className="hero-button secondary"
+                    href="#features"
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    Learn More
-                  </motion.button>
+                    Learn more
+                  </motion.a>
                 </motion.div>
 
                 <motion.div
@@ -685,7 +673,7 @@ UNDIVIDED CAPITAL&nbsp;&lt;&gt;&nbsp;Scaler
                       </div>
                     ))}
                   </div>
-                  <span>Trusted by 10,000+ businesses</span>
+                  <span>Trusted by investment teams at Undivided Capital</span>
                 </motion.div>
               </motion.div>
 
@@ -774,207 +762,149 @@ UNDIVIDED CAPITAL&nbsp;&lt;&gt;&nbsp;Scaler
         </section>
 
         {/* Features Section */}
-        <section id="features" className="features-section">
+        <section className="features-section" id="features">
           <div className="container">
-            <motion.div
-              className="section-header"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.7 }}
-            >
-              <motion.div
-                className="section-badge"
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5 }}
-              >
-                Our Capabilities
-              </motion.div>
-              <h2 className="section-title">Advanced Capital Scaling Features</h2>
+            <div className="section-header">
+              <div className="section-badge">Features</div>
+              <h2 className="section-title">Everything you need to identify promising founders</h2>
               <p className="section-subtitle">
-                Our platform provides cutting-edge tools and methodologies to help your business scale efficiently and
-                sustainably.
+                Project Kalam provides a data-driven approach to sourcing and evaluating potential founders with high entrepreneurial potential.
               </p>
-            </motion.div>
-
-            <div className="features-grid">
-              <motion.div
-                className="features-tabs"
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.7 }}
-              >
-                <div className="features-tabs-list">
-                  {features.map((feature, index) => (
-                    <motion.div
-                      key={index}
-                      className={`feature-tab ${activeFeature === index ? "active" : ""}`}
-                      onClick={() => setActiveFeature(index)}
-                      whileHover={{ x: 5 }}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                    >
-                      <div className={`feature-tab-icon ${activeFeature === index ? "active" : ""}`}>
-                        {feature.icon}
+            </div>
+            
+            <div className="features-tabs">
+              <div className="features-tabs-list">
+                <button 
+                  className={`feature-tab ${activeFeature === 'data' ? 'active' : ''}`}
+                  onClick={() => setActiveFeature('data')}
+                >
+                  <div className={`feature-tab-icon ${activeFeature === 'data' ? 'active' : ''}`}>
+                    <DatabaseIcon className="icon" />
+                  </div>
+                  <div>
+                    <h3 className="feature-tab-title">Comprehensive Data Collection</h3>
+                    <p className="feature-tab-description">
+                      Data from professional networks, developer platforms, and more
+                    </p>
+                  </div>
+                </button>
+                
+                <button 
+                  className={`feature-tab ${activeFeature === 'analysis' ? 'active' : ''}`}
+                  onClick={() => setActiveFeature('analysis')}
+                >
+                  <div className={`feature-tab-icon ${activeFeature === 'analysis' ? 'active' : ''}`}>
+                    <CodeIcon className="icon" />
+                  </div>
+                  <div>
+                    <h3 className="feature-tab-title">Advanced Analysis</h3>
+                    <p className="feature-tab-description">
+                      ML-powered talent evaluation and scoring algorithms
+                    </p>
+                  </div>
+                </button>
+                
+                <button 
+                  className={`feature-tab ${activeFeature === 'interface' ? 'active' : ''}`}
+                  onClick={() => setActiveFeature('interface')}
+                >
+                  <div className={`feature-tab-icon ${activeFeature === 'interface' ? 'active' : ''}`}>
+                    <LayersIcon className="icon" />
+                  </div>
+                  <div>
+                    <h3 className="feature-tab-title">Intuitive Interface</h3>
+                    <p className="feature-tab-description">
+                      Rich profiles, collaboration tools, and workflow integration
+                    </p>
+                  </div>
+                </button>
+              </div>
+              
+              <div className="features-display">
+                {activeFeature === 'data' && (
+                  <div className="feature-content">
+                    <h3>Comprehensive Data Collection</h3>
+                    <p>
+                      Gather data from diverse sources to create a holistic view of potential founders:
+                    </p>
+                    <div className="feature-card">
+                      <div className="feature-card-header with-icon">
+                        <GlobeIcon className="icon-sm" />
+                        <h4>Multiple Data Sources</h4>
                       </div>
-                      <div>
-                        <h3 className="feature-tab-title">{feature.title}</h3>
-                        <p className="feature-tab-description">{feature.description}</p>
+                      <div className="feature-card-body">
+                        <p>LinkedIn, GitHub, Wellfound, Crunchbase, educational institutions, hackathons, conferences, media, and more.</p>
                       </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-
-              <motion.div
-                className="features-display"
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.7 }}
-              >
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={activeFeature}
-                    className="feature-content"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    {activeFeature === 0 && (
-                      <div className="feature-card growth-metrics">
-                        <div className="feature-card-header">
-                          <h4>Growth Metrics</h4>
-                          <div className="feature-card-meta">Last 30 days</div>
-                        </div>
-                        <div className="feature-card-body">
-                          {[
-                            { label: "Revenue Growth", value: "142%", color: "primary" },
-                            { label: "Customer Acquisition", value: "87%", color: "secondary" },
-                            { label: "Market Expansion", value: "53%", color: "success" },
-                          ].map((item, i) => (
-                            <div key={i} className="metric-item">
-                              <div className="metric-header">
-                                <span>{item.label}</span>
-                                <span className="metric-value">{item.value}</span>
-                              </div>
-                              <div className="metric-bar">
-                                <motion.div
-                                  className={`metric-progress ${item.color}`}
-                                  initial={{ width: "0%" }}
-                                  animate={{ width: item.value }}
-                                  transition={{ duration: 1, delay: 0.2 + i * 0.2 }}
-                                />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+                    </div>
+                    
+                    <div className="feature-card">
+                      <div className="feature-card-header with-icon">
+                        <ShieldIcon className="icon-sm" />
+                        <h4>Ethical & Compliant</h4>
                       </div>
-                    )}
-
-                    {activeFeature === 1 && (
-                      <div className="feature-card security">
-                        <div className="feature-card-header with-icon">
-                          <ShieldIcon className="icon" />
-                          <h4>Security Dashboard</h4>
-                        </div>
-                        <div className="security-grid">
-                          {[
-                            { label: "Threat Protection", value: "Active" },
-                            { label: "Encryption", value: "256-bit" },
-                            { label: "Last Scan", value: "2 min ago" },
-                            { label: "Vulnerabilities", value: "0" },
-                          ].map((item, i) => (
-                            <div key={i} className="security-item">
-                              <div className="security-label">{item.label}</div>
-                              <div className="security-value">{item.value}</div>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="feature-card-footer">
-                          <div className="status-indicator">
-                            <div className="status-dot active"></div>
-                            <span>All systems secure</span>
-                          </div>
-                          <button className="text-link">View details</button>
-                        </div>
+                      <div className="feature-card-body">
+                        <p>GDPR and CCPA compliant data collection with robust privacy controls and ethical considerations.</p>
                       </div>
-                    )}
-
-                    {activeFeature === 2 && (
-                      <div className="feature-card network">
-                        <div className="feature-card-header">
-                          <h4>Global Network</h4>
-                          <div className="network-badge">24 Countries</div>
-                        </div>
-                        <div className="network-map">
-                          <div className="map-overlay">
-                            <img src="https://via.placeholder.com/400x300" alt="World map" className="map-image" />
-                          </div>
-                          {[
-                            { x: "20%", y: "30%", pulse: true },
-                            { x: "70%", y: "20%", pulse: false },
-                            { x: "80%", y: "60%", pulse: true },
-                            { x: "30%", y: "70%", pulse: false },
-                            { x: "50%", y: "40%", pulse: true },
-                          ].map((point, i) => (
-                            <div key={i} className="network-point" style={{ left: point.x, top: point.y }}>
-                              {point.pulse && <div className="network-pulse"></div>}
-                            </div>
-                          ))}
-                        </div>
-                        <div className="feature-card-footer">
-                          <div>
-                            Active connections: <span className="highlight">1,240</span>
-                          </div>
-                          <button className="text-link">Explore network</button>
-                        </div>
+                    </div>
+                  </div>
+                )}
+                
+                {activeFeature === 'analysis' && (
+                  <div className="feature-content">
+                    <h3>Advanced Analysis & Talent Evaluation</h3>
+                    <p>
+                      Transform raw data into actionable insights using sophisticated algorithms:
+                    </p>
+                    <div className="feature-card">
+                      <div className="feature-card-header with-icon">
+                        <ZapIcon className="icon-sm" />
+                        <h4>ML-Powered Scoring</h4>
                       </div>
-                    )}
-
-                    {activeFeature === 3 && (
-                      <div className="feature-card analytics">
-                        <div className="feature-card-header with-icon">
-                          <DatabaseIcon className="icon" />
-                          <h4>Analytics Dashboard</h4>
-                        </div>
-                        <div className="analytics-content">
-                          <div className="analytics-header">
-                            <span>Investment Performance</span>
-                            <span className="analytics-value positive">+24.8%</span>
-                          </div>
-                          <div className="analytics-chart">
-                            {[35, 45, 30, 50, 65, 45, 70, 85, 75, 90].map((height, i) => (
-                              <motion.div
-                                key={i}
-                                className="chart-bar"
-                                initial={{ height: "0%" }}
-                                animate={{ height: `${height}%` }}
-                                transition={{ duration: 0.8, delay: i * 0.05 }}
-                              >
-                                <div className="chart-bar-fill"></div>
-                              </motion.div>
-                            ))}
-                          </div>
-                          <div className="feature-card-footer">
-                            <button className="text-link">View full report</button>
-                            <div className="status-indicator">
-                              <div className="status-dot active"></div>
-                              <span>AI predictions enabled</span>
-                            </div>
-                          </div>
-                        </div>
+                      <div className="feature-card-body">
+                        <p>Customizable talent evaluation algorithms with weighted scoring, rule-based systems, and machine learning integration.</p>
                       </div>
-                    )}
-                  </motion.div>
-                </AnimatePresence>
-              </motion.div>
+                    </div>
+                    
+                    <div className="feature-card">
+                      <div className="feature-card-header with-icon">
+                        <UsersIcon className="icon-sm" />
+                        <h4>Network Analysis</h4>
+                      </div>
+                      <div className="feature-card-body">
+                        <p>Analyze professional networks, identify influencers, and discover connections between promising founders.</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {activeFeature === 'interface' && (
+                  <div className="feature-content">
+                    <h3>Intuitive User Interface</h3>
+                    <p>
+                      Powerful tools to search, evaluate, and collaborate:
+                    </p>
+                    <div className="feature-card">
+                      <div className="feature-card-header with-icon">
+                        <DatabaseIcon className="icon-sm" />
+                        <h4>Rich Candidate Profiles</h4>
+                      </div>
+                      <div className="feature-card-body">
+                        <p>Interactive network graphs, skills matrices, timeline views, and ML score explanations.</p>
+                      </div>
+                    </div>
+                    
+                    <div className="feature-card">
+                      <div className="feature-card-header with-icon">
+                        <UsersIcon className="icon-sm" />
+                        <h4>Collaboration Tools</h4>
+                      </div>
+                      <div className="feature-card-body">
+                        <p>Candidate reviews, shared notes and tags, workflow management, and integration with CRM and deal management systems.</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </section>
@@ -1053,99 +983,57 @@ UNDIVIDED CAPITAL&nbsp;&lt;&gt;&nbsp;Scaler
         </section>
 
         {/* CTA Section */}
-        <section className="cta-section">
+        <section className="section-cta">
           <div className="container">
-            <motion.div
-              className="cta-card"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.7 }}
-            >
+            <div className="cta-card">
               <div className="cta-grid">
                 <div className="cta-content">
-                  <motion.h2
-                    className="cta-title"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    Ready to accelerate your business growth?
-                  </motion.h2>
-                  <motion.p
-                    className="cta-description"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
-                  >
-                    Join thousands of businesses that have transformed their growth trajectory with our capital scaling
-                    solutions.
-                  </motion.p>
-                  <motion.div
-                    className="cta-buttons"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                  >
+                  <h2 className="cta-title">Ready to transform your investment sourcing?</h2>
+                  <p className="cta-description">
+                    Start identifying exceptional founders with data-driven insights today.
+                  </p>
+                  <div className="cta-buttons">
                     <button className="cta-button primary" onClick={onNavigate}>
-                      <span>Get Started Today</span>
-                      <ArrowRightIcon className="icon-sm" />
+                      Get started
                     </button>
-
-                    <button className="cta-button secondary">Schedule a Demo</button>
-                  </motion.div>
-                </div>
-
-                <motion.div
-                  className="cta-features"
-                  initial={{ opacity: 0, x: 20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.7, delay: 0.2 }}
-                >
-                  <div className="features-grid-small">
-                    {[
-                      {
-                        icon: <ZapIcon className="icon-sm" />,
-                        title: "Fast Implementation",
-                        description: "Get started in days, not months",
-                      },
-                      {
-                        icon: <ShieldIcon className="icon-sm" />,
-                        title: "Secure Platform",
-                        description: "Enterprise-grade security protocols",
-                      },
-                      {
-                        icon: <GlobeIcon className="icon-sm" />,
-                        title: "Global Support",
-                        description: "24/7 assistance in multiple languages",
-                      },
-                      {
-                        icon: <CodeIcon className="icon-sm" />,
-                        title: "API Integration",
-                        description: "Seamless connection with your systems",
-                      },
-                    ].map((item, index) => (
-                      <motion.div
-                        key={index}
-                        className="feature-mini-card"
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
-                      >
-                        <div className="feature-mini-icon">{item.icon}</div>
-                        <h4 className="feature-mini-title">{item.title}</h4>
-                        <p className="feature-mini-description">{item.description}</p>
-                      </motion.div>
-                    ))}
                   </div>
-                </motion.div>
+                </div>
+                
+                <div className="features-grid-small">
+                  <div className="feature-mini-card">
+                    <div className="feature-mini-icon">
+                      <ZapIcon className="icon-sm" />
+                    </div>
+                    <h4 className="feature-mini-title">Faster Decision Making</h4>
+                    <p className="feature-mini-description">Reduce time-to-investment with data-driven insights</p>
+                  </div>
+                  
+                  <div className="feature-mini-card">
+                    <div className="feature-mini-icon">
+                      <GlobeIcon className="icon-sm" />
+                    </div>
+                    <h4 className="feature-mini-title">Global Talent Pool</h4>
+                    <p className="feature-mini-description">Identify Indian-origin entrepreneurs worldwide</p>
+                  </div>
+                  
+                  <div className="feature-mini-card">
+                    <div className="feature-mini-icon">
+                      <ShieldIcon className="icon-sm" />
+                    </div>
+                    <h4 className="feature-mini-title">Secure & Compliant</h4>
+                    <p className="feature-mini-description">Enterprise-grade security and privacy</p>
+                  </div>
+                  
+                  <div className="feature-mini-card">
+                    <div className="feature-mini-icon">
+                      <DatabaseIcon className="icon-sm" />
+                    </div>
+                    <h4 className="feature-mini-title">Rich Data Insights</h4>
+                    <p className="feature-mini-description">Make informed decisions with comprehensive data</p>
+                  </div>
+                </div>
               </div>
-            </motion.div>
+            </div>
           </div>
         </section>
       </main>
@@ -1160,10 +1048,10 @@ UNDIVIDED CAPITAL&nbsp;&lt;&gt;&nbsp;Scaler
                     <LayersIcon className="icon-sm" />
                   </div>
                 </div>
-                <h2 className="footer-brand-name">UNDIVIDED CAPITAL</h2>
+                <h2 className="footer-brand-name">Project Kalam</h2>
               </div>
               <p className="footer-tagline">
-                Innovative financial solutions to help businesses scale efficiently and sustainably.
+                Identifying exceptional founders with data-driven insights
               </p>
               <div className="footer-social">
               {["twitter", "linkedin", "facebook", "github"].map((social) => (
@@ -1178,7 +1066,7 @@ UNDIVIDED CAPITAL&nbsp;&lt;&gt;&nbsp;Scaler
 
             {[
               {
-                title: "Product",
+                title: "Platform",
                 links: ["Features", "Solutions", "Pricing", "Case Studies", "Documentation"],
               },
               {
@@ -1206,7 +1094,7 @@ UNDIVIDED CAPITAL&nbsp;&lt;&gt;&nbsp;Scaler
           </div>
 
           <div className="footer-bottom">
-            <p className="copyright">&copy; {new Date().getFullYear()} Undivided Capital. All rights reserved.</p>
+            <p className="copyright">&copy; {new Date().getFullYear()} Project Kalam. All rights reserved.</p>
             <div className="legal-links">
               <a href="#privacy" className="legal-link">
                 Privacy Policy

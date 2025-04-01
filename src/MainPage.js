@@ -114,13 +114,13 @@ function MainPage() {
     followersMin: 0,
     followersMax: 50000,
     profileSources: {
-      linkedin: true,
-      wellfound: true
+      linkedin: false,
+      wellfound: false
     }
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [popupVisible, setPopupVisible] = useState(false);
-  const itemsPerPage = 5; // Number of cards per page
+  const itemsPerPage = 10; // Number of cards per page
   
   useEffect(() => {
     // Use wellfoundData directly instead of copyData
@@ -159,16 +159,13 @@ function MainPage() {
       validData.reduce((acc, item) => {
         const key = `${item.companyName}_${item.firstName}_${item.lastName}`;
         
-        // Debug log for Reddit matching
+        // Find Reddit data for this founder
         const founderName = `${item.firstName} ${item.lastName}`.toLowerCase();
-        console.log('Checking Reddit mentions for:', founderName);
-        
         const redditData = iitRedditData.find(redditItem => 
           redditItem.query.toLowerCase().includes(founderName)
         );
         
-        console.log('Found Reddit data:', redditData);
-        
+        // Get Reddit URL and mention status
         const redditUrl = redditData && 
                          redditData.results && 
                          redditData.results.length > 0 ? 
@@ -179,15 +176,21 @@ function MainPage() {
         if (!acc[key]) {
           acc[key] = { 
             ...item, 
-            colleges: item.college ? [item.college] : [], // Initialize colleges array
+            colleges: item.college ? [item.college] : [],
+            college: item.college || '',
             hasWellfound: Boolean(item.wellFoundURL || item.wellFoundProfileURL),
-            redditUrl,
-            isMentionedOnReddit
+            redditUrl,           // Add Reddit URL
+            isMentionedOnReddit  // Add Reddit mention status
           };
         } else {
           // Add college to colleges array if it exists and isn't already included
           if (item.college && !acc[key].colleges.includes(item.college)) {
             acc[key].colleges.push(item.college);
+          }
+          
+          // Update the single college field if it's empty and we have a new one
+          if (!acc[key].college && item.college) {
+            acc[key].college = item.college;
           }
           
           // Update Wellfound data if present
@@ -205,19 +208,11 @@ function MainPage() {
       }, {})
     );
     
-    // Log for debugging
-    console.log(`Total entries: ${wellfoundData.length}`);
-    console.log(`Valid entries: ${validData.length}`);
-    console.log(`Deduped entries: ${deduped.length}`);
-    console.log(`Profiles with Wellfound data: ${deduped.filter(item => item.wellFoundURL || item.wellFoundProfileURL).length}`);
-    console.log(`Profiles mentioned on Reddit: ${deduped.filter(item => item.isMentionedOnReddit).length}`);
-    
     // Add debug logging for college data
-    console.log('Sample college data:', deduped.slice(0, 3).map(item => ({
-      firstName: item.firstName,
-      lastName: item.lastName,
-      colleges: item.colleges,
-      college: item.college
+    console.log('Sample deduped data:', deduped.slice(0, 5).map(item => ({
+      name: `${item.firstName} ${item.lastName}`,
+      college: item.college,
+      colleges: item.colleges
     })));
     
     setData(deduped);
@@ -253,41 +248,47 @@ function MainPage() {
   };
 
   const filteredData = data.filter((item) => {
-    // Source filtering logic remains unchanged
+    // Source filtering logic
     const showLinkedIn = filters.profileSources.linkedin;
     const showWellfound = filters.profileSources.wellfound;
     const hasWellfoundData = Boolean(item.wellFoundURL || item.wellFoundProfileURL);
+    const hasLinkedInData = Boolean(item.linkedinProfileUrl);
     
-    // Apply source filtering logic (unchanged)
-    if (showLinkedIn && showWellfound) {
-      // Show all items when both sources are selected
-    } else if (showLinkedIn && !showWellfound) {
-      // Only show LinkedIn items
-      if (hasWellfoundData && !item.linkedinProfileUrl) {
-        return false; // Skip Wellfound-only items
+    // If no checkboxes are selected, show ALL data
+    if (!showLinkedIn && !showWellfound) {
+      // Pass everything through when no source filters are selected
+      // Do NOT display the filter prompt here
+    } 
+    // If only LinkedIn is checked
+    else if (showLinkedIn && !showWellfound) {
+      // Only show items with LinkedIn data but NO Wellfound data
+      if (!hasLinkedInData || hasWellfoundData) {
+        return false;
       }
-    } else if (!showLinkedIn && showWellfound) {
-      // Only show Wellfound items
-      if (!hasWellfoundData) {
-        return false; // Skip items without Wellfound data
+    } 
+    // If only Wellfound is checked
+    else if (!showLinkedIn && showWellfound) {
+      // Only show items with Wellfound data but NO LinkedIn data
+      if (!hasWellfoundData || hasLinkedInData) {
+        return false;
       }
-    } else {
-      // Neither source selected, show nothing
-      return false;
+    }
+    // If both LinkedIn and Wellfound are checked
+    else if (showLinkedIn && showWellfound) {
+      // Only show items with BOTH LinkedIn AND Wellfound data
+      if (!hasWellfoundData || !hasLinkedInData) {
+        return false;
+      }
     }
     
-    // Enhanced college name matching using our robust matcher
+    // Apply other filters only to profiles that passed the source filter
     if (filters.college) {
-      // Get college data from either colleges array or single college field
       const collegeData = Array.isArray(item.colleges) ? item.colleges : item.college;
-      
-      // Use our enhanced matcher
       if (!matchesCollege(collegeData, filters.college)) {
         return false;
       }
     }
     
-    // Continue with other filters
     const industry = (item.companyIndustry || "").toLowerCase();
     const location = (item.currentLocation || item.location || "").toLowerCase();
     const followers = parseInt(item.linkedinFollowersCount) || 0;
@@ -387,6 +388,18 @@ function MainPage() {
         {popupVisible && (
           <div className="filter-popup">
             Found {filteredData.length} results.
+          </div>
+        )}
+        
+        {/* Display the filter helper message when no source filters are selected */}
+        {!filters.profileSources.linkedin && !filters.profileSources.wellfound && (
+          <div className="filter-helper">
+            <div className="filter-helper-icon">🔍</div>
+            <h3>Search and filter results</h3>
+            <p>
+              Use the filters to narrow down these results by source (LinkedIn/Wellfound), 
+              college, industry, and more!
+            </p>
           </div>
         )}
         
