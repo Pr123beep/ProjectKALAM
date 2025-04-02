@@ -415,7 +415,7 @@ a:hover {
   margin-right: 10px;
   border-radius: 4px;
   background-color: white;
-  border: 1px solid #ccc;
+  border: 2px solid #d1d5db;
   transition: all 0.2s ease;
 }
 
@@ -434,20 +434,11 @@ a:hover {
   border-color: #34aa44;
 }
 
-.checkbox-icon svg,
-.checkbox-icon img {
-  width: 12px;
-  height: 12px;
-  opacity: 0;
-  transform: scale(0);
-  transition: all 0.2s ease;
-  color: white;
-}
-
-.custom-checkbox input:checked + .checkbox-icon svg,
-.custom-checkbox input:checked + .checkbox-icon img {
-  opacity: 1;
-  transform: scale(1);
+.checkbox-icon svg {
+  width: 14px;
+  height: 14px;
+  stroke: white;
+  display: block;
 }
 
 .checkbox-label {
@@ -656,4 +647,3 @@ a:hover {
     font-size: 18px;
   }
 }
-
