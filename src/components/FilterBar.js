@@ -119,15 +119,8 @@ const getAbbreviationMatches = (abbreviation, dataList) => {
 };
 
 const CustomCheckbox = ({ type, label, checked, onChange }) => {
-  const [ripple, setRipple] = useState(false);
-  
-  const triggerRipple = () => {
-    setRipple(true);
-    setTimeout(() => setRipple(false), 600);
-  };
-  
   return (
-    <label className={`custom-checkbox ${type}`} onClick={triggerRipple}>
+    <label className={`custom-checkbox ${type}`}>
       <input 
         type="checkbox" 
         checked={checked} 
@@ -147,8 +140,6 @@ const CustomCheckbox = ({ type, label, checked, onChange }) => {
         )}
       </div>
       <span className="checkbox-label">{label}</span>
-      <div className={`checkbox-before ${checked ? 'active' : ''}`}></div>
-      <div className={`checkbox-ripple ${ripple ? 'active' : ''}`}></div>
     </label>
   );
 };

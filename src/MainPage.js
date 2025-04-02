@@ -1,4 +1,4 @@
-// src/MainPage.js
+ // src/MainPage.js
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import wellfoundData from './wellfndAndphantom.json'; // Import Wellfound data
@@ -105,6 +105,34 @@ const matchesCollege = (itemColleges, searchTerm) => {
   return matchesIIMA(itemColleges);
 };
 
+// Updated helper function to format result counts with ++ for rounded numbers
+const formatResultCount = (count) => {
+  // Show exact count for small numbers
+  if (count <= 20) {
+    return count.toString();
+  } 
+  // For 21-99: round to nearest 10
+  else if (count <= 99) {
+    const rounded = Math.floor(count / 10) * 10;
+    return count === rounded ? count.toString() : `${rounded}++`;
+  } 
+  // For 100-999: round to nearest 50
+  else if (count <= 999) {
+    const rounded = Math.floor(count / 50) * 50;
+    return count === rounded ? count.toString() : `${rounded}++`;
+  } 
+  // For 1000-9999: round to nearest 100
+  else if (count <= 9999) {
+    const rounded = Math.floor(count / 100) * 100;
+    return count === rounded ? count.toString() : `${rounded}++`;
+  } 
+  // For very large numbers: round to nearest 1000
+  else {
+    const rounded = Math.floor(count / 1000) * 1000;
+    return count === rounded ? count.toString() : `${rounded}++`;
+  }
+};
+
 function MainPage() {
   const [data, setData] = useState([]);
   const [filters, setFilters] = useState({
@@ -121,7 +149,7 @@ function MainPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [popupVisible, setPopupVisible] = useState(false);
   const itemsPerPage = 10; // Number of cards per page
-  
+
   useEffect(() => {
     // Use wellfoundData directly instead of copyData
     const dataToShuffle = [...wellfoundData];
@@ -257,26 +285,25 @@ function MainPage() {
     // If no checkboxes are selected, show ALL data
     if (!showLinkedIn && !showWellfound) {
       // Pass everything through when no source filters are selected
-      // Do NOT display the filter prompt here
     } 
     // If only LinkedIn is checked
     else if (showLinkedIn && !showWellfound) {
-      // Only show items with LinkedIn data but NO Wellfound data
+      // Only show profiles with LinkedIn data but NO Wellfound data
       if (!hasLinkedInData || hasWellfoundData) {
         return false;
       }
     } 
     // If only Wellfound is checked
     else if (!showLinkedIn && showWellfound) {
-      // Only show items with Wellfound data but NO LinkedIn data
-      if (!hasWellfoundData || hasLinkedInData) {
+      // Show all profiles with Wellfound data, regardless of LinkedIn status
+      if (!hasWellfoundData) {
         return false;
       }
     }
     // If both LinkedIn and Wellfound are checked
     else if (showLinkedIn && showWellfound) {
-      // Only show items with BOTH LinkedIn AND Wellfound data
-      if (!hasWellfoundData || !hasLinkedInData) {
+      // Same behavior as only Wellfound checked - show all profiles with Wellfound data
+      if (!hasWellfoundData) {
         return false;
       }
     }
@@ -403,6 +430,29 @@ function MainPage() {
           </div>
         )}
         
+        {/* Enhanced results counter with rounded numbers - shown when filters are applied */}
+        {(filters.college || 
+          filters.companyIndustry || 
+          filters.currentLocation || 
+          filters.profileSources.linkedin || 
+          filters.profileSources.wellfound ||
+          filters.followersMin > 0 ||
+          filters.followersMax < 50000) && (
+          <div className="filter-results-counter">
+            <div className="results-icon">✨</div>
+            <div className="results-text">
+              <span className="results-count">
+                {formatResultCount(filteredData.length)}
+              </span>
+              {filteredData.length === 1 ? (
+                "matching founder found"
+              ) : (
+                "founders match your filters"
+              )}
+            </div>
+          </div>
+        )}
+        
         <AnimatePresence mode="wait">
           <motion.div
             key={currentPage}
@@ -414,11 +464,11 @@ function MainPage() {
             {currentItems.length ? (
               <>
                 {currentItems.map((item, index) => (
-                  <StartupCard key={index} data={item} />
-                ))}
-              </>
-            ) : (
-              <p className="no-results">No matching results.</p>
+              <StartupCard key={index} data={item} />
+            ))}
+          </>
+        ) : (
+          <p className="no-results">No matching results.</p>
             )}
           </motion.div>
         </AnimatePresence>
