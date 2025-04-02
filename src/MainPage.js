@@ -173,11 +173,7 @@ function MainPage() {
       return hasBasicInfo && (hasLinkedInData || hasWellfoundData);
     });
 
-    // Then proceed with shuffling the valid data
-    for (let i = validData.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [validData[i], validData[j]] = [validData[j], validData[i]];
-    }
+  
     
     // Add debug logging for Reddit data
     console.log('Loading Reddit data:', iitRedditData);
