@@ -1,13 +1,13 @@
 [
     {
-        "query": "founder Gaur",
+        "query": "John Doe",
         "results": [
             {
-                "title": "Post about Gaur",
-                "url": "https://reddit.com/post-about-gaur",
-                "score": 100,
-                "comments": 10,
-                "excerpt": "Discussion about founder Gaur..."
+                "title": "Discussion about John Doe's startup",
+                "url": "https://reddit.com/r/startups/john-doe",
+                "score": 123,
+                "comments": 45,
+                "excerpt": "Interesting discussion about the founder..."
             }
         ]
     },

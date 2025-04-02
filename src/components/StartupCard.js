@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import ReactDOM from "react-dom"; // Import ReactDOM for createPortal
 import iitRedditData from "../iit-reddit.json";
@@ -305,17 +305,30 @@ const StartupCard = ({ data }) => {
     return "Not specified";
   }, [data.colleges, data.college]);
 
-  // Find the Reddit data for this founder and extract URL if available
-  const redditData = iitRedditData.find(item => 
-    item.query.toLowerCase().includes(data.firstName.toLowerCase())
-  );
+  // Update the Reddit data check logic
+  const redditData = useMemo(() => {
+    const founderName = `${data.firstName} ${data.lastName}`.toLowerCase();
+    return iitRedditData.find(item => {
+      const queryName = item.query.toLowerCase();
+      return (
+        queryName.includes(founderName) || 
+        founderName.includes(queryName)
+      );
+    });
+  }, [data.firstName, data.lastName]);
 
-  const redditUrl = redditData && 
-                    redditData.results && 
-                    redditData.results.length > 0 ? 
-                    redditData.results[0].url : null;
-
+  const redditUrl = redditData?.results?.[0]?.url;
   const isMentionedOnReddit = Boolean(redditData);
+
+  // Add this debug log
+  useEffect(() => {
+    console.log('Checking Reddit mentions for:', 
+      data.firstName, 
+      data.lastName, 
+      'Reddit data:', 
+      iitRedditData
+    );
+  }, [data.firstName, data.lastName]);
 
   return (
     <div className="card">
@@ -409,13 +422,15 @@ const StartupCard = ({ data }) => {
           )}
         </div>
         
-        {/* Reddit mention button */}
+        {/* Debug log to check Reddit data */}
+        {console.log('Reddit data for:', data.firstName, data.lastName, iitRedditData)}
+        
+        {/* Reddit mention button - Updated logic */}
         {isMentionedOnReddit && (
           <div 
             className="reddit-mention" 
             onClick={() => redditUrl && window.open(redditUrl, "_blank")}
             style={{ cursor: redditUrl ? 'pointer' : 'default' }}
-            title={redditUrl ? "Click to view Reddit discussion" : "Mentioned on Reddit"}
           >
             <strong>Mentioned on Reddit</strong>
             {redditUrl && <span className="reddit-link-indicator">→</span>}
