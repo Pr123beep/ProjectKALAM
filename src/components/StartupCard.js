@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import ReactDOM from "react-dom"; // Import ReactDOM for createPortal
+import ReactDOM from "react-dom"; 
 import iitRedditData from "../iit-reddit.json";
 
 import "../App.css";
@@ -62,7 +62,6 @@ const CloseIcon = () => (
   </svg>
 );
 
-// Replace the current WellfoundIcon component with this updated version
 const WellfoundIcon = () => (
   <img 
     src="/wellfound.png" 
@@ -71,20 +70,15 @@ const WellfoundIcon = () => (
   />
 );
 
-// Replace the existing formatDescriptionAsList function with this enhanced version
 const formatEnhancedDescription = (text) => {
   if (!text) return null;
   
-  // Split text into paragraphs
   const paragraphs = text.split(/\n\n+/);
   
-  // Extract introduction (first paragraph)
   const introduction = paragraphs[0];
   
-  // Extract key points from the text
   const keyPoints = extractKeyPoints(text, paragraphs);
   
-  // Extract skills
   const skills = extractSkills(text);
   
   return (
@@ -133,16 +127,13 @@ const formatEnhancedDescription = (text) => {
   );
 };
 
-// Extract meaningful key points from the text
 const extractKeyPoints = (text, paragraphs) => {
   const keyPoints = [];
   
-  // Look for bullet points in the text
   const bulletPointRegex = /[•\-*]\s*([^•\-*\n]+)/g;
   const matches = [...text.matchAll(bulletPointRegex)];
   
   if (matches.length > 0) {
-    // If explicit bullet points exist, use them
     matches.forEach(match => {
       const point = match[1].trim();
       if (point.length > 10 && !keyPoints.includes(point)) {
@@ -150,12 +141,10 @@ const extractKeyPoints = (text, paragraphs) => {
       }
     });
   } else {
-    // Otherwise extract sentences that seem important
     const sentences = text.split(/\.\s+/);
     
     sentences.forEach(sentence => {
       const trimmed = sentence.trim();
-      // Look for sentences that might be key points
       if (trimmed.length > 15 && 
           trimmed.length < 150 && 
           (trimmed.includes('expertise') || 
@@ -169,17 +158,13 @@ const extractKeyPoints = (text, paragraphs) => {
     });
   }
   
-  // Return up to 5 unique key points
   return [...new Set(keyPoints)].slice(0, 5);
 };
 
-// Extract skills from the text
 const extractSkills = (text) => {
-  // Look for skills section
   const skillsSection = text.toLowerCase().includes('skills') ? 
     text.substring(text.toLowerCase().indexOf('skills')) : text;
   
-  // Common professional skills to look for
   const skillKeywords = [
     'management', 'leadership', 'strategy', 'marketing', 'sales', 'finance',
     'development', 'programming', 'design', 'analysis', 'research', 'product',
@@ -189,14 +174,12 @@ const extractSkills = (text) => {
   
   const foundSkills = [];
   
-  // Look for skill keywords in the text
   skillKeywords.forEach(skill => {
     if (skillsSection.toLowerCase().includes(skill.toLowerCase())) {
       foundSkills.push(capitalizeFirstLetter(skill));
     }
   });
   
-  // If not enough skills found, try to extract from bullet points
   if (foundSkills.length < 5) {
     const bulletPointRegex = /[•\-*]\s*([^•\-*\n]+)/g;
     const matches = [...skillsSection.matchAll(bulletPointRegex)];
@@ -209,19 +192,16 @@ const extractSkills = (text) => {
     });
   }
   
-  return [...new Set(foundSkills)].slice(0, 8); // Return up to 8 unique skills
+  return [...new Set(foundSkills)].slice(0, 8); 
 };
 
-// Helper function to capitalize first letter
 const capitalizeFirstLetter = (string) => {
   return string.charAt(0).toUpperCase() + string.slice(1);
 };
 
-// Add back the simple description formatter for job positions
 const formatSimpleDescription = (text) => {
   if (!text) return null;
   
-  // Basic paragraph formatting
   return (
     <div className="simple-description">
       {text.split(/\n\n+/).map((paragraph, idx) => (
@@ -237,13 +217,10 @@ const StartupCard = ({ data }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
 
-  // Apply a more aggressive approach to blocking the page, but allow modal scrolling
   useEffect(() => {
     if (showDetails) {
-      // Lock the body
       document.body.classList.add('body-no-scroll');
       
-      // Instead of blocking all events, only block them outside the modal
       document.addEventListener('touchmove', preventScrollOutsideModal, { passive: false });
       document.addEventListener('wheel', preventScrollOutsideModal, { passive: false });
     } else {
@@ -259,9 +236,7 @@ const StartupCard = ({ data }) => {
     };
   }, [showDetails]);
 
-  // Only prevent scroll events if they're outside the modal
   const preventScrollOutsideModal = (e) => {
-    // Check if the event target is within the modal
     const modalElement = document.querySelector('.detail-modal');
     if (modalElement && !modalElement.contains(e.target)) {
       e.preventDefault();
@@ -269,43 +244,34 @@ const StartupCard = ({ data }) => {
   };
 
   const toggleDetails = (e) => {
-    // Prevent event bubbling
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
     
-    // Only toggle if not already in transition
     if (!isToggling) {
       setIsToggling(true);
       
-      // Use requestAnimationFrame for smoother timing
       requestAnimationFrame(() => {
     setShowDetails((prev) => !prev);
         
-        // Reset toggle flag after the animation duration
         setTimeout(() => {
           setIsToggling(false);
-        }, 350); // Slightly longer than animation duration
+        }, 350);
       });
     }
   };
 
-  // Update the college display logic
   const collegeDisplay = React.useMemo(() => {
-    // First try the colleges array
     if (Array.isArray(data.colleges) && data.colleges.length > 0) {
       return data.colleges.join(", ");
     }
-    // Then try the single college field
     if (data.college) {
       return data.college;
     }
-    // Finally fall back to "Not specified"
     return "Not specified";
   }, [data.colleges, data.college]);
 
-  // Update the Reddit data check logic
   const redditData = useMemo(() => {
     const founderName = `${data.firstName} ${data.lastName}`.toLowerCase();
     return iitRedditData.find(item => {
@@ -320,7 +286,6 @@ const StartupCard = ({ data }) => {
   const redditUrl = redditData?.results?.[0]?.url;
   const isMentionedOnReddit = Boolean(redditData);
 
-  // Add this debug log
   useEffect(() => {
     console.log('Checking Reddit mentions for:', 
       data.firstName, 

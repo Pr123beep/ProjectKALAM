@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import './Pagination.css';
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
-  // Calculate which page numbers to show
   const getPageNumbers = () => {
     if (totalPages <= 5) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);

@@ -609,7 +609,6 @@
   background-color: #f5f9f9;
 }
 
-/* Mobile-specific styles for suggestions */
 @media (max-width: 768px) {
   .suggestions-list {
     position: fixed;
@@ -681,7 +680,6 @@
   color: #4b5563;
 }
 
-/* Style for active filters */
 .simplified .filter-checkbox input:checked + .checkbox-label {
   font-weight: 600;
   color: var(--primary-color);
@@ -700,7 +698,6 @@
   }
 }
 
-/* Add at the top of FilterBar.css */
 .simplified-filter-bar {
   padding: 15px;
   background-color: #f8f9fa;
@@ -748,7 +745,6 @@
   font-weight: 500;
 }
 
-/* Style checked state */
 .filter-checkbox input:checked + .checkbox-label {
   color: var(--primary-color);
   font-weight: 600;

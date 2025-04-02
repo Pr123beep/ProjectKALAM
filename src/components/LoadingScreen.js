@@ -5,7 +5,6 @@ const LoadingScreen = ({ onFinished }) => {
   const [loadingProgress, setLoadingProgress] = useState(0);
   
   useEffect(() => {
-    // Simulate loading progress
     const interval = setInterval(() => {
       setLoadingProgress(prevProgress => {
         const newProgress = prevProgress + Math.random() * 15;
@@ -13,11 +12,10 @@ const LoadingScreen = ({ onFinished }) => {
       });
     }, 400);
     
-    // Complete loading after animation time
     const timer = setTimeout(() => {
       clearInterval(interval);
       setLoadingProgress(100);
-      setTimeout(onFinished, 1000); // Delay to show 100% before transitioning
+      setTimeout(onFinished, 1000); 
     }, 3000);
     
     return () => {
@@ -40,7 +38,6 @@ const LoadingScreen = ({ onFinished }) => {
             <div className="logo-glow uc-glow"></div>
           </div>
           
-          {/* Connection animation between logos */}
           <div className="logo-connection">
             <div className="connection-line"></div>
             <div className="connection-pulse"></div>
