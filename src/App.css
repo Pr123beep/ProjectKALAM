@@ -386,16 +386,17 @@ a:hover {
   display: flex;
   align-items: center;
   cursor: pointer;
-  padding: 8px 12px;
-  border-radius: 6px;
+  padding: 10px 14px;
+  border-radius: 8px;
   background-color: #f8f9fa;
   border: 1px solid #e5e7eb;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
   width: 100%;
 }
 
 .custom-checkbox:hover {
   background-color: #f0f0f0;
+  border-color: #d1d5db;
 }
 
 .custom-checkbox input {
@@ -410,13 +411,28 @@ a:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   margin-right: 10px;
   border-radius: 4px;
   background-color: white;
   border: 2px solid #d1d5db;
   transition: all 0.2s ease;
+  position: relative;
+}
+
+/* Simple checkmark using pseudo-element */
+.checkbox-icon::after {
+  content: '';
+  display: none;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  position: absolute;
+  top: 1px;
+  left: 5px;
 }
 
 .custom-checkbox input:checked + .checkbox-icon {
@@ -434,21 +450,43 @@ a:hover {
   border-color: #34aa44;
 }
 
-.checkbox-icon svg {
-  width: 14px;
-  height: 14px;
-  stroke: white;
+.custom-checkbox input:checked + .checkbox-icon::after {
   display: block;
 }
 
 .checkbox-label {
   font-size: 14px;
-  font-weight: normal;
-  color: #333;
+  font-weight: 500;
+  color: #4b5563;
+  transition: all 0.2s ease;
 }
 
 .custom-checkbox input:checked ~ .checkbox-label {
-  font-weight: 500;
+  color: #2a9d8f;
+}
+
+.custom-checkbox.linkedin input:checked ~ .checkbox-label {
+  color: #0077b5;
+}
+
+.custom-checkbox.wellfound input:checked ~ .checkbox-label {
+  color: #34aa44;
+}
+
+/* Animation for check mark */
+@keyframes checkmark {
+  0% {
+    transform: rotate(45deg) scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: rotate(45deg) scale(1);
+    opacity: 1;
+  }
+}
+
+.custom-checkbox input:checked + .checkbox-icon::after {
+  animation: checkmark 0.2s ease-out forwards;
 }
 
 /* Pulse animation for checked checkboxes */
