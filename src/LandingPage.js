@@ -23,22 +23,6 @@ const ChevronRightIcon = ({ className }) => (
   </svg>
 )
 
-const ArrowRightIcon = ({ className }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className={className}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <line x1="5" y1="12" x2="19" y2="12"></line>
-    <polyline points="12 5 19 12 12 19"></polyline>
-  </svg>
-)
-
 const ZapIcon = ({ className }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -290,7 +274,6 @@ function LandingPage({ onNavigate }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeFeature, setActiveFeature] = useState(0)
   const [isDarkMode, setIsDarkMode] = useState(false)
-  const [testimonials, setTestimonials] = useState([])
   const heroRef = useRef(null)
   const isHeroInView = useInView(heroRef, { once: false, amount: 0.3 })
   const { scrollYProgress } = useScroll()
@@ -326,30 +309,6 @@ function LandingPage({ onNavigate }) {
     };
     
     preloadImages();
-
-    // Instead of random selection, we'll use fixed testimonials
-    const fixedTestimonials = [
-      {
-        name: "Alex Chen",
-        role: "Founder & CEO, NeuralSphere",
-        image: "https://via.placeholder.com/100",
-        content: "Building NeuralSphere from the ground up required more than just technical expertise—it demanded vision and strategic partnerships. This platform connected us with investors who truly understood our AI infrastructure goals and helped us scale operations across three continents in just 18 months."
-      },
-      {
-        name: "Sophia Rodriguez",
-        role: "Co-founder, BioGenesis Healthcare",
-        image: "https://via.placeholder.com/100",
-        content: "After developing our breakthrough therapy, we faced the challenge of scaling production while navigating complex regulatory environments. The mentorship and capital resources we accessed through this network proved invaluable—we've since secured approval in 7 countries and helped over 50,000 patients."
-      },
-      {
-        name: "Marcus Johnson",
-        role: "Founder, Quantum Finance Solutions",
-        image: "https://via.placeholder.com/100",
-        content: "When we set out to democratize enterprise-grade financial tools for small businesses, we knew we needed partners who shared our vision. Through connections made here, we secured not just funding but strategic guidance that helped us grow our customer base from 200 to over 15,000 businesses in just two years."
-      }
-    ];
-    
-    setTestimonials(fixedTestimonials);
 
     const handleScroll = () => setScrollY(window.scrollY)
     window.addEventListener("scroll", handleScroll, { passive: true })
@@ -483,9 +442,8 @@ function LandingPage({ onNavigate }) {
               </div>
             </div>
             <h1 className="branding">
-UNDIVIDED CAPITAL&nbsp;&lt;&gt;&nbsp;Scaler
-</h1>
-
+              UNDIVIDED CAPITAL&nbsp;&lt;&gt;&nbsp;Scaler
+            </h1>
           </motion.div>
 
           {/* Desktop Navigation */}
@@ -909,8 +867,8 @@ UNDIVIDED CAPITAL&nbsp;&lt;&gt;&nbsp;Scaler
           </div>
         </section>
 
-        {/* Testimonials Section */}
-        <section className="testimonials-section">
+        {/* Replace Success Stories section with Advanced Analytics Section */}
+        <section className="features-section" id="analytics">
           <div className="container">
             <motion.div
               className="section-header"
@@ -926,59 +884,75 @@ UNDIVIDED CAPITAL&nbsp;&lt;&gt;&nbsp;Scaler
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
               >
-                Success Stories
+                Advanced Analytics
               </motion.div>
-              <h2 className="section-title">Trusted by Industry Leaders</h2>
+              <h2 className="section-title">Data-Driven Investment Decisions</h2>
               <p className="section-subtitle">
-                See how businesses have transformed their growth trajectory with our capital scaling solutions.
+                Leverage sophisticated analytics to identify patterns and make informed investment choices
               </p>
             </motion.div>
 
-            <div className="testimonials-grid">
-              {testimonials.map((testimonial, index) => (
-                <motion.div
-                  key={index}
-                  className="testimonial-card"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <div className="testimonial-quote">"</div>
-                  <div className="testimonial-content">
-                    <p>{testimonial.content}</p>
+            <div className="analytics-grid">
+              <motion.div 
+                className="analytics-card"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className="analytics-card-header">
+                  <DatabaseIcon className="icon" />
+                  <h3>Founder Success Prediction</h3>
+                </div>
+                <p>Use machine learning algorithms to predict founder success based on historical performance data, educational background, and professional experience.</p>
+                <div className="analytics-metrics">
+                  <div className="metric">
+                    <span className="metric-value">87%</span>
+                    <span className="metric-label">Prediction Accuracy</span>
                   </div>
-                  <div className="testimonial-author">
-                    <div className="author-avatar">
-                      <img 
-                        src={testimonial.image} 
-                        alt={testimonial.name} 
-                        loading="lazy" 
-                        width="100" 
-                        height="100"
-                      />
-                    </div>
-                    <div className="author-info">
-                      <h4>{testimonial.name}</h4>
-                      <p>{testimonial.role}</p>
-                    </div>
+                </div>
+              </motion.div>
+              
+              <motion.div 
+                className="analytics-card"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                <div className="analytics-card-header">
+                  <GlobeIcon className="icon" />
+                  <h3>Market Opportunity Analysis</h3>
+                </div>
+                <p>Evaluate sector growth potential and market expansion opportunities with comprehensive data visualization and trend analysis.</p>
+                <div className="analytics-metrics">
+                  <div className="metric">
+                    <span className="metric-value">2.5x</span>
+                    <span className="metric-label">ROI Improvement</span>
                   </div>
-                </motion.div>
-              ))}
+                </div>
+              </motion.div>
+              
+              <motion.div 
+                className="analytics-card"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <div className="analytics-card-header">
+                  <LayersIcon className="icon" />
+                  <h3>Portfolio Risk Assessment</h3>
+                </div>
+                <p>Balance your investment portfolio with data-backed risk assessment tools that analyze market volatility and founder resilience factors.</p>
+                <div className="analytics-metrics">
+                  <div className="metric">
+                    <span className="metric-value">-32%</span>
+                    <span className="metric-label">Risk Exposure</span>
+                  </div>
+                </div>
+              </motion.div>
             </div>
-
-            <motion.div
-              className="section-cta"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-            >
-              <button className="cta-button primary" onClick={onNavigate}>
-                <span>View All Case Studies</span>
-                <ArrowRightIcon className="icon-sm" />
-              </button>
-            </motion.div>
           </div>
         </section>
 
@@ -1054,28 +1028,27 @@ UNDIVIDED CAPITAL&nbsp;&lt;&gt;&nbsp;Scaler
                 Identifying exceptional founders with data-driven insights
               </p>
               <div className="footer-social">
-              {["twitter", "linkedin", "facebook", "github"].map((social) => (
-    <a key={social} href={`#${social}`} className="social-link" aria-label={`${social} link`}>
-      <span className="sr-only">{social}</span>
-      <SocialIcon type={social} />
-    </a>
-  ))}
-
+                {["twitter", "linkedin", "facebook", "github"].map((social) => (
+                  <a key={social} href={`#${social}`} className="social-link" aria-label={`${social} link`}>
+                    <span className="sr-only">{social}</span>
+                    <SocialIcon type={social} />
+                  </a>
+                ))}
               </div>
             </div>
 
             {[
               {
                 title: "Platform",
-                links: ["Features", "Solutions", "Pricing", "Case Studies", "Documentation"],
+                links: ["Features", "Solutions", "Pricing", "Documentation"],
               },
               {
                 title: "Company",
-                links: ["About", "Team", "Careers", "Press", "News"],
+                links: ["About", "Team", "Careers", "News"],
               },
               {
                 title: "Resources",
-                links: ["Blog", "Newsletter", "Events", "Help Center", "Tutorials"],
+                links: ["Blog", "Newsletter", "Events", "Help Center"],
               },
             ].map((column, i) => (
               <div key={i} className="footer-links">
@@ -1114,4 +1087,3 @@ UNDIVIDED CAPITAL&nbsp;&lt;&gt;&nbsp;Scaler
 }
 
 export default LandingPage
-
