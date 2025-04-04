@@ -689,7 +689,7 @@ function LandingPage({ onNavigate }) {
                       </div>
                       <div>
                         <div className="floating-card-label">New Investors</div>
-                        <div className="floating-card-value">1,240</div>
+                        <div className="floating-card-value">1,762</div>
                       </div>
                     </div>
                   </motion.div>
