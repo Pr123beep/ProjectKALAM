@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/components/Login.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1743847556915,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1743847556915,
+            "name": "Commit-0",
+            "content": "// src/components/Login.js\r\nimport React, { useState } from 'react';\r\nimport { supabase } from '../supabaseClient';\r\n\r\nconst Login = ({ onLoginSuccess }) => {\r\n  const [email, setEmail] = useState('');\r\n  const [password, setPassword] = useState('');\r\n  const [errorMsg, setErrorMsg] = useState('');\r\n\r\n  const handleLogin = async (e) => {\r\n    e.preventDefault();\r\n    const { error, user } = await supabase.auth.signIn({ email, password });\r\n    if (error) {\r\n      setErrorMsg(error.message);\r\n    } else {\r\n      onLoginSuccess(user);\r\n    }\r\n  };\r\n\r\n  return (\r\n    <form onSubmit={handleLogin}>\r\n      <h2>Login</h2>\r\n      {errorMsg && <p style={{ color: 'red' }}>{errorMsg}</p>}\r\n      <input \r\n        type=\"email\" \r\n        value={email} \r\n        onChange={(e) => setEmail(e.target.value)} \r\n        placeholder=\"Email\"\r\n      />\r\n      <input \r\n        type=\"password\" \r\n        value={password} \r\n        onChange={(e) => setPassword(e.target.value)} \r\n        placeholder=\"Password\"\r\n      />\r\n      <button type=\"submit\">Login</button>\r\n    </form>\r\n  );\r\n};\r\n\r\nexport default Login;\r\n"
+        }
+    ]
+}

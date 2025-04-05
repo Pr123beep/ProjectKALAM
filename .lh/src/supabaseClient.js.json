@@ -1,0 +1,34 @@
+{
+    "sourceFile": "src/supabaseClient.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 4,
+            "patches": [
+                {
+                    "date": 1743847449778,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1743847460800,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,7 +1,7 @@\n // src/supabaseClient.js\r\n import { createClient } from '@supabase/supabase-js';\r\n \r\n-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL; // or REACT_APP_SUPABASE_URL\r\n+const SUPABASE_URL = https://unsrgtbkqnneplscdkaq.supabase.co\r\n const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY; // or REACT_APP_SUPABASE_ANON_KEY\r\n \r\n export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);\r\n"
+                },
+                {
+                    "date": 1743847476713,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,7 +1,7 @@\n // src/supabaseClient.js\r\n import { createClient } from '@supabase/supabase-js';\r\n \r\n const SUPABASE_URL = https://unsrgtbkqnneplscdkaq.supabase.co\r\n-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY; // or REACT_APP_SUPABASE_ANON_KEY\r\n+const SUPABASE_ANON_KEY =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuc3JndGJrcW5uZXBsc2Nka2FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM3ODQ4NDksImV4cCI6MjA1OTM2MDg0OX0.-fdqZhDP6AMbh4yN0ETFZ_L7SrF6lOqkv04UeQV_XpY\r\n \r\n export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);\r\n"
+                },
+                {
+                    "date": 1743847483983,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,7 +1,7 @@\n // src/supabaseClient.js\r\n import { createClient } from '@supabase/supabase-js';\r\n \r\n-const SUPABASE_URL = https://unsrgtbkqnneplscdkaq.supabase.co\r\n+const SUPABASE_URL = 'https://unsrgtbkqnneplscdkaq.supabase.co'\r\n const SUPABASE_ANON_KEY =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuc3JndGJrcW5uZXBsc2Nka2FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM3ODQ4NDksImV4cCI6MjA1OTM2MDg0OX0.-fdqZhDP6AMbh4yN0ETFZ_L7SrF6lOqkv04UeQV_XpY\r\n \r\n export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);\r\n"
+                },
+                {
+                    "date": 1743847490855,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,7 +1,7 @@\n // src/supabaseClient.js\r\n import { createClient } from '@supabase/supabase-js';\r\n \r\n const SUPABASE_URL = 'https://unsrgtbkqnneplscdkaq.supabase.co'\r\n-const SUPABASE_ANON_KEY =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuc3JndGJrcW5uZXBsc2Nka2FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM3ODQ4NDksImV4cCI6MjA1OTM2MDg0OX0.-fdqZhDP6AMbh4yN0ETFZ_L7SrF6lOqkv04UeQV_XpY\r\n+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuc3JndGJrcW5uZXBsc2Nka2FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM3ODQ4NDksImV4cCI6MjA1OTM2MDg0OX0.-fdqZhDP6AMbh4yN0ETFZ_L7SrF6lOqkv04UeQV_XpY'\r\n \r\n export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);\r\n"
+                }
+            ],
+            "date": 1743847449778,
+            "name": "Commit-0",
+            "content": "// src/supabaseClient.js\r\nimport { createClient } from '@supabase/supabase-js';\r\n\r\nconst SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL; // or REACT_APP_SUPABASE_URL\r\nconst SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY; // or REACT_APP_SUPABASE_ANON_KEY\r\n\r\nexport const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);\r\n"
+        }
+    ]
+}
