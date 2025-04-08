@@ -1,7 +1,7 @@
 // src/components/Login.js
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase, signInWithEmail } from '../supabaseClient';
+import { signInWithEmail } from '../supabaseClient';
 import './Auth.css';
 
 const Login = ({ onLoginSuccess }) => {

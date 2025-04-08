@@ -1,7 +1,7 @@
 // src/components/Register.js
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase, signUpWithEmail } from '../supabaseClient';
+import { signUpWithEmail } from '../supabaseClient';
 import './Auth.css';
 
 const Register = ({ onRegisterSuccess }) => {
