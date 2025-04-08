@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import ReactDOM from "react-dom"; 
 import iitRedditData from "../iit-reddit.json";
+import { generateFounderSummary } from "../utils/geminiApi";
 
 import "../App.css";
 import "./StartupCard.css";
@@ -216,13 +217,53 @@ const formatSimpleDescription = (text) => {
 const StartupCard = ({ data }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
+  const [aiSummary, setAiSummary] = useState(null);
+  const [isLoadingSummary, setIsLoadingSummary] = useState(false);
+  const [summaryError, setSummaryError] = useState(null);
+
+  // Create a unique key for this founder's profile
+  const founderKey = useMemo(() => {
+    return `${data.firstName}_${data.lastName}_${data.companyName}`.toLowerCase().replace(/[^a-z0-9]/g, '_');
+  }, [data.firstName, data.lastName, data.companyName]);
+
+  // Reset states when data changes (i.e., when filters are applied)
+  useEffect(() => {
+    setAiSummary(null);
+    setSummaryError(null);
+    setIsLoadingSummary(false);
+  }, [founderKey]);
 
   useEffect(() => {
     if (showDetails) {
       document.body.classList.add('body-no-scroll');
-      
       document.addEventListener('touchmove', preventScrollOutsideModal, { passive: false });
       document.addEventListener('wheel', preventScrollOutsideModal, { passive: false });
+
+      // Generate AI summary when modal is opened
+      const generateSummary = async () => {
+        // Only generate if we don't have a summary for this specific founder
+        if (!aiSummary && !summaryError && !isLoadingSummary) {
+          setIsLoadingSummary(true);
+          try {
+            const summary = await generateFounderSummary(data);
+            // Only set the summary if we're still showing details for the same founder
+            if (showDetails) {
+              setAiSummary(summary);
+            }
+          } catch (error) {
+            console.error('Failed to generate summary:', error);
+            if (showDetails) {
+              setSummaryError('Failed to generate AI summary. Please try again later.');
+            }
+          } finally {
+            if (showDetails) {
+              setIsLoadingSummary(false);
+            }
+          }
+        }
+      };
+
+      generateSummary();
     } else {
       document.body.classList.remove('body-no-scroll');
       document.removeEventListener('touchmove', preventScrollOutsideModal);
@@ -234,7 +275,7 @@ const StartupCard = ({ data }) => {
       document.removeEventListener('touchmove', preventScrollOutsideModal);
       document.removeEventListener('wheel', preventScrollOutsideModal);
     };
-  }, [showDetails]);
+  }, [showDetails, data, aiSummary, summaryError, isLoadingSummary, founderKey]);
 
   const preventScrollOutsideModal = (e) => {
     const modalElement = document.querySelector('.detail-modal');
@@ -253,7 +294,15 @@ const StartupCard = ({ data }) => {
       setIsToggling(true);
       
       requestAnimationFrame(() => {
-    setShowDetails((prev) => !prev);
+        const newShowDetails = !showDetails;
+        setShowDetails(newShowDetails);
+        
+        // Reset summary states when closing the modal
+        if (!newShowDetails) {
+          setAiSummary(null);
+          setSummaryError(null);
+          setIsLoadingSummary(false);
+        }
         
         setTimeout(() => {
           setIsToggling(false);
@@ -411,26 +460,26 @@ const StartupCard = ({ data }) => {
       {showDetails && 
         ReactDOM.createPortal(
           <div className="modal-root" key="detail-modal-portal">
-          <motion.div
-            className="detail-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            onClick={toggleDetails}
-          >
             <motion.div
+              className="detail-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              onClick={toggleDetails}
+            >
+              <motion.div
                 className="detail-modal no-animation"
                 initial={{ opacity: 0, scale: 0.9, y: 50 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
                 transition={{ 
                   type: "spring", 
                   damping: 25, 
                   stiffness: 300,
                 }}
-              onClick={(e) => e.stopPropagation()}
-            >
+                onClick={(e) => e.stopPropagation()}
+              >
                 {/* Close button in top-right corner with animation */}
                 <motion.button 
                   className="close-button" 
@@ -551,6 +600,34 @@ const StartupCard = ({ data }) => {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 }}
                 >
+                  {/* AI Summary Section */}
+                  <motion.div 
+                    className="detail-section ai-summary"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    <h3 className="section-title">
+                      <span role="img" aria-label="AI">📋</span> Summary
+                    </h3>
+                    <div className="detail-card">
+                      {isLoadingSummary ? (
+                        <div className="loading-summary">
+                          <div className="loading-spinner"></div>
+                          <p>Generating AI summary...</p>
+                        </div>
+                      ) : summaryError ? (
+                        <div className="summary-error">
+                          <p>{summaryError}</p>
+                        </div>
+                      ) : aiSummary ? (
+                        <div className="summary-content">
+                          {formatSimpleDescription(aiSummary)}
+                        </div>
+                      ) : null}
+                    </div>
+                  </motion.div>
+
                   {/* Wrap each section in a motion.div for staggered appearance */}
                   {/* Example for the first section */}
                   {data.linkedinDescription && (
