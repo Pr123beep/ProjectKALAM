@@ -7,9 +7,24 @@ const SUPABASE_ANON_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY || 'eyJhbGciOi
 
 // Determine the site URL for redirects (works in both dev and production)
 const getSiteUrl = () => {
-  let url = process.env.REACT_APP_SITE_URL || window.location.origin;
+  // Always use the production URL for authentication redirects
+  const productionUrl = 'https://investm.netlify.app';
+  
+  // Only use development URL if explicitly set via process.env or not in development mode
+  if (process.env.NODE_ENV !== 'development') {
+    // In production, try to use the environment variable if available
+    if (process.env.REACT_APP_SITE_URL) {
+      const url = process.env.REACT_APP_SITE_URL;
+      // Remove trailing slash if it exists
+      const formattedUrl = url.endsWith('/') ? url.slice(0, -1) : url;
+      console.log('Using site URL from environment variable:', formattedUrl);
+      return formattedUrl;
+    }
+  }
+  
+  console.log('Using hardcoded production URL for auth redirects:', productionUrl);
   // Remove trailing slash if it exists
-  return url.endsWith('/') ? url.slice(0, -1) : url;
+  return productionUrl.endsWith('/') ? productionUrl.slice(0, -1) : productionUrl;
 };
 
 // Create a single supabase client for interacting with your database
@@ -50,11 +65,14 @@ export const signOut = async () => {
 // Login with redirect support
 export const signInWithEmail = async (email, password) => {
   try {
+    const siteUrl = getSiteUrl();
+    console.log('Auth redirect URL will be:', `${siteUrl}/main`);
+    
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
       options: {
-        redirectTo: `${getSiteUrl()}/main`
+        redirectTo: `${siteUrl}/main`
       }
     });
     
@@ -69,11 +87,14 @@ export const signInWithEmail = async (email, password) => {
 // Register with redirect support
 export const signUpWithEmail = async (email, password) => {
   try {
+    const siteUrl = getSiteUrl();
+    console.log('Auth redirect URL will be:', `${siteUrl}/main`);
+    
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        redirectTo: `${getSiteUrl()}/main`
+        redirectTo: `${siteUrl}/main`
       }
     });
     
