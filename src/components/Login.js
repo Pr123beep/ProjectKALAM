@@ -1,7 +1,7 @@
 // src/components/Login.js
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../supabaseClient';
+import { supabase, signInWithEmail } from '../supabaseClient';
 import './Auth.css';
 
 const Login = ({ onLoginSuccess }) => {
@@ -16,10 +16,7 @@ const Login = ({ onLoginSuccess }) => {
     setErrorMsg('');
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
+      const { data, error } = await signInWithEmail(email, password);
 
       if (error) {
         throw error;

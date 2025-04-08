@@ -5,13 +5,21 @@ import { createClient } from '@supabase/supabase-js';
 const SUPABASE_URL = process.env.REACT_APP_SUPABASE_URL || 'https://unsrgtbkqnneplscdkaq.supabase.co';
 const SUPABASE_ANON_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuc3JndGJrcW5uZXBsc2Nka2FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM3ODQ4NDksImV4cCI6MjA1OTM2MDg0OX0.-fdqZhDP6AMbh4yN0ETFZ_L7SrF6lOqkv04UeQV_XpY';
 
+// Determine the site URL for redirects (works in both dev and production)
+const getSiteUrl = () => {
+  let url = process.env.REACT_APP_SITE_URL || window.location.origin;
+  // Remove trailing slash if it exists
+  return url.endsWith('/') ? url.slice(0, -1) : url;
+};
+
 // Create a single supabase client for interacting with your database
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
     storageKey: 'decontaminators-auth-storage-key',
-    detectSessionInUrl: true
+    detectSessionInUrl: true,
+    flowType: 'pkce' // Use PKCE flow for added security
   }
 });
 
@@ -36,5 +44,43 @@ export const signOut = async () => {
   } catch (error) {
     console.error('Error signing out:', error.message);
     return false;
+  }
+};
+
+// Login with redirect support
+export const signInWithEmail = async (email, password) => {
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+      options: {
+        redirectTo: `${getSiteUrl()}/main`
+      }
+    });
+    
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error signing in:', error.message);
+    return { data: null, error };
+  }
+};
+
+// Register with redirect support
+export const signUpWithEmail = async (email, password) => {
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        redirectTo: `${getSiteUrl()}/main`
+      }
+    });
+    
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error signing up:', error.message);
+    return { data: null, error };
   }
 };

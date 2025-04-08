@@ -1,7 +1,7 @@
 // src/components/Register.js
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../supabaseClient';
+import { supabase, signUpWithEmail } from '../supabaseClient';
 import './Auth.css';
 
 const Register = ({ onRegisterSuccess }) => {
@@ -18,13 +18,7 @@ const Register = ({ onRegisterSuccess }) => {
     setSuccessMsg('');
 
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/login`
-        }
-      });
+      const { data, error } = await signUpWithEmail(email, password);
 
       if (error) {
         throw error;
