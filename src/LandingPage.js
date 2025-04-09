@@ -449,7 +449,7 @@ function LandingPage({ onNavigate }) {
 
           {/* Desktop Navigation */}
           <nav className="desktop-nav">
-            {["Features", "Solutions", "About", "Contact"].map((item, i) => (
+            {["About", "Contact"].map((item, i) => (
               <motion.a
                 key={item}
                 href={`#${item.toLowerCase()}`}
@@ -510,7 +510,7 @@ function LandingPage({ onNavigate }) {
               transition={{ duration: 0.3 }}
             >
               <div className="mobile-nav-container">
-                {["Features", "Solutions", "About", "Contact"].map((item, i) => (
+                {["About", "Contact"].map((item, i) => (
                   <motion.a
                     key={item}
                     href={`#${item.toLowerCase()}`}
@@ -1029,36 +1029,46 @@ function LandingPage({ onNavigate }) {
                 Identifying exceptional founders with data-driven insights
               </p>
               <div className="footer-social">
-                {["twitter", "linkedin", "facebook", "github"].map((social) => (
-                  <a key={social} href={`#${social}`} className="social-link" aria-label={`${social} link`}>
-                    <span className="sr-only">{social}</span>
-                    <SocialIcon type={social} />
-                  </a>
-                ))}
+                <a href="https://www.linkedin.com/company/undividedcapital" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="LinkedIn">
+                  <span className="sr-only">LinkedIn</span>
+                  <SocialIcon type="linkedin" />
+                </a>
+                <a href="https://github.com/Pr123beep/frontend2" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="GitHub">
+                  <span className="sr-only">GitHub</span>
+                  <SocialIcon type="github" />
+                </a>
               </div>
             </div>
 
             {[
               {
-                title: "Platform",
-                links: ["Features", "Solutions", "Pricing", "Documentation"],
-              },
-              {
                 title: "Company",
-                links: ["About", "Team", "Careers", "News"],
+                links: [
+                  { name: "About", url: "#about" },
+                  { name: "LinkedIn", url: "https://www.linkedin.com/company/undividedcapital" },
+                  { name: "Contact", url: "#contact" }
+                ],
               },
               {
                 title: "Resources",
-                links: ["Blog", "Newsletter", "Events", "Help Center"],
+                links: [
+                  { name: "Documentation", url: "#documentation" },
+                  { name: "GitHub", url: "https://github.com/Pr123beep/frontend2" },
+                  { name: "Help Center", url: "#help" }
+                ],
               },
             ].map((column, i) => (
               <div key={i} className="footer-links">
                 <h3 className="footer-column-title">{column.title}</h3>
                 <ul className="footer-menu">
                   {column.links.map((link) => (
-                    <li key={link}>
-                      <a href={`#${link.toLowerCase()}`} className="footer-link">
-                        {link}
+                    <li key={link.name}>
+                      <a href={link.url} 
+                         className="footer-link"
+                         target={link.url.startsWith("http") ? "_blank" : ""}
+                         rel={link.url.startsWith("http") ? "noopener noreferrer" : ""}
+                      >
+                        {link.name}
                       </a>
                     </li>
                   ))}
@@ -1068,16 +1078,13 @@ function LandingPage({ onNavigate }) {
           </div>
 
           <div className="footer-bottom">
-            <p className="copyright">&copy; {new Date().getFullYear()} Project Kalam. All rights reserved.</p>
+            <p className="copyright">&copy; {new Date().getFullYear()} Undivided Capital. All rights reserved.</p>
             <div className="legal-links">
               <a href="#privacy" className="legal-link">
                 Privacy Policy
               </a>
               <a href="#terms" className="legal-link">
                 Terms of Service
-              </a>
-              <a href="#cookies" className="legal-link">
-                Cookie Policy
               </a>
             </div>
           </div>
