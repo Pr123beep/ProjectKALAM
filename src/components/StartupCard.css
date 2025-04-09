@@ -21,10 +21,29 @@ body {
   letter-spacing: -0.01em;
 }
 
+/* Header label button styling */
 .header-label-button {
   margin-left: auto;
-  flex-shrink: 0;
-  align-self: center;
+  display: flex;
+  align-items: center;
+}
+
+.header-label-button .label-button {
+  font-size: 0.85rem;
+  padding: 6px;
+  border-radius: 6px;
+  background-color: rgba(237, 242, 247, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.header-label-button .label-button:hover {
+  background-color: #edf2f7;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
 }
 
 .card-headline {
@@ -154,6 +173,7 @@ body {
   width: 100%;
   height: 100%;
   z-index: 9999; /* Very high z-index */
+  isolation: isolate;
 }
 
 .detail-overlay {
@@ -453,14 +473,16 @@ body {
 }
 
 /* Body class for preventing scrolling */
-.body-no-scroll {
-  overflow: hidden !important;
-  height: 100% !important;
-  position: fixed !important;
-  width: 100% !important;
-  touch-action: none !important; /* Disable all touch actions */
-  -webkit-overflow-scrolling: none !important;
-  overscroll-behavior: none !important; /* Prevent pull-to-refresh and overscroll effects */
+body.modal-open {
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* But allow pointer events on the modal itself */
+body.modal-open .detail-modal,
+body.modal-open .modal-root,
+body.modal-open .detail-overlay {
+  pointer-events: auto;
 }
 
 /* Style for description lists */
@@ -522,8 +544,24 @@ body {
 /* Profile links styling */
 .profile-links {
   display: flex;
+  flex-direction: column;
   gap: 10px;
   margin-top: 12px;
+}
+
+.profile-link-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: flex-start;
+}
+
+.link-followers-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .profile-link {
@@ -554,6 +592,22 @@ body {
 
 .wellfound-link:hover {
   background-color: #2c9039;
+}
+
+.profile-followers-badge.inline-badge {
+  font-size: 13px;
+  padding: 4px 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  display: inline-flex;
+  align-items: center;
+  max-width: fit-content;
+  margin: 0;
+}
+
+.profile-followers-badge.inline-badge svg {
+  width: 14px;
+  height: 14px;
+  margin-right: 5px;
 }
 
 /* Remove CSS animation for elements using Framer Motion */
@@ -966,6 +1020,8 @@ body {
   max-width: fit-content;
   transition: all 0.2s ease;
   z-index: 10;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 .profile-followers-badge:hover {
@@ -1004,4 +1060,383 @@ body {
 .followers-ultra {
   background: linear-gradient(135deg, #8b5cf6, #0c4a6e); /* Purple to dark blue gradient */
   border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/*** LABEL BUTTON STYLING ***/
+
+/* Fix modal label button positioning and z-index */
+.label-button-container.modal-label-button {
+  position: absolute;
+  top: 15px;
+  right: 55px;
+  z-index: 11000;
+}
+
+/* Better modal label button styling */
+.label-button-container.modal-label-button .label-button {
+  background-color: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.label-button-container.modal-label-button .label-button:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.label-button-container.modal-label-button .label-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.label-button-container.modal-label-button .label-dropdown {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  z-index: 11001;
+}
+
+/* Header label button styling */
+.header-label-button {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.header-label-button .label-button {
+  font-size: 0.85rem;
+  padding: 6px;
+  border-radius: 6px;
+  background-color: rgba(237, 242, 247, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.header-label-button .label-button:hover {
+  background-color: #edf2f7;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+/* Enhanced dropdown styles */
+.label-dropdown {
+  z-index: 11001;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  min-width: 180px;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  transform-origin: top right;
+  animation: dropdownAppear 0.3s ease-out forwards, subtlePulse 1s 0.2s ease-in-out;
+}
+
+@keyframes dropdownAppear {
+  0% { opacity: 0; transform: scale(0.95) translateY(-10px); }
+  30% { transform: scale(1.02) translateY(2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.label-dropdown-item {
+  padding: 10px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  color: #4a5568;
+  border-left: 3px solid transparent;
+  position: relative;
+}
+
+/* Add subtle divider between items */
+.label-dropdown-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 10px;
+  right: 10px;
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.label-dropdown-item:focus {
+  outline: none;
+  background-color: rgba(237, 242, 247, 0.8);
+  box-shadow: inset 0 0 0 2px rgba(42, 157, 143, 0.3);
+}
+
+.label-dropdown-item:hover {
+  background-color: #f7fafc;
+  color: #2a9d8f;
+  border-left: 3px solid #2a9d8f;
+}
+
+.label-dropdown-item.selected {
+  background-color: rgba(42, 157, 143, 0.1);
+  color: #2a9d8f;
+  font-weight: 500;
+  border-left: 3px solid #2a9d8f;
+}
+
+.label-dropdown-item.selected:hover {
+  background-color: rgba(42, 157, 143, 0.15);
+}
+
+/* Handle modal label dropdown positioning */
+@media (max-width: 768px) {
+  .label-button-container.modal-label-button {
+    right: 45px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .label-button-container.modal-label-button {
+    right: 40px !important;
+    top: 10px !important;
+  }
+  
+  .close-button {
+    top: 10px;
+    right: 10px;
+  }
+}
+
+.label-button-container:not(.modal-label-button) {
+  position: relative;
+  z-index: 50; /* Lower z-index than the modal overlay */
+}
+
+/* Add subtle scaling effects to checkmarks in the dropdown */
+.label-dropdown-item svg {
+  margin-right: 8px;
+  transition: transform 0.2s ease;
+}
+
+.label-dropdown-item:hover svg {
+  transform: scale(1.2);
+}
+
+/* Enhanced AI summary loading animation */
+.loading-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+  text-align: center;
+  border-radius: 8px;
+  background: linear-gradient(-45deg, #f0f9ff, #e6f7ff, #e1f5fe, #e3f2fd);
+  background-size: 400% 400%;
+  animation: gradientBG 8s ease infinite;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(42, 157, 143, 0.1);
+}
+
+.loading-summary::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(30deg);
+  animation: shimmerEffect 3s infinite;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 15px;
+  border: 3px solid rgba(42, 157, 143, 0.2);
+  border-top: 3px solid #2a9d8f;
+  border-radius: 50%;
+  animation: spin 1s linear infinite, pulse-shadow 2s ease-in-out infinite;
+  z-index: 2;
+}
+
+.loading-summary p {
+  color: #2a9d8f;
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0 0 8px 0;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-message {
+  font-size: 14px;
+  color: rgba(42, 157, 143, 0.8);
+  max-width: 280px;
+  line-height: 1.5;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px dashed rgba(42, 157, 143, 0.2);
+  opacity: 0.8;
+}
+
+/* Animated dots */
+.dot {
+  display: inline-block;
+  opacity: 0.8;
+  animation: dotPulse 1.5s infinite;
+  margin-left: 2px;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes dotPulse {
+  0% { opacity: 0.2; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 0.2; transform: scale(1); }
+}
+
+/* Responsive adjustment */
+@media (max-width: 768px) {
+  .loading-message {
+    font-size: 13px;
+    max-width: 240px;
+  }
+}
+
+/* Animation keyframes */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse-shadow {
+  0% { box-shadow: 0 0 0 0 rgba(42, 157, 143, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(42, 157, 143, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(42, 157, 143, 0); }
+}
+
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes shimmerEffect {
+  0% { transform: translateX(-150%) rotate(30deg); }
+  100% { transform: translateX(150%) rotate(30deg); }
+}
+
+/* Add a subtle pulse animation when the dropdown opens */
+@keyframes subtlePulse {
+  0% { box-shadow: 0 0 0 0 rgba(42, 157, 143, 0.4); }
+  70% { box-shadow: 0 0 0 8px rgba(42, 157, 143, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(42, 157, 143, 0); }
+}
+
+/* Add subtle micro-interactions to the label button */
+.label-button-container .label-button {
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.label-button-container .label-button:active {
+  transform: scale(0.95);
+}
+
+/* Improve the selected state of dropdown items */
+.label-dropdown-item.selected {
+  background-color: rgba(42, 157, 143, 0.12);
+  color: #2a9d8f;
+  font-weight: 500;
+  border-left: 3px solid #2a9d8f;
+}
+
+.label-dropdown-item.selected:hover {
+  background-color: rgba(42, 157, 143, 0.18);
+}
+
+/* Add subtle checkbox animation */
+.label-dropdown-item.selected svg {
+  animation: checkmarkPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes checkmarkPop {
+  0% { transform: scale(0.5); opacity: 0; }
+  70% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Toast notification for label updates */
+.label-toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #2a9d8f;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 12000;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: toastAppear 0.3s forwards;
+  max-width: 300px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.label-toast-hide {
+  animation: toastDisappear 0.5s forwards;
+}
+
+@keyframes toastAppear {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toastDisappear {
+  to {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+/* Make sure toast is visible on smaller screens */
+@media (max-width: 768px) {
+  .label-toast {
+    bottom: 10px;
+    right: 10px;
+    left: 10px;
+    width: calc(100% - 20px);
+    max-width: none;
+  }
 }

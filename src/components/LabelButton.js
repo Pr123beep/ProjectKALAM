@@ -1,16 +1,35 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { getProfileLabels, addLabelToProfile, removeLabelFromProfile } from '../supabaseClient';
+import { getProfileLabels, addLabelToProfile, removeLabelFromProfile, getUserLabels } from '../supabaseClient';
 import './LabelButton.css';
 
 const LabelButton = ({ founderData, onLabelChange, className = '' }) => {
   const [labels, setLabels] = useState([]);
+  const [allUserLabels, setAllUserLabels] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [newLabelName, setNewLabelName] = useState('');
+  const [dropdownDirection, setDropdownDirection] = useState('down');
+  const buttonRef = useRef(null);
   const dropdownRef = useRef(null);
   
   // Generate a consistent ID from founder data
   const founderId = founderData.id || `${founderData.firstName}-${founderData.lastName}`;
+
+  // Fetch all user labels for quick reuse
+  const fetchAllUserLabels = async () => {
+    try {
+      const { data, error } = await getUserLabels();
+      if (error) throw error;
+      
+      if (data) {
+        // Extract unique label names
+        const uniqueLabels = [...new Set(data.map(item => item.label_name))];
+        setAllUserLabels(uniqueLabels);
+      }
+    } catch (error) {
+      console.error('Error fetching user labels:', error);
+    }
+  };
 
   useEffect(() => {
     // Check if this profile has any labels when component mounts
@@ -27,7 +46,25 @@ const LabelButton = ({ founderData, onLabelChange, className = '' }) => {
     };
 
     checkLabels();
+    fetchAllUserLabels();
   }, [founderId]);
+
+  // Calculate dropdown direction when it's about to open
+  useEffect(() => {
+    if (isDropdownOpen && buttonRef.current) {
+      const buttonRect = buttonRef.current.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const spaceBelow = viewportHeight - buttonRect.bottom;
+      
+      // If we're in the modal, always show dropdown below
+      if (className.includes('modal-label-button')) {
+        setDropdownDirection('down');
+      } else {
+        // If there's not enough space below (less than 300px), show dropdown above
+        setDropdownDirection(spaceBelow < 300 ? 'up' : 'down');
+      }
+    }
+  }, [isDropdownOpen, className]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -48,6 +85,35 @@ const LabelButton = ({ founderData, onLabelChange, className = '' }) => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
+  const handleAddExistingLabel = async (labelName) => {
+    if (!labelName || isLoading) return;
+    
+    // Check if the label is already applied to this profile
+    if (labels.some(label => label.label_name === labelName)) {
+      return; // Label already exists for this profile
+    }
+    
+    setIsLoading(true);
+    try {
+      const { data, error } = await addLabelToProfile(founderData, labelName);
+      if (error) throw error;
+      
+      // Add new label to state
+      if (data && data.length > 0) {
+        setLabels([...labels, { id: data[0].id, label_name: data[0].label_name }]);
+      }
+      
+      // Notify parent component
+      if (onLabelChange) {
+        onLabelChange([...labels, { id: data[0].id, label_name: data[0].label_name }]);
+      }
+    } catch (error) {
+      console.error('Error adding existing label:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleAddLabel = async (e) => {
     e.preventDefault();
     if (!newLabelName.trim() || isLoading) return;
@@ -60,6 +126,11 @@ const LabelButton = ({ founderData, onLabelChange, className = '' }) => {
       // Add new label to state
       if (data && data.length > 0) {
         setLabels([...labels, { id: data[0].id, label_name: data[0].label_name }]);
+        
+        // Also add this to our all user labels if it's not already there
+        if (!allUserLabels.includes(data[0].label_name)) {
+          setAllUserLabels([...allUserLabels, data[0].label_name]);
+        }
       }
       
       // Notify parent component
@@ -98,14 +169,25 @@ const LabelButton = ({ founderData, onLabelChange, className = '' }) => {
     }
   };
 
+  // Filter out labels already applied to this profile
+  const availableLabels = allUserLabels.filter(
+    labelName => !labels.some(label => label.label_name === labelName)
+  );
+
   return (
-    <div className={`label-button-container ${className}`} ref={dropdownRef}>
+    <div
+      className={`label-button-container ${
+        className.includes('modal-label-button') ? 'modal-label-button' : ''
+      } ${dropdownDirection === 'up' ? 'dropdown-up' : 'dropdown-down'}`}
+      ref={dropdownRef}
+    >
       <button 
         className={`label-button ${labels.length > 0 ? 'has-labels' : ''} ${isLoading ? 'loading' : ''}`}
         onClick={handleToggleDropdown}
         disabled={isLoading}
         aria-label="Manage labels"
         title="Manage labels"
+        ref={buttonRef}
       >
         <svg 
           className="label-icon" 
@@ -147,6 +229,26 @@ const LabelButton = ({ founderData, onLabelChange, className = '' }) => {
             <p className="no-labels-message">No labels yet</p>
           )}
           
+          {/* Existing labels dropdown */}
+          {availableLabels.length > 0 && (
+            <div className="existing-labels-section">
+              <h4 className="existing-labels-title">Apply existing label:</h4>
+              <div className="existing-labels-list">
+                {availableLabels.map((labelName) => (
+                  <button
+                    key={labelName}
+                    className="existing-label-button"
+                    onClick={() => handleAddExistingLabel(labelName)}
+                    disabled={isLoading}
+                  >
+                    {labelName}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Create new label form */}
           <form className="add-label-form" onSubmit={handleAddLabel}>
             <input
               type="text"

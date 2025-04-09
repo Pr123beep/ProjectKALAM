@@ -52,6 +52,52 @@
   z-index: 1000;
   padding: 12px;
   border: 1px solid #e2e8f0;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+/* For modal positioning - completely revised */
+.label-button-container.modal-label-button .label-dropdown {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  z-index: 1050;
+  width: 280px;
+  max-height: 350px;
+}
+
+/* Handle the case where dropdown would go below viewport */
+.label-button-container:not(.modal-label-button) .label-dropdown {
+  top: auto;
+  bottom: calc(100% + 8px);
+  max-height: 280px;
+}
+
+/* Media queries for responsive behavior */
+@media (max-width: 768px) {
+  .label-dropdown {
+    width: 220px;
+    right: 0;
+  }
+  
+  /* Fixed positioning for modal on smaller screens */
+  .label-button-container.modal-label-button .label-dropdown {
+    width: 250px;
+    right: -50px;
+  }
+}
+
+@media (max-width: 480px) {
+  .label-dropdown {
+    width: 200px;
+    right: 0;
+  }
+  
+  /* Ensure dropdown stays in viewport on small screens */
+  .label-button-container.modal-label-button .label-dropdown {
+    right: -100px;
+    width: 230px;
+  }
 }
 
 .label-dropdown-title {
@@ -67,7 +113,7 @@
   list-style: none;
   padding: 0;
   margin: 0 0 12px 0;
-  max-height: 150px;
+  max-height: 120px;
   overflow-y: auto;
 }
 
@@ -177,4 +223,88 @@
 
 .label-button.has-labels:active .label-icon {
   animation: pulse 0.3s ease;
+}
+
+/* Existing labels section */
+.existing-labels-section {
+  margin: 12px 0;
+  padding-top: 10px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.existing-labels-title {
+  font-size: 14px;
+  margin: 0 0 8px 0;
+  color: #4a5568;
+  font-weight: 600;
+}
+
+.existing-labels-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+  max-height: 80px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.existing-label-button {
+  background-color: #f0f4f8;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 13px;
+  color: #4a5568;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.existing-label-button:hover {
+  background-color: #e2e8f0;
+  transform: translateY(-1px);
+}
+
+.existing-label-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.3);
+}
+
+.existing-label-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Dropdown direction classes */
+.dropdown-up .label-dropdown {
+  top: auto; 
+  bottom: calc(100% + 8px);
+}
+
+.dropdown-down .label-dropdown {
+  top: 100%;
+  bottom: auto;
+}
+
+/* Make scrollbars thinner and nicer looking */
+.labels-list,
+.existing-labels-list {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.labels-list::-webkit-scrollbar,
+.existing-labels-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.labels-list::-webkit-scrollbar-track,
+.existing-labels-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.labels-list::-webkit-scrollbar-thumb,
+.existing-labels-list::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
 } 

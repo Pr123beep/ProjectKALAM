@@ -15,32 +15,41 @@ const normalizeLabel = (label) => {
 
 // Get a consistent gradient based on the label name
 const getLabelGradient = (labelName) => {
-  // Array of preset gradients
-  const gradients = [
-    'linear-gradient(135deg, #FF9D6C, #BB4E75)', // Warm pink/orange
-    'linear-gradient(135deg, #6EDCD9, #3279BB)', // Blue/teal
-    'linear-gradient(135deg, #58B09C, #1C7C54)', // Green
-    'linear-gradient(135deg, #D897EB, #7C3AED)', // Purple
-    'linear-gradient(135deg, #FFC75F, #F9484A)', // Yellow/red
-    'linear-gradient(135deg, #61C695, #2E8B57)', // Emerald
-    'linear-gradient(135deg, #007CF0, #00DFD8)', // Aqua
-    'linear-gradient(135deg, #7928CA, #FF0080)', // Magenta
-    'linear-gradient(135deg, #FF4D4D, #F9CB28)', // Red/yellow
-    'linear-gradient(135deg, #0070F3, #5E60CE)', // Blue/indigo
-  ];
-  
-  // Hash the label name to get a consistent index
-  let hashCode = 0;
-  for (let i = 0; i < labelName.length; i++) {
-    hashCode = ((hashCode << 5) - hashCode) + labelName.charCodeAt(i);
-    hashCode = hashCode & hashCode; // Convert to 32bit integer
+  try {
+    // Array of preset gradients
+    const gradients = [
+      'linear-gradient(135deg, #FF9D6C, #BB4E75)', // Warm pink/orange
+      'linear-gradient(135deg, #6EDCD9, #3279BB)', // Blue/teal
+      'linear-gradient(135deg, #58B09C, #1C7C54)', // Green
+      'linear-gradient(135deg, #D897EB, #7C3AED)', // Purple
+      'linear-gradient(135deg, #FFC75F, #F9484A)', // Yellow/red
+      'linear-gradient(135deg, #61C695, #2E8B57)', // Emerald
+      'linear-gradient(135deg, #007CF0, #00DFD8)', // Aqua
+      'linear-gradient(135deg, #7928CA, #FF0080)', // Magenta
+      'linear-gradient(135deg, #FF4D4D, #F9CB28)', // Red/yellow
+      'linear-gradient(135deg, #0070F3, #5E60CE)', // Blue/indigo
+    ];
+    
+    if (!labelName) {
+      return gradients[0]; // Return the first one as a default
+    }
+    
+    // Hash the label name to get a consistent index
+    let hashCode = 0;
+    for (let i = 0; i < labelName.length; i++) {
+      hashCode = ((hashCode << 5) - hashCode) + labelName.charCodeAt(i);
+      hashCode = hashCode & hashCode; // Convert to 32bit integer
+    }
+    
+    // Ensure positive index
+    hashCode = Math.abs(hashCode);
+    
+    // Get the gradient using the hash code
+    return gradients[hashCode % gradients.length];
+  } catch (e) {
+    console.error('Error in getLabelGradient:', e);
+    return 'linear-gradient(135deg, #e2e8f0, #a0aec0)'; // Fallback gradient
   }
-  
-  // Ensure positive index
-  hashCode = Math.abs(hashCode);
-  
-  // Get the gradient using the hash code
-  return gradients[hashCode % gradients.length];
 };
 
 // Icon components
@@ -685,8 +694,8 @@ const LabelsPage = () => {
             <ul className="labels-list">
               {uniqueLabels.map(labelName => {
                 const gradient = getLabelGradient(labelName);
-                // Extract the end color of the gradient for the indicator
-                const accentColor = gradient.split(',')[1].trim().slice(0, -1);
+                // Extract the end color of the gradient for the indicator with a fallback
+                const accentColor = gradient.split(',')[1]?.trim()?.slice(0, -1) || '#e2e8f0';
                 
                 return (
                   <li 
@@ -700,8 +709,18 @@ const LabelsPage = () => {
                       style={
                         labelName !== editingLabel
                           ? { 
-                              background: labelName === selectedLabel ? gradient : 'none',
-                              borderLeft: labelName !== selectedLabel ? `3px solid ${accentColor}` : 'none'
+                              background: labelName === selectedLabel 
+                                ? (() => {
+                                    try {
+                                      const colorStart = gradient.split(',')[0].split('(135deg,')[1]?.trim() || 'rgba(255,255,255,0.4)';
+                                      return `linear-gradient(135deg, ${colorStart}40, ${accentColor}60)`;
+                                    } catch (e) {
+                                      return 'linear-gradient(135deg, rgba(255,255,255,0.4), rgba(200,200,200,0.6))';
+                                    }
+                                  })()
+                                : 'none',
+                              borderLeft: labelName !== selectedLabel ? `3px solid ${accentColor}` : 'none',
+                              color: labelName === selectedLabel ? '#333' : undefined
                             }
                           : {}
                       }
@@ -759,13 +778,22 @@ const LabelsPage = () => {
                     const founderData = profile.founder_data || {};
                     const gradient = getLabelGradient(selectedLabel);
                     
+                    // Extract the end color of the gradient for the indicator with a fallback
+                    const accentColor = gradient.split(',')[1]?.trim()?.slice(0, -1) || '#e2e8f0';
+                    
                     return (
                       <div 
                         key={profile.id} 
                         className="labeled-profile-card"
                         style={{
-                          borderTop: `4px solid ${gradient.split(',')[1].trim().slice(0, -1)}`,
-                          background: `linear-gradient(to bottom, ${gradient.split(',')[1].trim().slice(0, -1)}10, white 15%)`
+                          borderTop: `4px solid ${accentColor}80`,
+                          background: (() => {
+                            try {
+                              return `linear-gradient(to bottom, ${accentColor}15, white 35%)`;
+                            } catch (e) {
+                              return 'linear-gradient(to bottom, rgba(220,220,220,0.2), white 35%)';
+                            }
+                          })()
                         }}
                       >
                         <div className="labeled-profile-content">

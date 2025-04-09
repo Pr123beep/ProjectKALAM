@@ -207,9 +207,19 @@ const formatSimpleDescription = (text) => {
   return (
     <div className="simple-description">
       {text.split(/\n\n+/).map((paragraph, idx) => (
-        <p key={idx} className="description-paragraph">
+        <motion.p 
+          key={idx} 
+          className="description-paragraph"
+          initial={{ opacity: 0, x: idx % 2 === 0 ? -20 : 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ 
+            duration: 0.5, 
+            delay: 0.1 * idx,
+            ease: "easeOut" 
+          }}
+        >
           {paragraph}
-        </p>
+        </motion.p>
       ))}
     </div>
   );
@@ -286,6 +296,19 @@ const StartupCard = ({ data }) => {
       document.removeEventListener('wheel', preventScrollOutsideModal);
     };
   }, [showDetails, data, aiSummary, summaryError, isLoadingSummary, founderKey]);
+
+  // Prevent scrolling when modal is open
+  useEffect(() => {
+    if (showDetails) {
+      document.body.classList.add('modal-open');
+    } else {
+      document.body.classList.remove('modal-open');
+    }
+    
+    return () => {
+      document.body.classList.remove('modal-open');
+    };
+  }, [showDetails]);
 
   const preventScrollOutsideModal = (e) => {
     const modalElement = document.querySelector('.detail-modal');
@@ -421,8 +444,27 @@ const StartupCard = ({ data }) => {
           {/* Label button in the card header */}
           <LabelButton 
             founderData={data} 
-            onLabelChange={(labels) => console.log('Profile labels:', labels)}
+            onLabelChange={(labels) => {
+              console.log('Profile labels:', labels);
+              
+              // Extract label names correctly from the label objects
+              const labelNames = Array.isArray(labels) 
+                ? labels.map(label => (label && typeof label === 'object' && label.label_name) ? label.label_name : label).join(', ')
+                : '';
+              
+              const toast = document.createElement('div');
+              toast.className = 'label-toast';
+              toast.textContent = labels.length ? `Labels updated: ${labelNames}` : 'Labels cleared';
+              document.body.appendChild(toast);
+              
+              // Remove after animation completes
+              setTimeout(() => {
+                toast.classList.add('label-toast-hide');
+                setTimeout(() => document.body.removeChild(toast), 500);
+              }, 2000);
+            }}
             className="header-label-button"
+            dropdownDirection="down"
           />
         </div>
         <p className="card-headline">{data.linkedinHeadline || data.wellfoundHeadline}</p>
@@ -521,15 +563,34 @@ const StartupCard = ({ data }) => {
 
                 {/* Add label button near the close button */}
                 <motion.div 
-                  className="label-button-container"
+                  className="label-button-container modal-label-button"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.4 }}
-                  style={{ position: 'absolute', top: '15px', right: '60px' }}
                 >
                   <LabelButton 
                     founderData={data} 
-                    onLabelChange={(labels) => console.log('Profile labels:', labels)}
+                    onLabelChange={(labels) => {
+                      console.log('Profile labels:', labels);
+                      
+                      // Extract label names correctly from the label objects
+                      const labelNames = Array.isArray(labels) 
+                        ? labels.map(label => (label && typeof label === 'object' && label.label_name) ? label.label_name : label).join(', ')
+                        : '';
+                      
+                      const toast = document.createElement('div');
+                      toast.className = 'label-toast';
+                      toast.textContent = labels.length ? `Labels updated: ${labelNames}` : 'Labels cleared';
+                      document.body.appendChild(toast);
+                      
+                      // Remove after animation completes
+                      setTimeout(() => {
+                        toast.classList.add('label-toast-hide');
+                        setTimeout(() => document.body.removeChild(toast), 500);
+                      }, 2000);
+                    }}
+                    className="modal-label-button"
+                    dropdownDirection="down"
                   />
                 </motion.div>
 
@@ -598,20 +659,6 @@ const StartupCard = ({ data }) => {
                         </motion.p>
                       )}
                       
-                      {/* LinkedIn Followers Badge */}
-                      {data.linkedinFollowersCount && parseInt(data.linkedinFollowersCount) > 0 && (
-                        <motion.div 
-                          className={`profile-followers-badge ${getFollowersBadgeClass(parseInt(data.linkedinFollowersCount))}`}
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.55, duration: 0.4 }}
-                          style={{ position: 'absolute', top: '15px', right: '110px' }}
-                        >
-                          <LinkedInIcon />
-                          <span className="followers-count">{parseInt(data.linkedinFollowersCount).toLocaleString()}</span> followers
-                        </motion.div>
-                      )}
-                      
                       {/* Modal profile links section */}
                       <motion.div 
                         className="profile-links"
@@ -621,14 +668,26 @@ const StartupCard = ({ data }) => {
                       >
                         {/* LinkedIn profile link */}
                         {data.linkedinProfileUrl && (
-                          <a
-                            href={data.linkedinProfileUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="profile-link linkedin-link"
-                          >
-                            <LinkedInIcon /> View LinkedIn Profile
-                          </a>
+                          <div className="profile-link-group">
+                            <div className="link-followers-row">
+                              <a
+                                href={data.linkedinProfileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="profile-link linkedin-link"
+                              >
+                                <LinkedInIcon /> View LinkedIn Profile
+                              </a>
+                              
+                              {/* LinkedIn Followers Badge */}
+                              {data.linkedinFollowersCount && parseInt(data.linkedinFollowersCount) > 0 && (
+                                <div className={`profile-followers-badge inline-badge ${getFollowersBadgeClass(parseInt(data.linkedinFollowersCount))}`}>
+                                  <LinkedInIcon />
+                                  <span className="followers-count">{parseInt(data.linkedinFollowersCount).toLocaleString()}</span> followers
+                                </div>
+                              )}
+                            </div>
+                          </div>
                         )}
                         
                         {/* Wellfound profile link */}
@@ -668,16 +727,63 @@ const StartupCard = ({ data }) => {
                       {isLoadingSummary ? (
                         <div className="loading-summary">
                           <div className="loading-spinner"></div>
-                          <p>Generating AI summary...</p>
+                          <motion.p
+                            initial={{ opacity: 0.6 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ 
+                              repeat: Infinity, 
+                              duration: 1.5, 
+                              repeatType: "reverse" 
+                            }}
+                          >
+                            <motion.span>
+                              Generating AI insights
+                            </motion.span>
+                            <motion.span
+                              initial={{ opacity: 0 }}
+                              animate={{
+                                opacity: [0, 1, 1, 0],
+                                y: [0, -1, -1, 0]
+                              }}
+                              transition={{ 
+                                times: [0, 0.3, 0.7, 1],
+                                repeat: Infinity, 
+                                duration: 2,
+                                repeatDelay: 0
+                              }}
+                            >
+                              <span className="dot">.</span>
+                              <span className="dot">.</span>
+                              <span className="dot">.</span>
+                            </motion.span>
+                          </motion.p>
+                          <motion.div 
+                            className="loading-message"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 2, duration: 0.5 }}
+                          >
+                            Analyzing profile data and creating personalized insights
+                          </motion.div>
                         </div>
                       ) : summaryError ? (
                         <div className="summary-error">
                           <p>{summaryError}</p>
                         </div>
                       ) : aiSummary ? (
-                        <div className="summary-content">
+                        <motion.div 
+                          className="summary-content"
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ 
+                            duration: 0.5,
+                            type: "spring",
+                            stiffness: 120,
+                            damping: 10
+                          }}
+                        >
                           {formatSimpleDescription(aiSummary)}
-                        </div>
+                        </motion.div>
                       ) : null}
                     </div>
                   </motion.div>
