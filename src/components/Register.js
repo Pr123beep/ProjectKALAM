@@ -17,6 +17,7 @@ const Register = ({ onRegisterSuccess }) => {
     setErrorMsg('');
     setSuccessMsg('');
 
+    
     try {
       const { data, error } = await signUpWithEmail(email, password);
 

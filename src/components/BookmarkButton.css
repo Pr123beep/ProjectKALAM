@@ -1,0 +1,53 @@
+.bookmark-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #718096;
+  background-color: rgba(237, 242, 247, 0.8);
+}
+
+.bookmark-button:hover {
+  background-color: #edf2f7;
+  transform: scale(1.05);
+  color: #4a5568;
+}
+
+.bookmark-button.bookmarked {
+  color: var(--primary-color);
+}
+
+.bookmark-button.bookmarked .bookmark-icon {
+  fill: var(--primary-color);
+}
+
+.bookmark-button.loading {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.bookmark-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.4);
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.bookmark-button.bookmarked:active .bookmark-icon {
+  animation: pulse 0.3s ease;
+} 

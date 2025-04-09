@@ -6,6 +6,9 @@ import MainPage from './MainPage';
 import Login from './components/Login';
 import Register from './components/Register';
 import ResetPassword from './components/ResetPassword';
+import BookmarksPage from './components/BookmarksPage';
+import ProfilePage from './components/ProfilePage';
+import Navigation from './components/Navigation';
 import LoadingScreen from './components/LoadingScreen';
 import { supabase } from './supabaseClient';
 import './App.css';
@@ -90,6 +93,7 @@ function App() {
         <LoadingScreen onFinished={() => setIsLoading(false)} />
       ) : (
         <Router>
+          <Navigation user={user} />
           <Routes>
             <Route path="/login" element={
               user ? <Navigate to="/main" replace /> : <Login onLoginSuccess={handleAuthSuccess} />
@@ -98,6 +102,16 @@ function App() {
               user ? <Navigate to="/main" replace /> : <Register onRegisterSuccess={handleAuthSuccess} />
             } />
             <Route path="/reset-password" element={<ResetPasswordRoute />} />
+            <Route path="/bookmarks" element={
+              <ProtectedRoute>
+                <BookmarksPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/profile/:profileId" element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            } />
             <Route path="/" element={
               <LandingRoute />
             } />

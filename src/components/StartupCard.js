@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import ReactDOM from "react-dom"; 
 import iitRedditData from "../iit-reddit.json";
 import { generateFounderSummary } from "../utils/geminiApi";
+import BookmarkButton from './BookmarkButton';
 
 import "../App.css";
 import "./StartupCard.css";
@@ -490,8 +491,22 @@ const StartupCard = ({ data }) => {
                   animate={{ opacity: 1, rotate: 0 }}
                   transition={{ delay: 0.3 }}
                 >
-                <CloseIcon />
+                  <CloseIcon />
                 </motion.button>
+
+                {/* Add bookmark button near the close button */}
+                <motion.div 
+                  className="bookmark-button-container"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                  style={{ position: 'absolute', top: '15px', right: '60px' }}
+                >
+                  <BookmarkButton 
+                    founderData={data} 
+                    onBookmarkChange={(isBookmarked) => console.log('Profile bookmarked:', isBookmarked)}
+                  />
+                </motion.div>
 
                 {/* Modal Header with staggered animation */}
                 <motion.div 
@@ -501,7 +516,7 @@ const StartupCard = ({ data }) => {
                   transition={{ delay: 0.1 }}
                 >
                   {/* Rest of the header content */}
-                <div className="profile-info">
+                  <div className="profile-info">
                     {/* Source badge with animation */}
                     {data.source && (
                       <motion.div 
@@ -521,11 +536,11 @@ const StartupCard = ({ data }) => {
                       animate={{ scale: 1, opacity: 1 }}
                       transition={{ delay: 0.2, duration: 0.4 }}
                     >
-                    {data.firstName?.charAt(0)}
-                    {data.lastName?.charAt(0)}
+                      {data.firstName?.charAt(0)}
+                      {data.lastName?.charAt(0)}
                     </motion.div>
 
-                  <div className="profile-main">
+                    <div className="profile-main">
                       {/* Name with animation */}
                       <motion.h2 
                         className="profile-name"
@@ -533,7 +548,7 @@ const StartupCard = ({ data }) => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3, duration: 0.4 }}
                       >
-                      {data.firstName} {data.lastName}
+                        {data.firstName} {data.lastName}
                       </motion.h2>
                       
                       {/* Headline with animation */}
@@ -547,14 +562,14 @@ const StartupCard = ({ data }) => {
                       </motion.p>
                       
                       {/* Location with animation */}
-                    {data.location && (
+                      {data.location && (
                         <motion.p 
                           className="profile-location"
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.5, duration: 0.4 }}
                         >
-                        <LocationIcon /> {data.location}
+                          <LocationIcon /> {data.location}
                         </motion.p>
                       )}
                       
@@ -566,11 +581,11 @@ const StartupCard = ({ data }) => {
                         transition={{ delay: 0.6, duration: 0.4 }}
                       >
                         {/* LinkedIn profile link */}
-                  {data.linkedinProfileUrl && (
-                    <a
-                      href={data.linkedinProfileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                        {data.linkedinProfileUrl && (
+                          <a
+                            href={data.linkedinProfileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="profile-link linkedin-link"
                           >
                             <LinkedInIcon /> View LinkedIn Profile
@@ -586,10 +601,10 @@ const StartupCard = ({ data }) => {
                             className="profile-link wellfound-link"
                           >
                             <WellfoundIcon /> View Wellfound Profile
-                    </a>
-                  )}
+                          </a>
+                        )}
                       </motion.div>
-              </div>
+                    </div>
                   </div>
                 </motion.div>
 
@@ -639,51 +654,51 @@ const StartupCard = ({ data }) => {
                     >
                       {formatEnhancedDescription(data.linkedinDescription)}
                     </motion.div>
-                )}
+                  )}
 
-                {/* Current Position */}
-                {(data.currentJob || data.linkedinJobTitle || data.companyName) && (
+                  {/* Current Position */}
+                  {(data.currentJob || data.linkedinJobTitle || data.companyName) && (
                     <motion.div 
                       className="detail-section"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.4 }}
                     >
-                    <h3 className="section-title">
-                      <WorkIcon /> Current Position
-                    </h3>
-                    <div className="detail-card">
-                      <h4>
-                        {data.linkedinJobTitle || "Professional"} at{" "}
-                        {data.companyName}
-                      </h4>
-                      {data.linkedinJobDateRange && (
-                        <p className="date-range">{data.linkedinJobDateRange}</p>
-                      )}
-                      {data.linkedinJobLocation && (
-                        <p className="job-location">
-                          <LocationIcon /> {data.linkedinJobLocation}
-                        </p>
-                      )}
-                      {data.linkedinJobDescription && (
+                      <h3 className="section-title">
+                        <WorkIcon /> Current Position
+                      </h3>
+                      <div className="detail-card">
+                        <h4>
+                          {data.linkedinJobTitle || "Professional"} at{" "}
+                          {data.companyName}
+                        </h4>
+                        {data.linkedinJobDateRange && (
+                          <p className="date-range">{data.linkedinJobDateRange}</p>
+                        )}
+                        {data.linkedinJobLocation && (
+                          <p className="job-location">
+                            <LocationIcon /> {data.linkedinJobLocation}
+                          </p>
+                        )}
+                        {data.linkedinJobDescription && (
                           <div className="detail-section">
                             {formatSimpleDescription(data.linkedinJobDescription)}
                           </div>
-                      )}
-                      {data.companyIndustry && (
-                        <p className="industry">
-                          Industry: {data.companyIndustry}
-                        </p>
-                      )}
+                        )}
+                        {data.companyIndustry && (
+                          <p className="industry">
+                            Industry: {data.companyIndustry}
+                          </p>
+                        )}
                         {/* Company links in a separate section */}
                         <div className="company-links">
-                      {data.linkedinCompanyUrl && (
-                        <a
-                          href={data.linkedinCompanyUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="company-link"
-                        >
+                          {data.linkedinCompanyUrl && (
+                            <a
+                              href={data.linkedinCompanyUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="company-link"
+                            >
                               <CompanyIcon /> View on LinkedIn
                             </a>
                           )}
@@ -697,145 +712,145 @@ const StartupCard = ({ data }) => {
                               className="company-link wellfound-company"
                             >
                               <CompanyIcon /> View on Wellfound
-                        </a>
-                      )}
-                    </div>
-                  </div>
+                            </a>
+                          )}
+                        </div>
+                      </div>
                     </motion.div>
-                )}
+                  )}
 
-                {/* Previous Position */}
-                {(data.previousJob ||
-                  data.linkedinPreviousJobTitle ||
-                  data.previousCompanyName) && (
-                    <motion.div 
-                      className="detail-section"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.5 }}
-                    >
-                    <h3 className="section-title">
-                      <WorkIcon /> Previous Position
-                    </h3>
-                    <div className="detail-card">
-                      <h4>
-                        {data.linkedinPreviousJobTitle || "Professional"}
-                        {data.previousCompanyName && ` at ${data.previousCompanyName}`}
-                      </h4>
-                      {data.linkedinPreviousJobDateRange && (
-                        <p className="date-range">
-                          {data.linkedinPreviousJobDateRange}
-                        </p>
-                      )}
-                      {data.linkedinPreviousJobLocation && (
-                        <p className="job-location">
-                          <LocationIcon /> {data.linkedinPreviousJobLocation}
-                        </p>
-                      )}
-                      {data.linkedinPreviousJobDescription && (
+                  {/* Previous Position */}
+                  {(data.previousJob ||
+                    data.linkedinPreviousJobTitle ||
+                    data.previousCompanyName) && (
+                      <motion.div 
+                        className="detail-section"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                      >
+                      <h3 className="section-title">
+                        <WorkIcon /> Previous Position
+                      </h3>
+                      <div className="detail-card">
+                        <h4>
+                          {data.linkedinPreviousJobTitle || "Professional"}
+                          {data.previousCompanyName && ` at ${data.previousCompanyName}`}
+                        </h4>
+                        {data.linkedinPreviousJobDateRange && (
+                          <p className="date-range">
+                            {data.linkedinPreviousJobDateRange}
+                          </p>
+                        )}
+                        {data.linkedinPreviousJobLocation && (
+                          <p className="job-location">
+                            <LocationIcon /> {data.linkedinPreviousJobLocation}
+                          </p>
+                        )}
+                        {data.linkedinPreviousJobDescription && (
                           <div className="detail-section">
                             {formatSimpleDescription(data.linkedinPreviousJobDescription)}
                           </div>
-                      )}
-                    </div>
-                    </motion.div>
-                )}
+                        )}
+                      </div>
+                      </motion.div>
+                  )}
 
-                {/* Education */}
-                {(data.currentSchool || data.linkedinSchoolName || collegeDisplay) && (
+                  {/* Education */}
+                  {(data.currentSchool || data.linkedinSchoolName || collegeDisplay) && (
                     <motion.div 
                       className="detail-section"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.6 }}
                     >
-                    <h3 className="section-title">
-                      <EducationIcon /> Education
-                    </h3>
-                    <div className="detail-card">
-                      <h4>{data.linkedinSchoolName || collegeDisplay}</h4>
-                      {data.linkedinSchoolDegree && (
-                        <p className="degree">{data.linkedinSchoolDegree}</p>
-                      )}
-                      {data.linkedinSchoolDateRange && (
-                        <p className="date-range">{data.linkedinSchoolDateRange}</p>
-                      )}
-                      {data.linkedinSchoolDescription && (
+                      <h3 className="section-title">
+                        <EducationIcon /> Education
+                      </h3>
+                      <div className="detail-card">
+                        <h4>{data.linkedinSchoolName || collegeDisplay}</h4>
+                        {data.linkedinSchoolDegree && (
+                          <p className="degree">{data.linkedinSchoolDegree}</p>
+                        )}
+                        {data.linkedinSchoolDateRange && (
+                          <p className="date-range">{data.linkedinSchoolDateRange}</p>
+                        )}
+                        {data.linkedinSchoolDescription && (
                           <div className="detail-section">
                             {formatSimpleDescription(data.linkedinSchoolDescription)}
                           </div>
-                      )}
-                      {data.linkedinSchoolUrl && (
-                        <a
-                          href={data.linkedinSchoolUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="school-link"
-                        >
-                          School Page
-                        </a>
-                      )}
-                    </div>
+                        )}
+                        {data.linkedinSchoolUrl && (
+                          <a
+                            href={data.linkedinSchoolUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="school-link"
+                          >
+                            School Page
+                          </a>
+                        )}
+                      </div>
 
-                    {/* Previous School */}
-                    {data.previousSchool && (
-                      <div className="detail-card">
-                        <h4>{data.linkedinPreviousSchoolName}</h4>
-                        {data.linkedinPreviousSchoolDegree && (
-                          <p className="degree">
-                            {data.linkedinPreviousSchoolDegree}
-                          </p>
-                        )}
-                        {data.linkedinPreviousSchoolDateRange && (
-                          <p className="date-range">
-                            {data.linkedinPreviousSchoolDateRange}
-                          </p>
-                        )}
-                        {data.linkedinPreviousSchoolDescription && (
+                      {/* Previous School */}
+                      {data.previousSchool && (
+                        <div className="detail-card">
+                          <h4>{data.linkedinPreviousSchoolName}</h4>
+                          {data.linkedinPreviousSchoolDegree && (
+                            <p className="degree">
+                              {data.linkedinPreviousSchoolDegree}
+                            </p>
+                          )}
+                          {data.linkedinPreviousSchoolDateRange && (
+                            <p className="date-range">
+                              {data.linkedinPreviousSchoolDateRange}
+                            </p>
+                          )}
+                          {data.linkedinPreviousSchoolDescription && (
                             <div className="detail-section">
                               {formatSimpleDescription(data.linkedinPreviousSchoolDescription)}
-                      </div>
-                    )}
-                  </div>
+                            </div>
+                          )}
+                        </div>
                       )}
                     </motion.div>
-                )}
+                  )}
 
-                {/* Skills */}
-                {data.linkedinSkillsLabel && (
+                  {/* Skills */}
+                  {data.linkedinSkillsLabel && (
                     <motion.div 
                       className="detail-section"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.7 }}
                     >
-                    <h3 className="section-title">
-                      <SkillsIcon /> Skills
-                    </h3>
-                    <div className="skills-container">
-                      {data.linkedinSkillsLabel.split(",").map((skill, index) => (
-                        <span key={index} className="skill-tag">
-                          {skill.trim()}
-                        </span>
-                      ))}
-                    </div>
+                      <h3 className="section-title">
+                        <SkillsIcon /> Skills
+                      </h3>
+                      <div className="skills-container">
+                        {data.linkedinSkillsLabel.split(",").map((skill, index) => (
+                          <span key={index} className="skill-tag">
+                            {skill.trim()}
+                          </span>
+                        ))}
+                      </div>
                     </motion.div>
-                )}
+                  )}
 
-                {/* Followers */}
-                {data.linkedinFollowersCount && (
+                  {/* Followers */}
+                  {data.linkedinFollowersCount && (
                     <motion.div 
                       className="detail-section followers"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.8 }}
                     >
-                    <h3 className="section-title">LinkedIn Network</h3>
-                    <p>
-                      <strong>{data.linkedinFollowersCount}</strong> followers
-                    </p>
+                      <h3 className="section-title">LinkedIn Network</h3>
+                      <p>
+                        <strong>{data.linkedinFollowersCount}</strong> followers
+                      </p>
                     </motion.div>
-                )}
+                  )}
                 </motion.div>
               </motion.div>
             </motion.div>

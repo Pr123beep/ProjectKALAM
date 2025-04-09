@@ -131,3 +131,119 @@ export const updatePassword = async (newPassword) => {
     return { data: null, error };
   }
 };
+
+// Bookmark functions
+// Add a bookmark
+export const addBookmark = async (founderData) => {
+  try {
+    console.log("Adding bookmark for:", founderData);
+    const user = await getCurrentUser();
+    if (!user) throw new Error('User not authenticated');
+
+    // Extract essential data to store in the bookmark
+    const bookmarkData = {
+      user_id: user.id,
+      founder_id: founderData.id || `${founderData.firstName}-${founderData.lastName}`,
+      founder_data: {
+        name: `${founderData.firstName} ${founderData.lastName}`,
+        company: founderData.companyName,
+        headline: founderData.linkedinHeadline,
+        industry: founderData.companyIndustry,
+        location: founderData.location,
+        college: founderData.college,
+        linkedinUrl: founderData.linkedinProfileUrl,
+        wellFoundUrl: founderData.wellFoundProfileURL,
+        linkedinDescription: founderData.linkedinDescription,
+        linkedinJobTitle: founderData.linkedinJobTitle,
+        linkedinJobLocation: founderData.linkedinJobLocation,
+        linkedinJobDescription: founderData.linkedinJobDescription,
+        linkedinSkillsLabel: founderData.linkedinSkillsLabel
+      },
+      notes: ''
+    };
+
+    console.log("Inserting bookmark data:", bookmarkData);
+    const { data, error } = await supabase
+      .from('bookmarks')
+      .insert([bookmarkData])
+      .select();
+    
+    if (error) {
+      console.error("Supabase error:", error);
+      throw error;
+    }
+    
+    console.log("Successfully added bookmark:", data);
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error adding bookmark:', error.message);
+    return { data: null, error };
+  }
+};
+
+// Remove a bookmark
+export const removeBookmark = async (founderId) => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { error } = await supabase
+      .from('bookmarks')
+      .delete()
+      .match({ user_id: user.id, founder_id: founderId });
+    
+    if (error) throw error;
+    return { error: null };
+  } catch (error) {
+    console.error('Error removing bookmark:', error.message);
+    return { error };
+  }
+};
+
+// Check if a profile is bookmarked
+export const isProfileBookmarked = async (founderId) => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return { isBookmarked: false, error: null };
+
+    const { data, error } = await supabase
+      .from('bookmarks')
+      .select('id')
+      .match({ user_id: user.id, founder_id: founderId })
+      .single();
+    
+    if (error && error.code !== 'PGRST116') throw error; // PGRST116 is "no rows returned" error
+    
+    return { isBookmarked: !!data, error: null };
+  } catch (error) {
+    console.error('Error checking bookmark status:', error.message);
+    return { isBookmarked: false, error };
+  }
+};
+
+// Get all bookmarks for current user
+export const getUserBookmarks = async () => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('User not authenticated');
+
+    console.log("Fetching bookmarks for user:", user.id);
+
+    const { data, error } = await supabase
+      .from('bookmarks')
+      .select('*')
+      .match({ user_id: user.id })
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error("Supabase error:", error);
+      throw error;
+    }
+    
+    console.log("Retrieved bookmarks:", data);
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error fetching bookmarks:', error.message);
+    return { data: null, error };
+  }
+};
