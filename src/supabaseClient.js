@@ -269,3 +269,168 @@ export const getUserBookmarks = async () => {
     return { data: null, error };
   }
 };
+
+// Labels functions
+// Get all labels for current user
+export const getUserLabels = async () => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('User not authenticated');
+
+    console.log("Fetching labels for user:", user.id);
+
+    const { data, error } = await supabase
+      .from('labels')
+      .select('*')
+      .match({ user_id: user.id })
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error("Supabase error:", error);
+      throw error;
+    }
+    
+    console.log("Retrieved labels:", data);
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error fetching labels:', error.message);
+    return { data: null, error };
+  }
+};
+
+// Add a label to a profile
+export const addLabelToProfile = async (founderData, labelName) => {
+  try {
+    console.log("Adding label for:", founderData);
+    const user = await getCurrentUser();
+    if (!user) throw new Error('User not authenticated');
+
+    // Extract essential data to store in the labeled profile
+    const labelData = {
+      user_id: user.id,
+      founder_id: founderData.id || `${founderData.firstName}-${founderData.lastName}`,
+      label_name: labelName,
+      founder_data: {
+        name: `${founderData.firstName} ${founderData.lastName}`,
+        company: founderData.companyName,
+        headline: founderData.linkedinHeadline,
+        industry: founderData.companyIndustry,
+        location: founderData.location,
+        college: founderData.college,
+        linkedinUrl: founderData.linkedinProfileUrl,
+        wellFoundUrl: founderData.wellFoundProfileURL,
+        linkedinDescription: founderData.linkedinDescription,
+        linkedinJobTitle: founderData.linkedinJobTitle,
+        linkedinJobLocation: founderData.linkedinJobLocation,
+        linkedinJobDescription: founderData.linkedinJobDescription,
+        linkedinSkillsLabel: founderData.linkedinSkillsLabel
+      },
+      notes: ''
+    };
+
+    console.log("Inserting label data:", labelData);
+    const { data, error } = await supabase
+      .from('labels')
+      .insert([labelData])
+      .select();
+    
+    if (error) {
+      console.error("Supabase error:", error);
+      throw error;
+    }
+    
+    console.log("Successfully added label:", data);
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error adding label:', error.message);
+    return { data: null, error };
+  }
+};
+
+// Remove a label from a profile
+export const removeLabelFromProfile = async (labelId) => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { error } = await supabase
+      .from('labels')
+      .delete()
+      .match({ id: labelId, user_id: user.id });
+    
+    if (error) throw error;
+    return { error: null };
+  } catch (error) {
+    console.error('Error removing label:', error.message);
+    return { error };
+  }
+};
+
+// Update the label name for a profile
+export const updateProfileLabel = async (labelId, newLabelName) => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { data, error } = await supabase
+      .from('labels')
+      .update({ label_name: newLabelName })
+      .match({ id: labelId, user_id: user.id })
+      .select();
+    
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error updating label:', error.message);
+    return { data: null, error };
+  }
+};
+
+// Get all profiles with a specific label
+export const getProfilesByLabel = async (labelName, normalized = false) => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('User not authenticated');
+
+    let query = supabase
+      .from('labels')
+      .select('*')
+      .eq('user_id', user.id);
+    
+    // If normalized is true, use case-insensitive matching
+    if (normalized) {
+      query = query.ilike('label_name', labelName);
+    } else {
+      // Exact matching (case-sensitive)
+      query = query.eq('label_name', labelName);
+    }
+    
+    const { data, error } = await query.order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error fetching profiles by label:', error.message);
+    return { data: null, error };
+  }
+};
+
+// Check if a profile has any labels
+export const getProfileLabels = async (founderId) => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return { labels: [], error: null };
+
+    const { data, error } = await supabase
+      .from('labels')
+      .select('id, label_name')
+      .match({ user_id: user.id, founder_id: founderId });
+    
+    if (error) throw error;
+    
+    return { labels: data || [], error: null };
+  } catch (error) {
+    console.error('Error checking profile labels:', error.message);
+    return { labels: [], error };
+  }
+};

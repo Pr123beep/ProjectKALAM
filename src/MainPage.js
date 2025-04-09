@@ -1,13 +1,11 @@
 // src/MainPage.js
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import wellfoundData from './wellfndAndphantom.json'; // Import Wellfound data
 import iitRedditData from './iit-reddit.json'; // Import Reddit data
 import FilterBar from './components/FilterBar';
 import StartupCard from './components/StartupCard';
 import Pagination from './components/Pagination';
-import { signOut } from './supabaseClient';
 import './App.css';
 
 // Enhanced function for normalizing all types of college names
@@ -136,7 +134,6 @@ const formatResultCount = (count) => {
 };
 
 function MainPage({ user }) {
-  const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [filters, setFilters] = useState({
     college: '',
@@ -151,16 +148,8 @@ function MainPage({ user }) {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [popupVisible, setPopupVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const itemsPerPage = 10; // Number of cards per page
-
-  // Handle logout
-  const handleLogout = async () => {
-    const success = await signOut();
-    if (success) {
-      // Use navigate instead of window.location for React Router navigation
-      navigate('/login');
-    }
-  };
 
   useEffect(() => {
     // Use wellfoundData directly instead of copyData
@@ -283,7 +272,23 @@ function MainPage({ user }) {
     }, 3000);
   };
 
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1); // Reset to first page when search changes
+  };
+
   const filteredData = data.filter((item) => {
+    // Quick search filtering (prioritize this for performance)
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const founderName = `${item.firstName} ${item.lastName}`.toLowerCase();
+      const companyName = (item.companyName || '').toLowerCase();
+      
+      if (!founderName.includes(query) && !companyName.includes(query)) {
+        return false;
+      }
+    }
+    
     // Source filtering logic
     const showLinkedIn = filters.profileSources.linkedin;
     const showWellfound = filters.profileSources.wellfound;
@@ -421,9 +426,30 @@ function MainPage({ user }) {
       </aside>
       <main className="content">
         <div className="header-actions">
-          <button className="logout-button" onClick={handleLogout}>
-            Logout
-          </button>
+          {/* Removed duplicate logout button */}
+        </div>
+        
+        {/* Quick search bar */}
+        <div className="search-container">
+          <div className="search-bar">
+            <input
+              type="text"
+              placeholder="Search by founder or company name..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className="search-input"
+            />
+            <div className="search-icon">🔍</div>
+            {searchQuery && (
+              <button 
+                className="clear-search" 
+                onClick={() => setSearchQuery('')}
+                aria-label="Clear search"
+              >
+                ✕
+              </button>
+            )}
+          </div>
         </div>
         
         {popupVisible && (
@@ -433,12 +459,15 @@ function MainPage({ user }) {
         )}
         
         {/* Display the filter helper message when no source filters are selected */}
-        {!filters.profileSources.linkedin && !filters.profileSources.wellfound && (
+        {!filters.profileSources.linkedin && 
+         !filters.profileSources.wellfound && 
+         !searchQuery && (
           <div className="filter-helper">
             <div className="filter-helper-icon">🔍</div>
             <h3>Search and filter results</h3>
             <p>
-              Use the filters to narrow down these results by source (LinkedIn/Wellfound), 
+              Use the search bar above to quickly find founders or companies, or use 
+              the filters to narrow down results by source (LinkedIn/Wellfound), 
               college, industry, and more!
             </p>
           </div>
@@ -451,7 +480,8 @@ function MainPage({ user }) {
           filters.profileSources.linkedin || 
           filters.profileSources.wellfound ||
           filters.followersMin > 0 ||
-          filters.followersMax < 50000) && (
+          filters.followersMax < 50000 ||
+          searchQuery) && (
           <div className="filter-results-counter">
             <div className="results-icon">✨</div>
             <div className="results-text">
@@ -462,6 +492,11 @@ function MainPage({ user }) {
                 "matching founder found"
               ) : (
                 "founders match your filters"
+              )}
+              {searchQuery && (
+                <span className="search-terms"> 
+                  for "{searchQuery}"
+                </span>
               )}
             </div>
           </div>

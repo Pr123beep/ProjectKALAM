@@ -6,7 +6,7 @@ import MainPage from './MainPage';
 import Login from './components/Login';
 import Register from './components/Register';
 import ResetPassword from './components/ResetPassword';
-import BookmarksPage from './components/BookmarksPage';
+import LabelsPage from './components/LabelsPage';
 import ProfilePage from './components/ProfilePage';
 import Navigation from './components/Navigation';
 import LoadingScreen from './components/LoadingScreen';
@@ -102,9 +102,9 @@ function App() {
               user ? <Navigate to="/main" replace /> : <Register onRegisterSuccess={handleAuthSuccess} />
             } />
             <Route path="/reset-password" element={<ResetPasswordRoute />} />
-            <Route path="/bookmarks" element={
+            <Route path="/labels" element={
               <ProtectedRoute>
-                <BookmarksPage />
+                <LabelsPage />
               </ProtectedRoute>
             } />
             <Route path="/profile/:profileId" element={

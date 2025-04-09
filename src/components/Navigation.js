@@ -32,8 +32,8 @@ const Navigation = ({ user }) => {
           </Link>
           
           <Link 
-            to="/bookmarks" 
-            className={location.pathname === '/bookmarks' ? 'active' : ''}
+            to="/labels" 
+            className={location.pathname === '/labels' ? 'active' : ''}
           >
             <svg 
               className="nav-icon" 
@@ -46,9 +46,11 @@ const Navigation = ({ user }) => {
               strokeLinecap="round" 
               strokeLinejoin="round"
             >
-              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+              <path d="M9 5H2v7l6.29 6.29c.39.39 1.02.39 1.41 0l3.3-3.29c.39-.39.39-1.02 0-1.41L9 10V5z"></path>
+              <path d="M16 3h5v5"></path>
+              <path d="M21 3l-7 7"></path>
             </svg>
-            Bookmarks
+            Labels
           </Link>
         </div>
         

@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import ReactDOM from "react-dom"; 
 import iitRedditData from "../iit-reddit.json";
 import { generateFounderSummary } from "../utils/geminiApi";
-import BookmarkButton from './BookmarkButton';
+import LabelButton from './LabelButton';
 
 import "../App.css";
 import "./StartupCard.css";
@@ -215,6 +215,15 @@ const formatSimpleDescription = (text) => {
   );
 };
 
+// Helper to determine followers badge class based on follower count
+const getFollowersBadgeClass = (followersCount) => {
+  if (followersCount <= 100) return 'followers-low';
+  if (followersCount <= 500) return 'followers-medium';
+  if (followersCount <= 2000) return 'followers-high';
+  if (followersCount <= 10000) return 'followers-very-high';
+  return 'followers-ultra';
+};
+
 const StartupCard = ({ data }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
@@ -323,27 +332,44 @@ const StartupCard = ({ data }) => {
   }, [data.colleges, data.college]);
 
   const redditData = useMemo(() => {
-    const founderName = `${data.firstName} ${data.lastName}`.toLowerCase();
-    return iitRedditData.find(item => {
-      const queryName = item.query.toLowerCase();
-      return (
-        queryName.includes(founderName) || 
-        founderName.includes(queryName)
-      );
+    if (!data.firstName || !data.lastName || !Array.isArray(iitRedditData)) {
+      return null;
+    }
+    
+    const founderName = `${data.firstName} ${data.lastName}`.toLowerCase().trim();
+    const founderLastName = data.lastName.toLowerCase().trim();
+    
+    // First try to find exact matches for full name
+    let match = iitRedditData.find(item => {
+      const queryName = (item.query || '').toLowerCase().trim();
+      return queryName === founderName || founderName === queryName;
     });
-  }, [data.firstName, data.lastName]);
+    
+    // If no exact match, try partial matches
+    if (!match) {
+      match = iitRedditData.find(item => {
+        const queryName = (item.query || '').toLowerCase().trim();
+        
+        // Check if full name is part of query or vice versa
+        if (queryName.includes(founderName) || founderName.includes(queryName)) {
+          return true;
+        }
+        
+        // Check for last name + company name pattern (common in Reddit)
+        if (data.companyName && queryName.includes(founderLastName) && 
+            queryName.includes(data.companyName.toLowerCase())) {
+          return true;
+        }
+        
+        return false;
+      });
+    }
+    
+    return match;
+  }, [data.firstName, data.lastName, data.companyName]);
 
   const redditUrl = redditData?.results?.[0]?.url;
-  const isMentionedOnReddit = Boolean(redditData);
-
-  useEffect(() => {
-    console.log('Checking Reddit mentions for:', 
-      data.firstName, 
-      data.lastName, 
-      'Reddit data:', 
-      iitRedditData
-    );
-  }, [data.firstName, data.lastName]);
+  const isMentionedOnReddit = Boolean(redditData && redditData.results && redditData.results.length > 0);
 
   return (
     <div className="card">
@@ -356,40 +382,49 @@ const StartupCard = ({ data }) => {
       
       {/* Basic info shown on the card */}
       <div className="card-header">
-        <h4 className="card-name">
-          {/* Founder name and Wellfound profile link */}
-          <a 
-            href={data.linkedinProfileUrl} 
-            target="_blank" 
-            rel="noopener noreferrer"
-          >
-            {data.firstName} {data.lastName}
-          </a>
-          
-          {/* Wellfound profile link if available - on founder name ONLY */}
-          {data.wellFoundProfileURL && (
+        <div className="card-header-top">
+          <h4 className="card-name">
+            {/* Founder name and Wellfound profile link */}
             <a 
-              href={data.wellFoundProfileURL}
+              href={data.linkedinProfileUrl} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="wellfound-badge"
-              title="View on Wellfound"
             >
-              <WellfoundIcon />
+              {data.firstName} {data.lastName}
             </a>
-          )}
+            
+            {/* Wellfound profile link if available - on founder name ONLY */}
+            {data.wellFoundProfileURL && (
+              <a 
+                href={data.wellFoundProfileURL}
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="wellfound-badge"
+                title="View on Wellfound"
+              >
+                <WellfoundIcon />
+              </a>
+            )}
+            
+            {" - "}
+            
+            {/* Company link - only LinkedIn URL */}
+            <a 
+              href={data.linkedinCompanyUrl} 
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              {data.companyName}
+            </a>
+          </h4>
           
-          {" - "}
-          
-          {/* Company link - only LinkedIn URL */}
-          <a 
-            href={data.linkedinCompanyUrl} 
-            target="_blank" 
-            rel="noopener noreferrer"
-          >
-            {data.companyName}
-          </a>
-        </h4>
+          {/* Label button in the card header */}
+          <LabelButton 
+            founderData={data} 
+            onLabelChange={(labels) => console.log('Profile labels:', labels)}
+            className="header-label-button"
+          />
+        </div>
         <p className="card-headline">{data.linkedinHeadline || data.wellfoundHeadline}</p>
       </div>
 
@@ -397,13 +432,6 @@ const StartupCard = ({ data }) => {
         <p>
           <strong>College:</strong> {collegeDisplay}
         </p>
-        {/* Debug log for college data */}
-        {console.log('Card college data:', {
-          name: `${data.firstName} ${data.lastName}`,
-          college: data.college,
-          colleges: data.colleges,
-          display: collegeDisplay
-        })}
         <p>
           <strong>Industry:</strong> {data.companyIndustry || "Not specified"}
         </p>
@@ -436,9 +464,6 @@ const StartupCard = ({ data }) => {
             </a>
           )}
         </div>
-        
-        {/* Debug log to check Reddit data */}
-        {console.log('Reddit data for:', data.firstName, data.lastName, iitRedditData)}
         
         {/* Reddit mention button - Updated logic */}
         {isMentionedOnReddit && (
@@ -494,17 +519,17 @@ const StartupCard = ({ data }) => {
                   <CloseIcon />
                 </motion.button>
 
-                {/* Add bookmark button near the close button */}
+                {/* Add label button near the close button */}
                 <motion.div 
-                  className="bookmark-button-container"
+                  className="label-button-container"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.4 }}
                   style={{ position: 'absolute', top: '15px', right: '60px' }}
                 >
-                  <BookmarkButton 
+                  <LabelButton 
                     founderData={data} 
-                    onBookmarkChange={(isBookmarked) => console.log('Profile bookmarked:', isBookmarked)}
+                    onLabelChange={(labels) => console.log('Profile labels:', labels)}
                   />
                 </motion.div>
 
@@ -571,6 +596,20 @@ const StartupCard = ({ data }) => {
                         >
                           <LocationIcon /> {data.location}
                         </motion.p>
+                      )}
+                      
+                      {/* LinkedIn Followers Badge */}
+                      {data.linkedinFollowersCount && parseInt(data.linkedinFollowersCount) > 0 && (
+                        <motion.div 
+                          className={`profile-followers-badge ${getFollowersBadgeClass(parseInt(data.linkedinFollowersCount))}`}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.55, duration: 0.4 }}
+                          style={{ position: 'absolute', top: '15px', right: '110px' }}
+                        >
+                          <LinkedInIcon />
+                          <span className="followers-count">{parseInt(data.linkedinFollowersCount).toLocaleString()}</span> followers
+                        </motion.div>
                       )}
                       
                       {/* Modal profile links section */}
