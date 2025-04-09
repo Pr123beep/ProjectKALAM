@@ -73,6 +73,28 @@ export const signInWithEmail = async (email, password) => {
   }
 };
 
+// Sign in with Google
+export const signInWithGoogle = async () => {
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${getSiteUrl()}/main`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        }
+      }
+    });
+    
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error signing in with Google:', error.message);
+    return { data: null, error };
+  }
+};
+
 // Register with redirect support
 export const signUpWithEmail = async (email, password) => {
   try {
