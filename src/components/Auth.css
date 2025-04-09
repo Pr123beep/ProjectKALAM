@@ -182,6 +182,51 @@
   text-decoration: underline;
 }
 
+.auth-button-secondary {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #f7fafc;
+  color: #4a5568;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 0.75rem;
+}
+
+.auth-button-secondary:hover {
+  background-color: #edf2f7;
+  transform: translateY(-2px);
+}
+
+.auth-link-button {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 0.85rem;
+  padding: 0;
+  cursor: pointer;
+  text-align: right;
+  display: block;
+  margin-left: auto;
+  margin-top: 0.5rem;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.auth-link-button:hover {
+  color: #21867a;
+  text-decoration: underline;
+}
+
+.form-forgot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.25rem;
+}
+
 .auth-loading {
   display: flex;
   align-items: center;

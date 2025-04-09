@@ -301,13 +301,7 @@ function LandingPage({ onNavigate }) {
   useEffect(() => {
     // Optimize image loading
     const preloadImages = () => {
-      const siteUrl = process.env.REACT_APP_SITE_URL || window.location.origin;
-      console.log("Site URL:", siteUrl);
-      console.log("Environment variables available:", {
-        REACT_APP_SUPABASE_URL: process.env.REACT_APP_SUPABASE_URL ? "Defined" : "Undefined",
-        REACT_APP_SITE_URL: process.env.REACT_APP_SITE_URL ? "Defined" : "Undefined"
-      });
-      
+      console.log("site",process.env.REACT_APP_SITE_URL);
       const imageUrls = ['/Screenshot%202025-03-29%20231427.png'];
       imageUrls.forEach(url => {
         const img = new Image();

@@ -5,6 +5,7 @@ import LandingPage from './LandingPage';
 import MainPage from './MainPage';
 import Login from './components/Login';
 import Register from './components/Register';
+import ResetPassword from './components/ResetPassword';
 import LoadingScreen from './components/LoadingScreen';
 import { supabase } from './supabaseClient';
 import './App.css';
@@ -33,6 +34,15 @@ const ProtectedRoute = ({ children }) => {
   }
   
   return children;
+};
+
+// Allow password reset access even for authenticated users
+const ResetPasswordRoute = () => {
+  // We don't need location anymore since we're not using it
+  // const location = useLocation();
+  
+  // Always render the ResetPassword component for recovery flows
+  return <ResetPassword />;
 };
 
 function App() {
@@ -87,6 +97,7 @@ function App() {
             <Route path="/register" element={
               user ? <Navigate to="/main" replace /> : <Register onRegisterSuccess={handleAuthSuccess} />
             } />
+            <Route path="/reset-password" element={<ResetPasswordRoute />} />
             <Route path="/" element={
               <LandingRoute />
             } />

@@ -7,24 +7,16 @@ const SUPABASE_ANON_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY || 'eyJhbGciOi
 
 // Determine the site URL for redirects (works in both dev and production)
 const getSiteUrl = () => {
-  // Always use the production URL for authentication redirects
-  const productionUrl = 'https://investm.netlify.app';
-  
-  // Only use development URL if explicitly set via process.env or not in development mode
-  if (process.env.NODE_ENV !== 'development') {
-    // In production, try to use the environment variable if available
-    if (process.env.REACT_APP_SITE_URL) {
-      const url = process.env.REACT_APP_SITE_URL;
-      // Remove trailing slash if it exists
-      const formattedUrl = url.endsWith('/') ? url.slice(0, -1) : url;
-      console.log('Using site URL from environment variable:', formattedUrl);
-      return formattedUrl;
-    }
+  // In development, use localhost
+  if (process.env.NODE_ENV === 'development') {
+    return 'http://localhost:3000';
   }
   
-  console.log('Using hardcoded production URL for auth redirects:', productionUrl);
+  // In production, use the configured URL
+  let url = process.env.REACT_APP_SITE_URL || 'https://investm.netlify.app/';
+  console.log('Production URL:', url);
   // Remove trailing slash if it exists
-  return productionUrl.endsWith('/') ? productionUrl.slice(0, -1) : productionUrl;
+  return url.endsWith('/') ? url.slice(0, -1) : url;
 };
 
 // Create a single supabase client for interacting with your database
@@ -65,14 +57,11 @@ export const signOut = async () => {
 // Login with redirect support
 export const signInWithEmail = async (email, password) => {
   try {
-    const siteUrl = getSiteUrl();
-    console.log('Auth redirect URL will be:', `${siteUrl}/main`);
-    
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
       options: {
-        redirectTo: `${siteUrl}/main`
+        redirectTo: `${getSiteUrl()}/main`
       }
     });
     
@@ -87,14 +76,11 @@ export const signInWithEmail = async (email, password) => {
 // Register with redirect support
 export const signUpWithEmail = async (email, password) => {
   try {
-    const siteUrl = getSiteUrl();
-    console.log('Auth redirect URL will be:', `${siteUrl}/main`);
-    
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        redirectTo: `${siteUrl}/main`
+        redirectTo: `${getSiteUrl()}/main`
       }
     });
     
@@ -102,6 +88,46 @@ export const signUpWithEmail = async (email, password) => {
     return { data, error: null };
   } catch (error) {
     console.error('Error signing up:', error.message);
+    return { data: null, error };
+  }
+};
+
+// Password reset functionality
+export const resetPassword = async (email) => {
+  try {
+    // Make sure we're specifying this is a recovery flow by appending a type parameter
+    const redirectUrl = `${getSiteUrl()}/reset-password#type=recovery`;
+    console.log("Reset password redirect URL:", redirectUrl);
+    
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: redirectUrl
+    });
+    
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error resetting password:', error.message);
+    return { data: null, error };
+  }
+};
+
+// Update password when user clicks the reset link
+export const updatePassword = async (newPassword) => {
+  try {
+    console.log("Updating password...");
+    const { data, error } = await supabase.auth.updateUser({
+      password: newPassword
+    });
+    
+    if (error) {
+      console.error("Error in updatePassword:", error);
+      throw error;
+    }
+    
+    console.log("Password updated successfully:", data);
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error updating password:', error.message);
     return { data: null, error };
   }
 };
