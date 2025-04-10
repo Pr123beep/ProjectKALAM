@@ -85,13 +85,11 @@ const formatEnhancedDescription = (text) => {
   
   return (
     <div className="enhanced-profile-content">
-      {/* Introduction section */}
       <div className="profile-section">
         <h3 className="profile-section-title">📝 About</h3>
         <p className="profile-introduction">{introduction}</p>
       </div>
       
-      {/* Key Points section */}
       {keyPoints.length > 0 && (
         <div className="profile-section">
           <h3 className="profile-section-title">🔑 Key Highlights</h3>
@@ -106,7 +104,6 @@ const formatEnhancedDescription = (text) => {
         </div>
       )}
       
-      {/* Skills section */}
       {skills.length > 0 && (
         <div className="profile-section">
           <h3 className="profile-section-title">🛠️ Expertise</h3>
@@ -121,7 +118,6 @@ const formatEnhancedDescription = (text) => {
         </div>
       )}
       
-      {/* Connection prompt */}
       <div className="profile-connect-prompt">
         <span className="connect-emoji">🤝</span> Interested in connecting? Check out their profile for more details.
       </div>
@@ -225,7 +221,6 @@ const formatSimpleDescription = (text) => {
   );
 };
 
-// Helper to determine followers badge class based on follower count
 const getFollowersBadgeClass = (followersCount) => {
   if (followersCount <= 100) return 'followers-low';
   if (followersCount <= 500) return 'followers-medium';
@@ -241,12 +236,10 @@ const StartupCard = ({ data }) => {
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const [summaryError, setSummaryError] = useState(null);
 
-  // Create a unique key for this founder's profile
   const founderKey = useMemo(() => {
     return `${data.firstName}_${data.lastName}_${data.companyName}`.toLowerCase().replace(/[^a-z0-9]/g, '_');
   }, [data.firstName, data.lastName, data.companyName]);
 
-  // Reset states when data changes (i.e., when filters are applied)
   useEffect(() => {
     setAiSummary(null);
     setSummaryError(null);
@@ -259,14 +252,11 @@ const StartupCard = ({ data }) => {
       document.addEventListener('touchmove', preventScrollOutsideModal, { passive: false });
       document.addEventListener('wheel', preventScrollOutsideModal, { passive: false });
 
-      // Generate AI summary when modal is opened
       const generateSummary = async () => {
-        // Only generate if we don't have a summary for this specific founder
         if (!aiSummary && !summaryError && !isLoadingSummary) {
           setIsLoadingSummary(true);
           try {
             const summary = await generateFounderSummary(data);
-            // Only set the summary if we're still showing details for the same founder
             if (showDetails) {
               setAiSummary(summary);
             }
@@ -297,7 +287,6 @@ const StartupCard = ({ data }) => {
     };
   }, [showDetails, data, aiSummary, summaryError, isLoadingSummary, founderKey]);
 
-  // Prevent scrolling when modal is open
   useEffect(() => {
     if (showDetails) {
       document.body.classList.add('modal-open');
@@ -330,7 +319,6 @@ const StartupCard = ({ data }) => {
         const newShowDetails = !showDetails;
         setShowDetails(newShowDetails);
         
-        // Reset summary states when closing the modal
         if (!newShowDetails) {
           setAiSummary(null);
           setSummaryError(null);
@@ -362,23 +350,19 @@ const StartupCard = ({ data }) => {
     const founderName = `${data.firstName} ${data.lastName}`.toLowerCase().trim();
     const founderLastName = data.lastName.toLowerCase().trim();
     
-    // First try to find exact matches for full name
     let match = iitRedditData.find(item => {
       const queryName = (item.query || '').toLowerCase().trim();
       return queryName === founderName || founderName === queryName;
     });
     
-    // If no exact match, try partial matches
     if (!match) {
       match = iitRedditData.find(item => {
         const queryName = (item.query || '').toLowerCase().trim();
         
-        // Check if full name is part of query or vice versa
         if (queryName.includes(founderName) || founderName.includes(queryName)) {
           return true;
         }
         
-        // Check for last name + company name pattern (common in Reddit)
         if (data.companyName && queryName.includes(founderLastName) && 
             queryName.includes(data.companyName.toLowerCase())) {
           return true;
@@ -447,7 +431,6 @@ const StartupCard = ({ data }) => {
             onLabelChange={(labels) => {
               console.log('Profile labels:', labels);
               
-              // Extract label names correctly from the label objects
               const labelNames = Array.isArray(labels) 
                 ? labels.map(label => (label && typeof label === 'object' && label.label_name) ? label.label_name : label).join(', ')
                 : '';
@@ -457,7 +440,6 @@ const StartupCard = ({ data }) => {
               toast.textContent = labels.length ? `Labels updated: ${labelNames}` : 'Labels cleared';
               document.body.appendChild(toast);
               
-              // Remove after animation completes
               setTimeout(() => {
                 toast.classList.add('label-toast-hide');
                 setTimeout(() => document.body.removeChild(toast), 500);
@@ -481,7 +463,6 @@ const StartupCard = ({ data }) => {
           <strong>Company:</strong> {data.companyName}
         </p>
         
-        {/* Add source badges */}
         <div className="source-badges">
           {data.linkedinProfileUrl && (
             <a 
@@ -524,7 +505,6 @@ const StartupCard = ({ data }) => {
         {showDetails ? "Hide Details" : "Show Details"}
       </button>
 
-      {/* The modal with details - now using createPortal */}
       {showDetails && 
         ReactDOM.createPortal(
           <div className="modal-root" key="detail-modal-portal">
@@ -561,7 +541,6 @@ const StartupCard = ({ data }) => {
                   <CloseIcon />
                 </motion.button>
 
-                {/* Add label button near the close button */}
                 <motion.div 
                   className="label-button-container modal-label-button"
                   initial={{ opacity: 0 }}
@@ -573,7 +552,6 @@ const StartupCard = ({ data }) => {
                     onLabelChange={(labels) => {
                       console.log('Profile labels:', labels);
                       
-                      // Extract label names correctly from the label objects
                       const labelNames = Array.isArray(labels) 
                         ? labels.map(label => (label && typeof label === 'object' && label.label_name) ? label.label_name : label).join(', ')
                         : '';
@@ -583,7 +561,6 @@ const StartupCard = ({ data }) => {
                       toast.textContent = labels.length ? `Labels updated: ${labelNames}` : 'Labels cleared';
                       document.body.appendChild(toast);
                       
-                      // Remove after animation completes
                       setTimeout(() => {
                         toast.classList.add('label-toast-hide');
                         setTimeout(() => document.body.removeChild(toast), 500);
@@ -594,16 +571,13 @@ const StartupCard = ({ data }) => {
                   />
                 </motion.div>
 
-                {/* Modal Header with staggered animation */}
                 <motion.div 
                   className="modal-header"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.1 }}
                 >
-                  {/* Rest of the header content */}
                   <div className="profile-info">
-                    {/* Source badge with animation */}
                     {data.source && (
                       <motion.div 
                         className={`source-badge ${data.source}`}
@@ -615,7 +589,6 @@ const StartupCard = ({ data }) => {
                       </motion.div>
                     )}
                     
-                    {/* Avatar with animation */}
                     <motion.div 
                       className="profile-avatar"
                       initial={{ scale: 0.8, opacity: 0 }}
@@ -627,7 +600,6 @@ const StartupCard = ({ data }) => {
                     </motion.div>
 
                     <div className="profile-main">
-                      {/* Name with animation */}
                       <motion.h2 
                         className="profile-name"
                         initial={{ opacity: 0, y: 10 }}
@@ -637,7 +609,6 @@ const StartupCard = ({ data }) => {
                         {data.firstName} {data.lastName}
                       </motion.h2>
                       
-                      {/* Headline with animation */}
                       <motion.p 
                         className="profile-headline"
                         initial={{ opacity: 0, y: 10 }}
@@ -647,7 +618,6 @@ const StartupCard = ({ data }) => {
                         {data.linkedinHeadline || data.wellfoundHeadline}
                       </motion.p>
                       
-                      {/* Location with animation */}
                       {data.location && (
                         <motion.p 
                           className="profile-location"
@@ -659,14 +629,12 @@ const StartupCard = ({ data }) => {
                         </motion.p>
                       )}
                       
-                      {/* Modal profile links section */}
                       <motion.div 
                         className="profile-links"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.6, duration: 0.4 }}
                       >
-                        {/* LinkedIn profile link */}
                         {data.linkedinProfileUrl && (
                           <div className="profile-link-group">
                             <div className="link-followers-row">
@@ -848,7 +816,6 @@ const StartupCard = ({ data }) => {
                             </a>
                           )}
                           
-                          {/* Only show Wellfound company URL in the company section, not next to company name */}
                           {data.wellFoundURL && (
                             <a
                               href={data.wellFoundURL}
@@ -979,21 +946,6 @@ const StartupCard = ({ data }) => {
                           </span>
                         ))}
                       </div>
-                    </motion.div>
-                  )}
-
-                  {/* Followers */}
-                  {data.linkedinFollowersCount && (
-                    <motion.div 
-                      className="detail-section followers"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.8 }}
-                    >
-                      <h3 className="section-title">LinkedIn Network</h3>
-                      <p>
-                        <strong>{data.linkedinFollowersCount}</strong> followers
-                      </p>
                     </motion.div>
                   )}
                 </motion.div>
