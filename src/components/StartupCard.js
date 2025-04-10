@@ -831,45 +831,133 @@ const StartupCard = ({ data }) => {
                     </motion.div>
                   )}
 
-                  {/* Previous Position */}
-                  {(data.previousJob ||
-                    data.linkedinPreviousJobTitle ||
-                    data.previousCompanyName) && (
-                      <motion.div 
-                        className="detail-section"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.5 }}
-                      >
+                  {/* Career History - All Previous Positions */}
+                  {(data.previousJob || data.linkedinPreviousJobTitle || data.previousCompanyName || 
+                    data.company3Name || data.company4Name || data.company5Name) && (
+                    <motion.div 
+                      className="detail-section"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 }}
+                    >
                       <h3 className="section-title">
-                        <WorkIcon /> Previous Position
+                        <WorkIcon /> Career History
                       </h3>
-                      <div className="detail-card">
-                        <h4>
-                          {data.linkedinPreviousJobTitle || "Professional"}
-                          {data.previousCompanyName && ` at ${data.previousCompanyName}`}
-                        </h4>
-                        {data.linkedinPreviousJobDateRange && (
-                          <p className="date-range">
-                            {data.linkedinPreviousJobDateRange}
-                          </p>
-                        )}
-                        {data.linkedinPreviousJobLocation && (
-                          <p className="job-location">
-                            <LocationIcon /> {data.linkedinPreviousJobLocation}
-                          </p>
-                        )}
-                        {data.linkedinPreviousJobDescription && (
-                          <div className="detail-section">
-                            {formatSimpleDescription(data.linkedinPreviousJobDescription)}
-                          </div>
-                        )}
+
+                      {/* Previous Position */}
+                      {(data.previousJob || data.linkedinPreviousJobTitle || data.previousCompanyName) && (
+                        <div className="detail-card career-card">
+                          <h4>
+                            {data.linkedinPreviousJobTitle || "Professional"}
+                            {data.previousCompanyName && ` at ${data.previousCompanyName}`}
+                          </h4>
+                          {data.linkedinPreviousJobDateRange && (
+                            <p className="date-range">
+                              {data.linkedinPreviousJobDateRange}
+                            </p>
+                          )}
+                          {data.linkedinPreviousJobLocation && (
+                            <p className="job-location">
+                              <LocationIcon /> {data.linkedinPreviousJobLocation}
+                            </p>
+                          )}
+                          {data.linkedinPreviousJobDescription && (
+                            <div className="detail-section">
+                              {formatSimpleDescription(data.linkedinPreviousJobDescription)}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Company 3 */}
+                      {data.company3Name && (
+                        <div className="detail-card career-card">
+                          <h4>
+                            {data.company3Designation || "Professional"}
+                            {` at ${data.company3Name}`}
+                          </h4>
+                          {data.company3DateRange && (
+                            <p className="date-range">{data.company3DateRange}</p>
+                          )}
+                          <div className="career-tag">Past Position</div>
+                        </div>
+                      )}
+
+                      {/* Company 4 */}
+                      {data.company4Name && (
+                        <div className="detail-card career-card">
+                          <h4>
+                            {data.company4Designation || "Professional"}
+                            {` at ${data.company4Name}`}
+                          </h4>
+                          {data.company4DateRange && (
+                            <p className="date-range">{data.company4DateRange}</p>
+                          )}
+                          <div className="career-tag">Past Position</div>
+                        </div>
+                      )}
+
+                      {/* Company 5 */}
+                      {data.company5Name && (
+                        <div className="detail-card career-card">
+                          <h4>
+                            {data.company5Designation || "Professional"}
+                            {` at ${data.company5Name}`}
+                          </h4>
+                          {data.company5DateRange && (
+                            <p className="date-range">{data.company5DateRange}</p>
+                          )}
+                          <div className="career-tag">Past Position</div>
+                        </div>
+                      )}
+
+                      {/* Show a "View More" button if there are more companies */}
+                      {(data.company6Name || data.company7Name || data.company8Name ||
+                        data.company9Name || data.company10Name || data.company11Name ||
+                        data.company12Name) && (
+                        <button 
+                          className="view-more-button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            const element = document.getElementById('additional-positions');
+                            if (element) {
+                              element.style.display = element.style.display === 'none' ? 'block' : 'none';
+                              e.target.textContent = element.style.display === 'none' ? 'View More Positions' : 'View Less';
+                            }
+                          }}
+                        >
+                          View More Positions
+                        </button>
+                      )}
+
+                      {/* Additional positions (hidden by default) */}
+                      <div id="additional-positions" style={{display: 'none'}}>
+                        {/* Company 6 to 12 */}
+                        {[6, 7, 8, 9, 10, 11, 12].map(num => {
+                          const companyName = data[`company${num}Name`];
+                          const designation = data[`company${num}Designation`];
+                          const dateRange = data[`company${num}DateRange`];
+                          
+                          return companyName ? (
+                            <div key={`company-${num}`} className="detail-card career-card">
+                              <h4>
+                                {designation || "Professional"}
+                                {` at ${companyName}`}
+                              </h4>
+                              {dateRange && (
+                                <p className="date-range">{dateRange}</p>
+                              )}
+                              <div className="career-tag">Past Position</div>
+                            </div>
+                          ) : null;
+                        })}
                       </div>
-                      </motion.div>
+                    </motion.div>
                   )}
 
-                  {/* Education */}
-                  {(data.currentSchool || data.linkedinSchoolName || collegeDisplay) && (
+                  {/* Education History */}
+                  {(data.currentSchool || data.linkedinSchoolName || collegeDisplay || 
+                    data.linkedinPreviousSchoolName || data.education3Name) && (
                     <motion.div 
                       className="detail-section"
                       initial={{ opacity: 0, y: 20 }}
@@ -879,34 +967,38 @@ const StartupCard = ({ data }) => {
                       <h3 className="section-title">
                         <EducationIcon /> Education
                       </h3>
-                      <div className="detail-card">
-                        <h4>{data.linkedinSchoolName || collegeDisplay}</h4>
-                        {data.linkedinSchoolDegree && (
-                          <p className="degree">{data.linkedinSchoolDegree}</p>
-                        )}
-                        {data.linkedinSchoolDateRange && (
-                          <p className="date-range">{data.linkedinSchoolDateRange}</p>
-                        )}
-                        {data.linkedinSchoolDescription && (
-                          <div className="detail-section">
-                            {formatSimpleDescription(data.linkedinSchoolDescription)}
-                          </div>
-                        )}
-                        {data.linkedinSchoolUrl && (
-                          <a
-                            href={data.linkedinSchoolUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="school-link"
-                          >
-                            School Page
-                          </a>
-                        )}
-                      </div>
+
+                      {/* Current Education */}
+                      {(data.currentSchool || data.linkedinSchoolName || collegeDisplay) && (
+                        <div className="detail-card education-card">
+                          <h4>{data.linkedinSchoolName || collegeDisplay}</h4>
+                          {data.linkedinSchoolDegree && (
+                            <p className="degree">{data.linkedinSchoolDegree}</p>
+                          )}
+                          {data.linkedinSchoolDateRange && (
+                            <p className="date-range">{data.linkedinSchoolDateRange}</p>
+                          )}
+                          {data.linkedinSchoolDescription && (
+                            <div className="detail-section">
+                              {formatSimpleDescription(data.linkedinSchoolDescription)}
+                            </div>
+                          )}
+                          {data.linkedinSchoolUrl && (
+                            <a
+                              href={data.linkedinSchoolUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="school-link"
+                            >
+                              School Page
+                            </a>
+                          )}
+                        </div>
+                      )}
 
                       {/* Previous School */}
-                      {data.previousSchool && (
-                        <div className="detail-card">
+                      {data.linkedinPreviousSchoolName && (
+                        <div className="detail-card education-card">
                           <h4>{data.linkedinPreviousSchoolName}</h4>
                           {data.linkedinPreviousSchoolDegree && (
                             <p className="degree">
@@ -923,8 +1015,67 @@ const StartupCard = ({ data }) => {
                               {formatSimpleDescription(data.linkedinPreviousSchoolDescription)}
                             </div>
                           )}
+                          {data.linkedinPreviousSchoolUrl && (
+                            <a
+                              href={data.linkedinPreviousSchoolUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="school-link"
+                            >
+                              School Page
+                            </a>
+                          )}
                         </div>
                       )}
+
+                      {/* Education 3 */}
+                      {data.education3Name && (
+                        <div className="detail-card education-card">
+                          <h4>{data.education3Name}</h4>
+                          {data.education3DateRange && (
+                            <p className="date-range">{data.education3DateRange}</p>
+                          )}
+                          <div className="education-tag">Additional Education</div>
+                        </div>
+                      )}
+
+                      {/* Show a "View More" button if there are more education entries */}
+                      {(data.education4Name || data.education5Name || data.education6Name ||
+                        data.education7Name || data.education8Name || data.education9Name ||
+                        data.education10Name || data.education11Name || data.education12Name) && (
+                        <button 
+                          className="view-more-button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            const element = document.getElementById('additional-education');
+                            if (element) {
+                              element.style.display = element.style.display === 'none' ? 'block' : 'none';
+                              e.target.textContent = element.style.display === 'none' ? 'View More Education' : 'View Less';
+                            }
+                          }}
+                        >
+                          View More Education
+                        </button>
+                      )}
+
+                      {/* Additional education (hidden by default) */}
+                      <div id="additional-education" style={{display: 'none'}}>
+                        {/* Education 4 to 12 */}
+                        {[4, 5, 6, 7, 8, 9, 10, 11, 12].map(num => {
+                          const educationName = data[`education${num}Name`];
+                          const dateRange = data[`education${num}DateRange`];
+                          
+                          return educationName ? (
+                            <div key={`education-${num}`} className="detail-card education-card">
+                              <h4>{educationName}</h4>
+                              {dateRange && (
+                                <p className="date-range">{dateRange}</p>
+                              )}
+                              <div className="education-tag">Additional Education</div>
+                            </div>
+                          ) : null;
+                        })}
+                      </div>
                     </motion.div>
                   )}
 

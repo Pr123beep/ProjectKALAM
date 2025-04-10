@@ -1440,3 +1440,101 @@ body.modal-open .detail-overlay {
     max-width: none;
   }
 }
+
+/* Career history and education cards */
+.career-card, .education-card {
+  position: relative;
+  margin-bottom: 16px;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.career-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background: linear-gradient(to bottom, #0284c7, #0891b2);
+}
+
+.education-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background: linear-gradient(to bottom, #8b5cf6, #6366f1);
+}
+
+.career-card:hover, .education-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* Tags for additional context */
+.career-tag, .education-tag {
+  display: inline-block;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 20px;
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+.career-tag {
+  background-color: rgba(2, 132, 199, 0.1);
+  color: #0284c7;
+  border: 1px solid rgba(2, 132, 199, 0.2);
+}
+
+.education-tag {
+  background-color: rgba(139, 92, 246, 0.1);
+  color: #8b5cf6;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+/* View more button styles */
+.view-more-button {
+  background: none;
+  border: none;
+  color: #2a9d8f;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  display: block;
+  margin: 10px auto;
+  font-weight: 500;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(42, 157, 143, 0.2);
+  background-color: rgba(42, 157, 143, 0.05);
+}
+
+.view-more-button:hover {
+  background-color: rgba(42, 157, 143, 0.1);
+  color: #21867a;
+}
+
+/* Animations for staggered appearance */
+#additional-positions, #additional-education {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Hidden state transition */
+#additional-positions.hidden, #additional-education.hidden {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+}
