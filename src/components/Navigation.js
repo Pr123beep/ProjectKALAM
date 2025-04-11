@@ -11,6 +11,7 @@ const Navigation = ({ user }) => {
     window.location.href = '/login';
   };
   
+  // Don't show navigation on login, register, or reset password pages
   if (['/login', '/register', '/reset-password', '/'].includes(location.pathname)) {
     return null;
   }
@@ -19,7 +20,7 @@ const Navigation = ({ user }) => {
     <nav className="main-nav">
       <div className="nav-container">
         <div className="nav-logo">
-          <Link to="/main">Project Kalam</Link>
+          <Link to="/main">InvestM</Link>
         </div>
         
         <div className="nav-links">

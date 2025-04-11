@@ -130,28 +130,10 @@ const CustomCheckbox = ({ type, label, checked, onChange }) => {
   );
 };
 
-const INDUSTRIES = [
-  'Software & Tech Services',
-  'DeepTech & Emerging Tech',
-  
-  'EdTech',
-  'Hardware & Robotics',
-  'FinTech',
-  'Enterprise SaaS & B2B',
-  'Media & Entertainment Tech',
-  'E-commerce & Consumer Tech',
-  'CleanTech & Sustainability',
-  'HealthTech & BioTech',
-  'Research & Innovation',
-  'Other'
-
-];
-
-
 const FilterBar = ({ onApplyFilters }) => {
   const [filters, setFilters] = useState({
-    college: [],
-    companyIndustry: [],
+    college: '',
+    companyIndustry: '',
     currentLocation: '',
     followersMin: 0,
     followersMax: 50000,
@@ -176,41 +158,25 @@ const FilterBar = ({ onApplyFilters }) => {
   const sampleData = {
     college: [
       // IITs
-      'IIT Madras',
-      'IIT Delhi',
-      'IIT Bombay',
-      'IIT Kharagpur',
-      'IIT Kanpur',
-      'IIT Roorkee',
-      'IIT Guwahati',
-      'IIT Hyderabad',
+      'Indian Institute of Technology, Bombay', 
+      'Indian Institute of Technology, Delhi', 
+      'Indian Institute of Technology, Madras',
+      'Indian Institute of Technology, Kanpur',
+      'Indian Institute of Technology, Kharagpur',
+      'Indian Institute of Technology, Roorkee',
+      'Indian Institute of Technology, Guwahati',
+      'Indian Institute of Technology, Hyderabad',
       
       // IIMs
-      'IIM Bangalore',
-      'IIM Calcutta',
-      'IIM Lucknow',
-      'IIM Indore',
-      'IIM Ahmedabad',
-      'IIM Rohtak',
-      'IIM Kozhikode',
+      'Indian Institute of Management, Bangalore',
+      'Indian Institute of Management, Calcutta',
+      'Indian Institute of Management, Lucknow',
+      'Indian Institute of Management, Indore',
+      'Indian Institute of Management, Ahmedabad',
       
-      // IIITs
-      'IIIT Hyderabad',
-      'IIIT Bangalore',
       
-      // NITs
-      'NIT Calicut',
-      'NIT Warangal',
-      'NIT Rourkela',
-      'NIT Surathkal',
       
-      // Other top institutes
-      'ISB',
-      'IISC',
-      'BITS Pilani',
-      'XLRI Jamshedpur',
-      'VIT',
-      'Manipal Institute of Technology'
+      
     ],
     currentLocation: [
       'Mumbai, India',
@@ -338,17 +304,13 @@ const FilterBar = ({ onApplyFilters }) => {
   };
   
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      // Only close dropdown if clicked outside
-      const multiSelectContainer = document.querySelector('.multi-select-container');
-      if (multiSelectContainer && !multiSelectContainer.contains(event.target)) {
-        setActiveSuggestion('');
-        setSuggestions({
-          college: [],
-          currentLocation: [],
-          companyIndustry: []
-        });
-      }
+    const handleClickOutside = () => {
+      setSuggestions({
+        college: [],
+        currentLocation: [],
+        companyIndustry: []
+      });
+      setActiveSuggestion('');
     };
     
     document.addEventListener('click', handleClickOutside);
@@ -367,39 +329,12 @@ const FilterBar = ({ onApplyFilters }) => {
     }));
   };
 
-  const handleIndustryChange = (industry) => {
-    setFilters(prev => {
-      const updatedIndustries = prev.companyIndustry.includes(industry)
-        ? prev.companyIndustry.filter(item => item !== industry)
-        : [...prev.companyIndustry, industry];
-      
-      return {
-        ...prev,
-        companyIndustry: updatedIndustries
-      };
-    });
-  };
-
-  const handleCollegeChange = (college) => {
-    setFilters(prev => {
-      const updatedColleges = prev.college.includes(college)
-        ? prev.college.filter(item => item !== college)
-        : [...prev.college, college];
-      
-      return {
-        ...prev,
-        college: updatedColleges
-      };
-    });
-  };
-
   const handleApply = () => {
     const filtersToApply = {
       ...filters,
-      followersMin: parseInt(filters.followersMin, 10) || 0,
-      followersMax: parseInt(filters.followersMax, 10) || 50000,
-      profileSources: filters.profileSources,
-      companyIndustry: filters.companyIndustry
+      followersMin: parseInt(filters.followersMin, 10),
+      followersMax: parseInt(filters.followersMax, 10),
+      profileSources: filters.profileSources
     };
     
     onApplyFilters(filtersToApply);
@@ -407,8 +342,8 @@ const FilterBar = ({ onApplyFilters }) => {
 
   const handleClear = () => {
     const cleared = {
-      college: [],
-      companyIndustry: [],
+      college: '',
+      companyIndustry: '',
       currentLocation: '',
       followersMin: 0,
       followersMax: 50000,
@@ -446,134 +381,69 @@ const FilterBar = ({ onApplyFilters }) => {
         <div className="filter-group">
           <div className="filter-item">
             <label htmlFor="college">College:</label>
-            <div className="multi-select-container">
-              <div 
-                className="multi-select-header" 
+            <div className="suggestion-container">
+              <input
+                type="text"
+                id="college"
+                name="college"
+                value={filters.college}
+                onChange={handleChange}
                 onClick={(e) => {
                   e.stopPropagation();
-                  setActiveSuggestion(activeSuggestion === 'college' ? '' : 'college');
+                  setActiveSuggestion('college');
                 }}
-              >
-                {filters.college.length === 0 ? (
-                  <span className="placeholder-text">Select Colleges</span>
-                ) : (
-                  <div className="selected-tags">
-                    {filters.college.map(college => (
-                      <div key={college} className="tag" title={college}>
-                        <span className="tag-name">{college}</span>
-                        <button 
-                          className="tag-remove"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleCollegeChange(college);
-                          }}
-                          aria-label={`Remove ${college}`}
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <span className="dropdown-icon">{activeSuggestion === 'college' ? '▲' : '▼'}</span>
-              </div>
-              
-              {activeSuggestion === 'college' && (
-                <div className="multi-select-options" onClick={(e) => e.stopPropagation()}>
-                  <div className="search-in-dropdown">
-                    <input
-                      type="text"
-                      placeholder="Search colleges..."
-                      onClick={(e) => e.stopPropagation()}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        if (value.length > 0) {
-                          const filteredSuggestions = getAbbreviationMatches(value, sampleData.college);
-                          setSuggestions(prev => ({
-                            ...prev,
-                            college: filteredSuggestions
-                          }));
-                        } else {
-                          setSuggestions(prev => ({
-                            ...prev,
-                            college: sampleData.college
-                          }));
-                        }
+                placeholder="Search by college"
+                className="filter-input"
+                autoComplete="off"
+              />
+              {activeSuggestion === 'college' && suggestions.college.length > 0 && (
+                <ul className="suggestions-list">
+                  {suggestions.college.map((suggestion, index) => (
+                    <li 
+                      key={index}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSelectSuggestion('college', suggestion);
                       }}
-                      className="dropdown-search-input"
-                    />
-                  </div>
-                  {(suggestions.college.length > 0 ? suggestions.college : sampleData.college).map(college => (
-                    <div key={college} className="multi-select-option">
-                      <label className="college-checkbox">
-                        <input
-                          type="checkbox"
-                          checked={filters.college.includes(college)}
-                          onChange={(e) => {
-                            e.stopPropagation();
-                            handleCollegeChange(college);
-                          }}
-                        />
-                        <span className="college-name">{college}</span>
-                      </label>
-                    </div>
+                    >
+                      {suggestion}
+                    </li>
                   ))}
-                </div>
+                </ul>
               )}
             </div>
           </div>
           <div className="filter-item">
             <label htmlFor="companyIndustry">Industry:</label>
-            <div className="multi-select-container">
-              <div 
-                className="multi-select-header" 
+            <div className="suggestion-container">
+              <input
+                type="text"
+                id="companyIndustry" 
+                name="companyIndustry"
+                value={filters.companyIndustry}
+                onChange={handleChange}
                 onClick={(e) => {
                   e.stopPropagation();
-                  setActiveSuggestion(activeSuggestion === 'industry' ? '' : 'industry');
+                  setActiveSuggestion('companyIndustry');
                 }}
-              >
-                {filters.companyIndustry.length === 0 ? (
-                  <span className="placeholder-text">Select Industries</span>
-                ) : (
-                  <div className="selected-tags">
-                    {filters.companyIndustry.map(industry => (
-                      <div key={industry} className="tag" title={industry}>
-                        <span className="tag-name">{industry}</span>
-                        <button 
-                          className="tag-remove"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleIndustryChange(industry);
-                          }}
-                          aria-label={`Remove ${industry}`}
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <span className="dropdown-icon">{activeSuggestion === 'industry' ? '▲' : '▼'}</span>
-              </div>
-              
-              {activeSuggestion === 'industry' && (
-                <div className="multi-select-options" onClick={(e) => e.stopPropagation()}>
-                  {INDUSTRIES.map(industry => (
-                    <div key={industry} className="multi-select-option">
-                      <label className="industry-checkbox">
-                        <input
-                          type="checkbox"
-                          checked={filters.companyIndustry.includes(industry)}
-                          onChange={(e) => {
-                            e.stopPropagation();
-                            handleIndustryChange(industry);
-                          }}
-                        />
-                        <span className="industry-name">{industry}</span>
-                      </label>
-                    </div>
+                placeholder="Search by industry"
+                className="filter-input"
+                autoComplete="off"
+              />
+              {activeSuggestion === 'companyIndustry' && suggestions.companyIndustry.length > 0 && (
+                <ul className="suggestions-list">
+                  {suggestions.companyIndustry.map((suggestion, index) => (
+                    <li 
+                      key={index}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSelectSuggestion('companyIndustry', suggestion);
+                      }}
+                    >
+                      {suggestion}
+                    </li>
                   ))}
-                </div>
+                </ul>
               )}
             </div>
           </div>
