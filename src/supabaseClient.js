@@ -1,25 +1,19 @@
 // src/supabaseClient.js
 import { createClient } from '@supabase/supabase-js';
 
-// Supabase connection details
 const SUPABASE_URL = process.env.REACT_APP_SUPABASE_URL || 'https://unsrgtbkqnneplscdkaq.supabase.co';
 const SUPABASE_ANON_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuc3JndGJrcW5uZXBsc2Nka2FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM3ODQ4NDksImV4cCI6MjA1OTM2MDg0OX0.-fdqZhDP6AMbh4yN0ETFZ_L7SrF6lOqkv04UeQV_XpY';
 
-// Determine the site URL for redirects (works in both dev and production)
 const getSiteUrl = () => {
-  // In development, use localhost
   if (process.env.NODE_ENV === 'development') {
     return 'http://localhost:3000';
   }
   
-  // In production, use the configured URL
   let url = process.env.REACT_APP_SITE_URL || 'https://investm.netlify.app/';
   console.log('Production URL:', url);
-  // Remove trailing slash if it exists
   return url.endsWith('/') ? url.slice(0, -1) : url;
 };
 
-// Create a single supabase client for interacting with your database
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
     persistSession: true,
@@ -30,7 +24,6 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   }
 });
 
-// Helper function to get the current user
 export const getCurrentUser = async () => {
   try {
     const { data, error } = await supabase.auth.getUser();
@@ -42,7 +35,6 @@ export const getCurrentUser = async () => {
   }
 };
 
-// Helper function to sign out
 export const signOut = async () => {
   try {
     const { error } = await supabase.auth.signOut();
@@ -54,7 +46,6 @@ export const signOut = async () => {
   }
 };
 
-// Login with redirect support
 export const signInWithEmail = async (email, password) => {
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -73,7 +64,6 @@ export const signInWithEmail = async (email, password) => {
   }
 };
 
-// Sign in with Google
 export const signInWithGoogle = async () => {
   try {
     const { data, error } = await supabase.auth.signInWithOAuth({
@@ -95,7 +85,6 @@ export const signInWithGoogle = async () => {
   }
 };
 
-// Register with redirect support
 export const signUpWithEmail = async (email, password) => {
   try {
     const { data, error } = await supabase.auth.signUp({
@@ -114,10 +103,8 @@ export const signUpWithEmail = async (email, password) => {
   }
 };
 
-// Password reset functionality
 export const resetPassword = async (email) => {
   try {
-    // Make sure we're specifying this is a recovery flow by appending a type parameter
     const redirectUrl = `${getSiteUrl()}/reset-password#type=recovery`;
     console.log("Reset password redirect URL:", redirectUrl);
     
@@ -133,7 +120,6 @@ export const resetPassword = async (email) => {
   }
 };
 
-// Update password when user clicks the reset link
 export const updatePassword = async (newPassword) => {
   try {
     console.log("Updating password...");
@@ -154,7 +140,6 @@ export const updatePassword = async (newPassword) => {
   }
 };
 
-// Bookmark functions
 // Add a bookmark
 export const addBookmark = async (founderData) => {
   try {
@@ -162,7 +147,6 @@ export const addBookmark = async (founderData) => {
     const user = await getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    // Extract essential data to store in the bookmark
     const bookmarkData = {
       user_id: user.id,
       founder_id: founderData.id || `${founderData.firstName}-${founderData.lastName}`,
@@ -222,7 +206,6 @@ export const removeBookmark = async (founderId) => {
   }
 };
 
-// Check if a profile is bookmarked
 export const isProfileBookmarked = async (founderId) => {
   try {
     const user = await getCurrentUser();
@@ -243,7 +226,6 @@ export const isProfileBookmarked = async (founderId) => {
   }
 };
 
-// Get all bookmarks for current user
 export const getUserBookmarks = async () => {
   try {
     const user = await getCurrentUser();
@@ -270,8 +252,6 @@ export const getUserBookmarks = async () => {
   }
 };
 
-// Labels functions
-// Get all labels for current user
 export const getUserLabels = async () => {
   try {
     const user = await getCurrentUser();
@@ -298,14 +278,12 @@ export const getUserLabels = async () => {
   }
 };
 
-// Add a label to a profile
 export const addLabelToProfile = async (founderData, labelName) => {
   try {
     console.log("Adding label for:", founderData);
     const user = await getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    // Extract essential data to store in the labeled profile
     const labelData = {
       user_id: user.id,
       founder_id: founderData.id || `${founderData.firstName}-${founderData.lastName}`,
@@ -347,7 +325,6 @@ export const addLabelToProfile = async (founderData, labelName) => {
   }
 };
 
-// Remove a label from a profile
 export const removeLabelFromProfile = async (labelId) => {
   try {
     const user = await getCurrentUser();
@@ -366,7 +343,6 @@ export const removeLabelFromProfile = async (labelId) => {
   }
 };
 
-// Update the label name for a profile
 export const updateProfileLabel = async (labelId, newLabelName) => {
   try {
     const user = await getCurrentUser();
@@ -386,7 +362,6 @@ export const updateProfileLabel = async (labelId, newLabelName) => {
   }
 };
 
-// Get all profiles with a specific label
 export const getProfilesByLabel = async (labelName, normalized = false) => {
   try {
     const user = await getCurrentUser();
@@ -397,11 +372,9 @@ export const getProfilesByLabel = async (labelName, normalized = false) => {
       .select('*')
       .eq('user_id', user.id);
     
-    // If normalized is true, use case-insensitive matching
     if (normalized) {
       query = query.ilike('label_name', labelName);
     } else {
-      // Exact matching (case-sensitive)
       query = query.eq('label_name', labelName);
     }
     
@@ -415,7 +388,6 @@ export const getProfilesByLabel = async (labelName, normalized = false) => {
   }
 };
 
-// Check if a profile has any labels
 export const getProfileLabels = async (founderId) => {
   try {
     const user = await getCurrentUser();
