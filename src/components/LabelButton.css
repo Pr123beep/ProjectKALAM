@@ -3,27 +3,45 @@
 }
 
 .label-button {
-  background: none;
+  background-color: transparent;
   border: none;
-  cursor: pointer;
-  padding: 6px;
   border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  padding: 6px;
+  cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #718096;
-  background-color: rgba(237, 242, 247, 0.8);
+  position: relative;
+  color: var(--primary-color, #2a9d8f);
+  outline: none;
+  z-index: 2;
 }
 
 .label-button:hover {
-  background-color: #edf2f7;
+  background-color: rgba(42, 157, 143, 0.1);
   transform: scale(1.05);
-  color: #4a5568;
+}
+
+.label-button:focus {
+  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.3);
 }
 
 .label-button.has-labels {
-  color: var(--primary-color);
+  color: #2a9d8f;
+  background-color: rgba(42, 157, 143, 0.1);
+}
+
+/* Improve visibility in cards */
+.header-label-button .label-button {
+  background-color: rgba(42, 157, 143, 0.1);
+  border: 1px solid rgba(42, 157, 143, 0.2);
+}
+
+.header-label-button .label-button:hover {
+  background-color: rgba(42, 157, 143, 0.2);
 }
 
 .label-button.has-labels .label-icon {
@@ -33,11 +51,6 @@
 .label-button.loading {
   opacity: 0.7;
   cursor: wait;
-}
-
-.label-button:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.4);
 }
 
 .label-dropdown {
@@ -185,6 +198,17 @@
   margin-bottom: 12px;
 }
 
+.loading-labels {
+  text-align: center;
+  padding: 12px;
+  color: #718096;
+  font-size: 14px;
+  background-color: #f7fafc;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
 .add-label-form {
   display: flex;
   gap: 8px;
@@ -300,6 +324,15 @@
 .existing-label-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.no-more-labels {
+  color: #718096;
+  font-size: 14px;
+  text-align: center;
+  padding: 8px;
+  margin: 0 0 10px 0;
+  font-style: italic;
 }
 
 /* Dropdown direction classes */

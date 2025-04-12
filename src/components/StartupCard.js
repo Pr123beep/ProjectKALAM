@@ -425,29 +425,31 @@ const StartupCard = ({ data }) => {
             </a>
           </h4>
           
-          {/* Label button in the card header */}
-          <LabelButton 
-            founderData={data} 
-            onLabelChange={(labels) => {
-              console.log('Profile labels:', labels);
-              
-              const labelNames = Array.isArray(labels) 
-                ? labels.map(label => (label && typeof label === 'object' && label.label_name) ? label.label_name : label).join(', ')
-                : '';
-              
-              const toast = document.createElement('div');
-              toast.className = 'label-toast';
-              toast.textContent = labels.length ? `Labels updated: ${labelNames}` : 'Labels cleared';
-              document.body.appendChild(toast);
-              
-              setTimeout(() => {
-                toast.classList.add('label-toast-hide');
-                setTimeout(() => document.body.removeChild(toast), 500);
-              }, 2000);
-            }}
-            className="header-label-button"
-            dropdownDirection="down"
-          />
+          {/* Label button in the card header - ensure this is always rendered */}
+          {data.firstName && data.lastName && (
+            <LabelButton 
+              founderData={data} 
+              onLabelChange={(labels) => {
+                console.log('Profile labels:', labels);
+                
+                const labelNames = Array.isArray(labels) 
+                  ? labels.map(label => (label && typeof label === 'object' && label.label_name) ? label.label_name : label).join(', ')
+                  : '';
+                
+                const toast = document.createElement('div');
+                toast.className = 'label-toast';
+                toast.textContent = labels.length ? `Labels updated: ${labelNames}` : 'Labels cleared';
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                  toast.classList.add('label-toast-hide');
+                  setTimeout(() => document.body.removeChild(toast), 500);
+                }, 2000);
+              }}
+              className="header-label-button"
+              dropdownDirection="down"
+            />
+          )}
         </div>
         <p className="card-headline">{data.linkedinHeadline || data.wellfoundHeadline}</p>
       </div>

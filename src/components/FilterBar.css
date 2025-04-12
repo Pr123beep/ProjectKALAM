@@ -226,7 +226,7 @@
   margin: 5px 0;
 }
 
-/* Action buttons */
+/* Filter actions */
 .filter-actions {
   display: flex;
   gap: 10px;
@@ -235,33 +235,37 @@
 }
 
 .apply-button, .clear-button {
-  padding: 8px 16px;
-  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 14px;
   font-weight: 500;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 14px;
-  border: none;
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .apply-button {
-  background-color: var(--primary-color);
+  background-color: var(--primary-color, #2a9d8f);
   color: white;
+  border: none;
 }
 
 .apply-button:hover {
-  background-color: #248f83;
-  transform: translateY(-1px);
+  background-color: #218478;
+  box-shadow: 0 2px 8px rgba(42, 157, 143, 0.3);
 }
 
 .clear-button {
-  background-color: #f1f1f1;
-  color: #666;
+  background-color: white;
+  color: var(--primary-color, #2a9d8f);
+  border: 1px solid var(--primary-color, #2a9d8f);
 }
 
 .clear-button:hover {
-  background-color: #e5e5e5;
+  background-color: rgba(42, 157, 143, 0.05);
 }
 
 /* Profile Source Filter Styles */
@@ -748,4 +752,322 @@
 .filter-checkbox input:checked + .checkbox-label {
   color: var(--primary-color);
   font-weight: 600;
+}
+
+.filter-select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: #fff;
+  font-size: 14px;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234a5568' d='M6 8.825L1.175 4 2.238 2.938 6 6.7l3.763-3.763L10.825 4z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+.filter-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.2);
+  outline: none;
+}
+
+.filter-select:hover {
+  border-color: #cbd5e0;
+}
+
+/* Mobile styles for select */
+@media (max-width: 768px) {
+  .filter-select {
+    padding: 12px;
+    font-size: 15px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+}
+
+/* Selected tags styles */
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: calc(100% - 20px);
+  overflow: hidden;
+  padding: 4px 0;
+}
+
+.tag {
+  display: flex;
+  align-items: center;
+  background-color: rgba(42, 157, 143, 0.1);
+  border: 1px solid rgba(42, 157, 143, 0.2);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: var(--primary-color, #2a9d8f);
+  margin-right: 4px;
+  margin-bottom: 4px;
+  max-width: 100%;
+  transition: all 0.2s;
+}
+
+.tag:hover {
+  background-color: rgba(42, 157, 143, 0.15);
+  border-color: rgba(42, 157, 143, 0.3);
+}
+
+.tag-name {
+  max-width: calc(100% - 24px); /* Reserve space for the remove button */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 4px; /* Ensure space between text and button */
+  font-weight: 500;
+}
+
+.tag-remove {
+  background: none;
+  border: none;
+  color: var(--primary-color, #2a9d8f);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 0 0 4px;
+  line-height: 1;
+  transition: color 0.2s;
+  flex-shrink: 0; /* Prevent button from shrinking */
+  min-width: 20px; /* Ensure minimum width */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tag-remove:hover {
+  color: #e53e3e;
+}
+
+.placeholder-text {
+  color: #718096;
+  opacity: 0.8;
+}
+
+/* Update multi-select header to handle tags */
+.multi-select-header {
+  min-height: 38px;
+  height: auto;
+  padding: 6px 12px;
+  align-items: flex-start;
+}
+
+.dropdown-icon {
+  margin-top: 2px;
+  color: var(--primary-color, #2a9d8f);
+  font-size: 12px;
+  transition: transform 0.2s;
+}
+
+/* Mobile styles for tags */
+@media (max-width: 768px) {
+  .tag {
+    padding: 4px 8px;
+    font-size: 13px;
+  }
+  
+  .tag-remove {
+    font-size: 18px;
+    padding-left: 6px;
+  }
+}
+
+/* College filter styles */
+.search-in-dropdown {
+  padding: 8px;
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 5;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dropdown-search-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: #f8fafc;
+}
+
+.dropdown-search-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.15);
+}
+
+.college-checkbox {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.college-checkbox:hover {
+  background-color: #f5f9f9;
+}
+
+.college-checkbox input {
+  margin-right: 10px;
+}
+
+.college-name {
+  font-size: 14px;
+  color: var(--text-color);
+}
+
+/* Mobile styles for college filter */
+@media (max-width: 768px) {
+  .search-in-dropdown {
+    padding: 10px;
+  }
+  
+  .dropdown-search-input {
+    padding: 10px;
+    font-size: 15px;
+  }
+  
+  .college-checkbox {
+    padding: 14px;
+  }
+  
+  .college-name {
+    font-size: 15px;
+  }
+}
+
+/* Multi-select dropdown styles */
+.multi-select-container {
+  position: relative;
+  width: 100%;
+}
+
+.multi-select-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 6px;
+  background-color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  color: var(--text-color, #333);
+}
+
+.multi-select-header:hover {
+  border-color: var(--primary-color, #2a9d8f);
+  box-shadow: 0 0 0 1px rgba(42, 157, 143, 0.1);
+}
+
+.multi-select-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin-top: 4px;
+  max-height: 280px;
+  overflow-y: auto;
+  border: 1px solid var(--border-color, #e2e8f0);
+  animation: slideDown 0.2s ease-out;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(42, 157, 143, 0.5) #f0f0f0;
+}
+
+.multi-select-options::-webkit-scrollbar {
+  width: 6px;
+}
+
+.multi-select-options::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 3px;
+}
+
+.multi-select-options::-webkit-scrollbar-thumb {
+  background-color: rgba(42, 157, 143, 0.5);
+  border-radius: 3px;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.multi-select-option {
+  padding: 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.multi-select-option:last-child {
+  border-bottom: none;
+}
+
+.industry-checkbox, .college-checkbox {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.industry-checkbox:hover, .college-checkbox:hover {
+  background-color: rgba(42, 157, 143, 0.05);
+}
+
+.industry-checkbox input, .college-checkbox input {
+  margin-right: 10px;
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+}
+
+.industry-name, .college-name {
+  font-size: 14px;
+  color: var(--text-color, #333);
+}
+
+/* Search in dropdown styles */
+.search-in-dropdown {
+  padding: 10px;
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 5;
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+}
+
+.dropdown-search-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: #f8fafc;
+  transition: all 0.2s;
+}
+
+.dropdown-search-input:focus {
+  outline: none;
+  border-color: var(--primary-color, #2a9d8f);
+  box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.15);
 }

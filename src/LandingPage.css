@@ -193,16 +193,80 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 4rem;
+  padding: var(--spacing-4) 0;
+  width: 100%;
+  position: relative;
+  z-index: 10;
 }
 
-/* Logo */
 .logo-container {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2);
+  gap: var(--spacing-3);
 }
 
+.logo-container.centered {
+  justify-content: center;
+  flex-grow: 2;
+}
+
+.logo-container.centered-left {
+  justify-content: flex-start;
+  flex-grow: 1.5;
+}
+
+.header-spacer {
+  flex-grow: 1;
+}
+
+.header-spacer.none {
+  flex-grow: 0;
+}
+
+.header-spacer.tiny {
+  flex-grow: 0.2;
+}
+
+.header-spacer.small {
+  flex-grow: 0.5;
+}
+
+.header-spacer.medium {
+  flex-grow: 0.8;
+}
+
+.header-spacer.large {
+  flex-grow: 1.5;
+}
+
+.branding {
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--foreground);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  margin-bottom: 0;
+}
+
+.dark .branding {
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .branding {
+    font-size: 1.25rem;
+  }
+}
+
+.desktop-cta {
+  margin-left: var(--spacing-4);
+}
+
+.desktop-cta.closer {
+  margin-left: var(--spacing-2);
+}
+
+/* Logo */
 .logo-wrapper {
   position: relative;
   width: 2.5rem;
@@ -253,16 +317,6 @@ button {
 .icon-sm {
   width: 1rem;
   height: 1rem;
-}
-
-.branding {
-  font-family: var(--font-heading);
-  font-size: 1.75rem;
-  font-weight: 700;
-  background: linear-gradient(to right, var(--primary), var(--secondary));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
 }
 
 .scaler-tag {
@@ -1476,30 +1530,9 @@ button {
 
 .footer-social {
   display: flex;
-  gap: 1rem; /* Increase this value if needed */
+  gap: 1rem;
   align-items: center;
-}
-.social-link {
-  margin-right: 0.5rem;
-}
-.social-link svg {
-  color: #555; /* or some darker color */
-  width: 1.75rem;
-  height: 1.75rem;
-}
-.social-link:last-child {
-  margin-right: 0;
-}
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0,0,0,0);
-  white-space: nowrap;
-  border: 0;
+  margin-top: var(--spacing-4);
 }
 
 .social-link {
@@ -1511,12 +1544,50 @@ button {
   align-items: center;
   justify-content: center;
   color: var(--foreground-muted);
-  transition: background-color var(--transition-fast), color var(--transition-fast);
+  transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
 }
 
 .social-link:hover {
-  background-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.social-link svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.linkedin-link {
+  background-color: #0A66C2;
   color: white;
+}
+
+.linkedin-link:hover {
+  background-color: #004182;
+}
+
+.github-link {
+  background-color: #333;
+  color: white;
+}
+
+.github-link:hover {
+  background-color: #000;
+}
+
+.social-link:last-child {
+  margin-right: 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .footer-links {
@@ -1754,24 +1825,68 @@ img {
 
 .analytics-metrics {
   margin-top: auto;
-  border-top: 1px solid var(--border);
   padding-top: 16px;
 }
 
 .metric {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
 }
 
 .metric-value {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 700;
   color: var(--primary);
-  background: linear-gradient(to right, var(--primary), var(--secondary));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+}
+
+.metric-label {
+  font-size: 14px;
+  color: var(--foreground-muted);
+}
+
+/* Feature list in cards */
+.feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0 0;
+}
+
+.feature-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.feature-check {
+  color: var(--primary);
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 1.5;
+  flex-shrink: 0;
+}
+
+.dark .feature-check {
+  color: var(--primary);
+}
+
+/* Analytics metrics */
+.analytics-metrics {
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.metric-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary);
 }
 
 .metric-label {

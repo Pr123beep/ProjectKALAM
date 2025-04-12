@@ -1,11 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { getProfileLabels, addLabelToProfile, removeLabelFromProfile, getUserLabels } from '../supabaseClient';
 import './LabelButton.css';
+
+// Create a cache for labels to avoid redundant API calls
+let labelsCache = {
+  data: null,
+  timestamp: null,
+  expiryTime: 5 * 60 * 1000 // 5 minutes in milliseconds
+};
 
 const LabelButton = ({ founderData, onLabelChange, className = '' }) => {
   const [labels, setLabels] = useState([]);
   const [allUserLabels, setAllUserLabels] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetchingLabels, setIsFetchingLabels] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [newLabelName, setNewLabelName] = useState('');
   const [dropdownDirection, setDropdownDirection] = useState('down');
@@ -13,10 +21,44 @@ const LabelButton = ({ founderData, onLabelChange, className = '' }) => {
   const dropdownRef = useRef(null);
   
   // Generate a consistent ID from founder data
-  const founderId = founderData.id || `${founderData.firstName}-${founderData.lastName}`;
+  const founderId = useMemo(() => {
+    // First try using the existing ID if available
+    if (founderData.id) {
+      return founderData.id;
+    }
+    
+    // If no ID exists, create one from name and company (most reliable data points)
+    const nameComponent = founderData.firstName && founderData.lastName
+      ? `${founderData.firstName.trim()}-${founderData.lastName.trim()}`
+      : founderData.firstName || founderData.lastName || 'unknown';
+      
+    const companyComponent = founderData.companyName 
+      ? `-${founderData.companyName.trim().replace(/\s+/g, '-')}` 
+      : '';
+      
+    // Add a fallback using LinkedIn URL if available (unique identifier)
+    const linkedinIdComponent = founderData.linkedinProfileUrl
+      ? `-${founderData.linkedinProfileUrl.split('/').filter(Boolean).pop() || ''}`
+      : '';
+      
+    return `${nameComponent}${companyComponent}${linkedinIdComponent}`.toLowerCase();
+  }, [founderData]);
 
-  // Fetch all user labels for quick reuse
-  const fetchAllUserLabels = async () => {
+  // Memoized function to fetch all user labels
+  const fetchAllUserLabels = useCallback(async (forceRefresh = false) => {
+    // If we already have cached data and it's not expired, use it
+    const now = Date.now();
+    if (!forceRefresh && 
+        labelsCache.data && 
+        labelsCache.timestamp && 
+        (now - labelsCache.timestamp < labelsCache.expiryTime)) {
+      console.log("Using cached labels data");
+      setAllUserLabels(labelsCache.data);
+      return;
+    }
+    
+    setIsFetchingLabels(true);
+    
     try {
       const { data, error } = await getUserLabels();
       if (error) throw error;
@@ -24,12 +66,22 @@ const LabelButton = ({ founderData, onLabelChange, className = '' }) => {
       if (data) {
         // Extract unique label names
         const uniqueLabels = [...new Set(data.map(item => item.label_name))];
+        
+        // Update cache
+        labelsCache = {
+          data: uniqueLabels,
+          timestamp: now,
+          expiryTime: 5 * 60 * 1000
+        };
+        
         setAllUserLabels(uniqueLabels);
       }
     } catch (error) {
       console.error('Error fetching user labels:', error);
+    } finally {
+      setIsFetchingLabels(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     // Check if this profile has any labels when component mounts
@@ -46,8 +98,14 @@ const LabelButton = ({ founderData, onLabelChange, className = '' }) => {
     };
 
     checkLabels();
-    fetchAllUserLabels();
   }, [founderId]);
+
+  // Lazy load the labels when dropdown is opened, not on component mount
+  useEffect(() => {
+    if (isDropdownOpen && !isFetchingLabels && !allUserLabels.length) {
+      fetchAllUserLabels();
+    }
+  }, [isDropdownOpen, fetchAllUserLabels, isFetchingLabels, allUserLabels.length]);
 
   // Calculate dropdown direction when it's about to open
   useEffect(() => {
@@ -125,17 +183,23 @@ const LabelButton = ({ founderData, onLabelChange, className = '' }) => {
       
       // Add new label to state
       if (data && data.length > 0) {
-        setLabels([...labels, { id: data[0].id, label_name: data[0].label_name }]);
+        const updatedLabels = [...labels, { id: data[0].id, label_name: data[0].label_name }];
+        setLabels(updatedLabels);
         
         // Also add this to our all user labels if it's not already there
         if (!allUserLabels.includes(data[0].label_name)) {
-          setAllUserLabels([...allUserLabels, data[0].label_name]);
+          const updatedUserLabels = [...allUserLabels, data[0].label_name];
+          setAllUserLabels(updatedUserLabels);
+          
+          // Update the cache with new label
+          labelsCache.data = updatedUserLabels;
+          labelsCache.timestamp = Date.now();
         }
-      }
-      
-      // Notify parent component
-      if (onLabelChange) {
-        onLabelChange(labels);
+        
+        // Notify parent component with the updated labels
+        if (onLabelChange) {
+          onLabelChange(updatedLabels);
+        }
       }
       
       // Clear input
@@ -229,26 +293,30 @@ const LabelButton = ({ founderData, onLabelChange, className = '' }) => {
             <p className="no-labels-message">No labels yet</p>
           )}
           
-          {/* Existing labels dropdown */}
-          {availableLabels.length > 0 && (
+          {isFetchingLabels ? (
+            <div className="loading-labels">Loading labels...</div>
+          ) : (
             <div className="existing-labels-section">
               <h4 className="existing-labels-title">Apply existing label:</h4>
               <div className="existing-labels-list">
-                {availableLabels.map((labelName) => (
-                  <button
-                    key={labelName}
-                    className="existing-label-button"
-                    onClick={() => handleAddExistingLabel(labelName)}
-                    disabled={isLoading}
-                  >
-                    {labelName}
-                  </button>
-                ))}
+                {availableLabels.length > 0 ? (
+                  availableLabels.map((labelName) => (
+                    <button
+                      key={labelName}
+                      className="existing-label-button"
+                      onClick={() => handleAddExistingLabel(labelName)}
+                      disabled={isLoading}
+                    >
+                      {labelName}
+                    </button>
+                  ))
+                ) : (
+                  <p className="no-more-labels">No more labels available</p>
+                )}
               </div>
             </div>
           )}
           
-          {/* Create new label form */}
           <form className="add-label-form" onSubmit={handleAddLabel}>
             <input
               type="text"
@@ -272,4 +340,4 @@ const LabelButton = ({ founderData, onLabelChange, className = '' }) => {
   );
 };
 
-export default LabelButton; 
+export default React.memo(LabelButton); 

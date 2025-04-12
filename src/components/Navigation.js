@@ -20,7 +20,7 @@ const Navigation = ({ user }) => {
     <nav className="main-nav">
       <div className="nav-container">
         <div className="nav-logo">
-          <Link to="/main">InvestM</Link>
+          <Link to="/main">Kalam</Link>
         </div>
         
         <div className="nav-links">

@@ -114,30 +114,40 @@ const formatResultCount = (count) => {
   // For 21-99: round to nearest 10
   else if (count <= 99) {
     const rounded = Math.floor(count / 10) * 10;
-    return count === rounded ? count.toString() : `${rounded}++`;
+    return count === rounded ? count.toString() : rounded + "+";
   } 
   // For 100-999: round to nearest 50
   else if (count <= 999) {
     const rounded = Math.floor(count / 50) * 50;
-    return count === rounded ? count.toString() : `${rounded}++`;
+    return count === rounded ? count.toString() : rounded + "+";
   } 
   // For 1000-9999: round to nearest 100
   else if (count <= 9999) {
     const rounded = Math.floor(count / 100) * 100;
-    return count === rounded ? count.toString() : `${rounded}++`;
+    return count === rounded ? count.toString() : rounded + "+";
   } 
   // For very large numbers: round to nearest 1000
   else {
     const rounded = Math.floor(count / 1000) * 1000;
-    return count === rounded ? count.toString() : `${rounded}++`;
+    return count === rounded ? count.toString() : rounded + "+";
   }
+};
+
+// Add this shuffle function near the other helper functions
+const shuffleArray = (array) => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
 };
 
 function MainPage({ user }) {
   const [data, setData] = useState([]);
   const [filters, setFilters] = useState({
-    college: '',
-    companyIndustry: '',
+    college: [],
+    companyIndustry: [],
     currentLocation: '',
     followersMin: 0,
     followersMax: 50000,
@@ -174,13 +184,11 @@ function MainPage({ user }) {
       return hasBasicInfo && (hasLinkedInData || hasWellfoundData);
     });
 
-  
-    
     // Add debug logging for Reddit data
     console.log('Loading Reddit data:', iitRedditData);
     
     // Deduplicate the data and add Reddit data
-    const deduped = Object.values(
+    let deduped = Object.values(
       validData.reduce((acc, item) => {
         const key = `${item.companyName}_${item.firstName}_${item.lastName}`;
         
@@ -232,6 +240,9 @@ function MainPage({ user }) {
         return acc;
       }, {})
     );
+    
+    // Shuffle the array randomly
+    deduped = shuffleArray(deduped);
     
     // Add debug logging for college data
     console.log('Sample deduped data:', deduped.slice(0, 5).map(item => ({
@@ -321,10 +332,15 @@ function MainPage({ user }) {
       }
     }
     
-    // Apply other filters only to profiles that passed the source filter
-    if (filters.college) {
+    // Apply college filter
+    if (filters.college.length > 0) {
       const collegeData = Array.isArray(item.colleges) ? item.colleges : item.college;
-      if (!matchesCollege(collegeData, filters.college)) {
+      // Check if any of the selected colleges match
+      const hasMatchingCollege = filters.college.some(selectedCollege => 
+        matchesCollege(collegeData, selectedCollege)
+      );
+      
+      if (!hasMatchingCollege) {
         return false;
       }
     }
@@ -333,8 +349,14 @@ function MainPage({ user }) {
     const location = (item.currentLocation || item.location || "").toLowerCase();
     const followers = parseInt(item.linkedinFollowersCount) || 0;
     
+    // Handle companyIndustry as an array
+    const industryMatches = filters.companyIndustry.length === 0 || 
+      filters.companyIndustry.some(selectedIndustry => 
+        industry.includes(selectedIndustry.toLowerCase())
+      );
+    
     return (
-      industry.includes(filters.companyIndustry.toLowerCase()) &&
+      industryMatches &&
       location.includes(filters.currentLocation.toLowerCase()) &&
       followers >= filters.followersMin &&
       followers <= filters.followersMax
@@ -361,17 +383,19 @@ function MainPage({ user }) {
 
   // Add this useEffect for better debugging the college search
   useEffect(() => {
-    if (filters.college) {
+    if (filters.college.length > 0) {
       console.log("College Search Debug:");
-      console.log("Original search term:", filters.college);
-      console.log("Normalized search term:", normalizeCollegeName(filters.college));
+      console.log("Selected colleges:", filters.college);
+      console.log("Normalized search terms:", filters.college.map(college => normalizeCollegeName(college)));
       
       // Find some sample items with college data
       const sampleItems = data.slice(0, 50);
       
       const matches = sampleItems.filter(item => {
         const collegeData = Array.isArray(item.colleges) ? item.colleges : item.college;
-        return matchesCollege(collegeData, filters.college);
+        return filters.college.some(selectedCollege => 
+          matchesCollege(collegeData, selectedCollege)
+        );
       });
       
       console.log(`Found ${matches.length} matches among the first 50 items`);
@@ -384,26 +408,15 @@ function MainPage({ user }) {
             ? item.colleges.map(c => normalizeCollegeName(c))
             : normalizeCollegeName(item.college)
         })));
-      } else {
-        // If no matches, show some sample college entries
-        console.log("No matches found. Sample college entries from data:", 
-          sampleItems.slice(0, 5).map(item => ({
-            college: Array.isArray(item.colleges) ? item.colleges : item.college,
-            normalized: Array.isArray(item.colleges) 
-              ? item.colleges.map(c => normalizeCollegeName(c))
-              : normalizeCollegeName(item.college)
-          }))
-        );
       }
     }
   }, [filters.college, data]);
 
-  // Add debug logging to help track the matching process
+  // Update the debug effect that's causing the error
   useEffect(() => {
-    if (filters.college && filters.college.toLowerCase().includes('iim')) {
+    if (filters.college.length > 0 && filters.college.some(college => college.toLowerCase().includes('iim'))) {
       console.log("IIM Search Debug:");
-      console.log("Search term:", filters.college);
-      console.log("Normalized search term:", normalizeCollegeName(filters.college));
+      console.log("Selected colleges:", filters.college);
       
       // Sample the first few items to check matching
       const sampleItems = data.slice(0, 10);
@@ -414,7 +427,9 @@ function MainPage({ user }) {
           ? collegeData.map(c => normalizeCollegeName(c))
           : normalizeCollegeName(collegeData)
         );
-        console.log("Matches?", matchesCollege(collegeData, filters.college));
+        console.log("Matches?", filters.college.some(selectedCollege => 
+          matchesCollege(collegeData, selectedCollege)
+        ));
       });
     }
   }, [filters.college, data]);
@@ -474,8 +489,8 @@ function MainPage({ user }) {
         )}
         
         {/* Enhanced results counter with rounded numbers - shown when filters are applied */}
-        {(filters.college || 
-          filters.companyIndustry || 
+        {(filters.college.length > 0 || 
+          filters.companyIndustry.length > 0 || 
           filters.currentLocation || 
           filters.profileSources.linkedin || 
           filters.profileSources.wellfound ||

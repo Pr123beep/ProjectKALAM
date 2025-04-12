@@ -305,10 +305,31 @@ export const addLabelToProfile = async (founderData, labelName) => {
     const user = await getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
+    // Create a consistent founder ID
+    let founderId = founderData.id;
+    
+    // If no ID exists, create one from name and company (most reliable data points)
+    if (!founderId) {
+      const nameComponent = founderData.firstName && founderData.lastName
+        ? `${founderData.firstName.trim()}-${founderData.lastName.trim()}`
+        : founderData.firstName || founderData.lastName || 'unknown';
+        
+      const companyComponent = founderData.companyName 
+        ? `-${founderData.companyName.trim().replace(/\s+/g, '-')}` 
+        : '';
+        
+      // Add a fallback using LinkedIn URL if available (unique identifier)
+      const linkedinIdComponent = founderData.linkedinProfileUrl
+        ? `-${founderData.linkedinProfileUrl.split('/').filter(Boolean).pop() || ''}`
+        : '';
+        
+      founderId = `${nameComponent}${companyComponent}${linkedinIdComponent}`.toLowerCase();
+    }
+
     // Extract essential data to store in the labeled profile
     const labelData = {
       user_id: user.id,
-      founder_id: founderData.id || `${founderData.firstName}-${founderData.lastName}`,
+      founder_id: founderId,
       label_name: labelName,
       founder_data: {
         name: `${founderData.firstName} ${founderData.lastName}`,
@@ -432,5 +453,100 @@ export const getProfileLabels = async (founderId) => {
   } catch (error) {
     console.error('Error checking profile labels:', error.message);
     return { labels: [], error };
+  }
+};
+
+// Delete all profiles with a specific label name
+export const deleteLabelCategory = async (labelName) => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('User not authenticated');
+
+    // Get all profiles with this label
+    const { data: labelsToDelete, error: fetchError } = await supabase
+      .from('labels')
+      .select('id')
+      .match({ user_id: user.id })
+      .ilike('label_name', labelName);
+    
+    if (fetchError) throw fetchError;
+    
+    if (!labelsToDelete || labelsToDelete.length === 0) {
+      // Create an empty label entry to ensure it persists even without profiles
+      const { error: insertError } = await supabase
+        .from('label_categories')
+        .upsert([{
+          user_id: user.id,
+          label_name: labelName,
+          is_empty: true
+        }]);
+      
+      if (insertError) throw insertError;
+      return { success: true, error: null };
+    }
+    
+    // Delete all associated labels
+    const labelIds = labelsToDelete.map(label => label.id);
+    const { error: deleteError } = await supabase
+      .from('labels')
+      .delete()
+      .in('id', labelIds);
+    
+    if (deleteError) throw deleteError;
+    
+    // Add an entry to label_categories to make it persist
+    const { error: insertError } = await supabase
+      .from('label_categories')
+      .upsert([{
+        user_id: user.id,
+        label_name: labelName,
+        is_empty: true
+      }]);
+    
+    if (insertError) throw insertError;
+    
+    return { success: true, error: null };
+  } catch (error) {
+    console.error('Error deleting label category:', error.message);
+    return { success: false, error };
+  }
+};
+
+// Get all label categories including empty ones
+export const getAllLabelCategories = async () => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('User not authenticated');
+    
+    // First get all labels from the labels table
+    const { data: labelData, error: labelError } = await supabase
+      .from('labels')
+      .select('label_name')
+      .eq('user_id', user.id);
+    
+    if (labelError) throw labelError;
+    
+    // Get all empty categories
+    const { data: emptyCategories, error: emptyCategoriesError } = await supabase
+      .from('label_categories')
+      .select('label_name')
+      .eq('user_id', user.id)
+      .eq('is_empty', true);
+    
+    if (emptyCategoriesError) throw emptyCategoriesError;
+    
+    // Combine both sets of labels
+    const allLabels = [
+      ...(labelData || []).map(label => label.label_name),
+      ...(emptyCategories || []).map(category => category.label_name)
+    ];
+    
+    // Remove duplicates
+    const uniqueLabels = [...new Set(allLabels)];
+    
+    return { data: uniqueLabels, error: null };
+  } catch (error) {
+    console.error('Error fetching all label categories:', error.message);
+    return { data: [], error };
   }
 };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import ReactDOM from 'react-dom';
-import { getUserLabels, getProfilesByLabel, updateProfileLabel, removeLabelFromProfile } from '../supabaseClient';
+import { getUserLabels, getProfilesByLabel, updateProfileLabel, removeLabelFromProfile, getAllLabelCategories } from '../supabaseClient';
 import LabelButton from './LabelButton';
 import './LabelsPage.css';
 
@@ -103,8 +103,6 @@ const LabelsPage = () => {
   const [newLabelName, setNewLabelName] = useState('');
   const [totalProfiles, setTotalProfiles] = useState(0);
   const [categoryCount, setCategoryCount] = useState({});
-  // eslint-disable-next-line no-unused-vars
-  const [normalizedLabelMap, setNormalizedLabelMap] = useState({});
 
   // Use useCallback to memoize the fetchLabels function
   const fetchLabels = useCallback(async () => {
@@ -112,6 +110,7 @@ const LabelsPage = () => {
     setError(null);
     
     try {
+      // Fetch the user's labels first
       const { data, error } = await getUserLabels();
       
       if (error) throw error;
@@ -119,11 +118,12 @@ const LabelsPage = () => {
       console.log("LabelsPage received data:", data);
       setLabels(data || []);
       
-      // Extract unique normalized label names and create mapping
+      // Extract unique label names without using getAllLabelCategories
+      // This is a fallback approach that works even if label_categories doesn't exist
       const normalizedMap = {};
       const normalizedSet = new Set();
       
-      // First, create normalized mapping
+      // Create normalized mapping from actual label data
       (data || []).forEach(item => {
         const normalized = normalizeLabel(item.label_name);
         normalizedSet.add(normalized);
@@ -135,7 +135,25 @@ const LabelsPage = () => {
         }
       });
       
-      setNormalizedLabelMap(normalizedMap);
+      // Try to get empty categories if available, but don't fail if it doesn't work
+      try {
+        const { data: allCategories, error: categoriesError } = await getAllLabelCategories();
+        
+        if (!categoriesError && allCategories) {
+          allCategories.forEach(categoryName => {
+            const normalized = normalizeLabel(categoryName);
+            normalizedSet.add(normalized);
+            
+            // Add to the map if not already there
+            if (!normalizedMap[normalized]) {
+              normalizedMap[normalized] = categoryName;
+            }
+          });
+        }
+      } catch (categoryError) {
+        console.warn('Could not fetch empty categories:', categoryError);
+        // Continue with only the labels from getUserLabels
+      }
       
       // Create unique labels array using the display versions
       const uniqueLabelsArray = Array.from(normalizedSet).map(normalized => 
@@ -150,9 +168,9 @@ const LabelsPage = () => {
       
       uniqueLabelsArray.forEach(labelName => {
         const normalizedName = normalizeLabel(labelName);
-        const count = data.filter(item => 
+        const count = data ? data.filter(item => 
           normalizeLabel(item.label_name) === normalizedName
-        ).length;
+        ).length : 0;
         
         counts[labelName] = count;
         total += count;
@@ -265,6 +283,71 @@ const LabelsPage = () => {
     setNewLabelName(labelName);
   };
 
+  const handleDeleteLabelCategory = async (labelName) => {
+    // Show confirmation dialog before deleting
+    if (!window.confirm(`Are you sure you want to delete the "${labelName}" category? This will remove all profiles with this label.`)) {
+      return;
+    }
+    
+    try {
+      setIsLoading(true);
+      
+      // Get all labels with this name and delete them manually
+      // This is a more reliable approach that doesn't require the label_categories table
+      const normalizedLabelName = normalizeLabel(labelName);
+      
+      // Find all labels with this normalized name
+      const labelsToDelete = labels.filter(label => 
+        normalizeLabel(label.label_name) === normalizedLabelName
+      );
+      
+      console.log(`Deleting ${labelsToDelete.length} labels with name "${labelName}"`);
+      
+      // Delete each label individually
+      for (const label of labelsToDelete) {
+        await removeLabelFromProfile(label.id);
+      }
+      
+      // Update the labels list
+      setLabels(prevLabels => 
+        prevLabels.filter(label => normalizeLabel(label.label_name) !== normalizedLabelName)
+      );
+      
+      // Remove this label from uniqueLabels
+      const updatedLabels = uniqueLabels.filter(label => 
+        normalizeLabel(label) !== normalizedLabelName
+      );
+      
+      setUniqueLabels(updatedLabels);
+      
+      // Update category counts
+      setCategoryCount(prev => {
+        const updated = {...prev};
+        delete updated[labelName];
+        return updated;
+      });
+      
+      // If this was the selected label, select another one or clear selection
+      if (normalizeLabel(selectedLabel) === normalizedLabelName) {
+        if (updatedLabels.length > 0) {
+          setSelectedLabel(updatedLabels[0]);
+          await fetchProfilesForLabel(updatedLabels[0]);
+        } else {
+          setSelectedLabel(null);
+          setProfilesByLabel({});
+        }
+      }
+      
+      // Show success message
+      alert(`Successfully deleted the "${labelName}" category.`);
+    } catch (err) {
+      console.error('Error deleting label category:', err);
+      alert(`Failed to delete the "${labelName}" category. Please try again.`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleUpdateLabel = async (e) => {
     e.preventDefault();
     if (!editingLabel || !newLabelName.trim() || newLabelName === editingLabel) {
@@ -300,14 +383,6 @@ const LabelsPage = () => {
       setUniqueLabels(prev => {
         const filteredLabels = prev.filter(l => normalizeLabel(l) !== normalizedEditingLabel);
         return [...filteredLabels, newLabelName];
-      });
-      
-      // Update normalized label map
-      setNormalizedLabelMap(prev => {
-        const newMap = {...prev};
-        newMap[normalizeLabel(newLabelName)] = newLabelName;
-        delete newMap[normalizedEditingLabel];
-        return newMap;
       });
       
       // Update profiles by label
@@ -652,23 +727,16 @@ const LabelsPage = () => {
     );
   };
 
-  if (isLoading && !Object.keys(profilesByLabel).length) {
-    return (
-      <div className="labels-container">
-        <h2 className="labels-title">My Labels</h2>
-        <div className="labels-loading">Loading labels...</div>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="labels-container">
         <h2 className="labels-title">My Labels</h2>
-        <div className="labels-error">{error}</div>
-        <button className="labels-retry-button" onClick={fetchLabels}>
-          Try Again
-        </button>
+        <div className="labels-error">
+          {error}
+          <button className="labels-retry-button" onClick={fetchLabels}>
+            Try Again
+          </button>
+        </div>
       </div>
     );
   }
@@ -682,7 +750,18 @@ const LabelsPage = () => {
         )}
       </h2>
       
-      {uniqueLabels.length === 0 ? (
+      {error && (
+        <div className="labels-error">
+          {error}
+          <button className="labels-retry-button" onClick={fetchLabels}>
+            Try Again
+          </button>
+        </div>
+      )}
+      
+      {isLoading && !Object.keys(profilesByLabel).length ? (
+        <div className="labels-loading">Loading labels...</div>
+      ) : uniqueLabels.length === 0 ? (
         <div className="labels-empty">
           <p>You haven't created any labels yet.</p>
           <p>Browse through founder profiles and use the label icon to organize them into categories.</p>
@@ -751,6 +830,13 @@ const LabelsPage = () => {
                         title="Edit label"
                       >
                         ✎
+                      </button>
+                      <button 
+                        className="delete-label-button"
+                        onClick={() => handleDeleteLabelCategory(labelName)}
+                        title="Delete label category"
+                      >
+                        🗑️
                       </button>
                     </div>
                   </li>

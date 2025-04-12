@@ -154,12 +154,14 @@ const MoonIcon = () => (
   </svg>
 )
 
+// eslint-disable-next-line no-unused-vars
 const MenuIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
   </svg>
 )
 
+// eslint-disable-next-line no-unused-vars
 const CloseIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -271,8 +273,8 @@ const SocialIcon = ({ type }) => {
 function LandingPage({ onNavigate }) {
   // eslint-disable-next-line no-unused-vars
   const [scrollY, setScrollY] = useState(0)
+  // eslint-disable-next-line no-unused-vars
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [activeFeature, setActiveFeature] = useState(0)
   const [isDarkMode, setIsDarkMode] = useState(false)
   const heroRef = useRef(null)
   const isHeroInView = useInView(heroRef, { once: false, amount: 0.3 })
@@ -364,38 +366,6 @@ function LandingPage({ onNavigate }) {
     return () => window.removeEventListener('resize', checkMobile);
   }, [springConfig]);
 
-  // Feature tabs data
-  const features = [
-    {
-      title: "Innovative Scaling",
-      description: "Our proprietary scaling methodology helps businesses grow 3x faster than traditional methods.",
-      icon: <ZapIcon className="h-6 w-6" />,
-    },
-    {
-      title: "Secure Investments",
-      description: "Bank-level security protocols protect every transaction and investment in our platform.",
-      icon: <ShieldIcon className="h-6 w-6" />,
-    },
-    {
-      title: "Global Network",
-      description: "Access our worldwide network of investors, mentors, and industry experts.",
-      icon: <GlobeIcon className="h-6 w-6" />,
-    },
-    {
-      title: "Advanced Analytics",
-      description: "AI-powered insights help you make data-driven decisions for optimal growth.",
-      icon: <DatabaseIcon className="h-6 w-6" />,
-    },
-  ]
-
-  // Auto-rotate features
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveFeature((prev) => (prev + 1) % features.length)
-    }, 5000)
-    return () => clearInterval(interval)
-  }, [features.length])
-
   // Toggle dark mode
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode)
@@ -419,50 +389,20 @@ function LandingPage({ onNavigate }) {
       {/* Header */}
       <header className="landing-header">
         <div className="header-container">
+          <div className="header-spacer none"></div>
           <motion.div
-            className="logo-container"
+            className="logo-container centered-left"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="logo-wrapper">
-              <motion.div
-                className="logo-glow"
-                animate={{
-                  rotate: [0, 360],
-                  scale: [1, 1.05, 1],
-                }}
-                transition={{
-                  duration: 10,
-                  repeat: Number.POSITIVE_INFINITY,
-                  repeatType: "reverse",
-                }}
-              />
-              <div className="logo-icon">
-                <LayersIcon className="icon" />
-              </div>
-            </div>
             <h1 className="branding">
               UNDIVIDED CAPITAL&nbsp;&lt;&gt;&nbsp;Scaler
             </h1>
           </motion.div>
 
-          {/* Desktop Navigation */}
-          <nav className="desktop-nav">
-            {["About", "Contact"].map((item, i) => (
-              <motion.a
-                key={item}
-                href={`#${item.toLowerCase()}`}
-                className="nav-link"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: i * 0.1 }}
-              >
-                {item}
-                <motion.span className="nav-link-underline" />
-              </motion.a>
-            ))}
-          </nav>
+          {/* Spacer to push content to the left and right */}
+          <div className="header-spacer medium"></div>
 
           {/* Mobile menu button and dark mode toggle */}
           <div className="header-actions">
@@ -473,19 +413,7 @@ function LandingPage({ onNavigate }) {
             </button>
 
             <motion.button
-              className="mobile-menu-button"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="Toggle menu"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              <motion.div animate={{ rotate: isMenuOpen ? 90 : 0 }} transition={{ duration: 0.2 }}>
-                {isMenuOpen ? <CloseIcon /> : <MenuIcon />}
-              </motion.div>
-            </motion.button>
-
-            <motion.button
-              className="cta-button desktop-cta"
+              className="cta-button desktop-cta closer"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
               onClick={onNavigate}
@@ -510,19 +438,6 @@ function LandingPage({ onNavigate }) {
               transition={{ duration: 0.3 }}
             >
               <div className="mobile-nav-container">
-                {["About", "Contact"].map((item, i) => (
-                  <motion.a
-                    key={item}
-                    href={`#${item.toLowerCase()}`}
-                    className="mobile-nav-link"
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.2, delay: i * 0.05 }}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {item}
-                  </motion.a>
-                ))}
                 <motion.button
                   className="cta-button mobile-cta"
                   whileTap={{ scale: 0.98 }}
@@ -731,139 +646,93 @@ function LandingPage({ onNavigate }) {
               </p>
             </div>
             
-            <div className="features-tabs">
-              <div className="features-tabs-list">
-                <button 
-                  className={`feature-tab ${activeFeature === 'data' ? 'active' : ''}`}
-                  onClick={() => setActiveFeature('data')}
-                >
-                  <div className={`feature-tab-icon ${activeFeature === 'data' ? 'active' : ''}`}>
-                    <DatabaseIcon className="icon" />
-                  </div>
-                  <div>
-                    <h3 className="feature-tab-title">Comprehensive Data Collection</h3>
-                    <p className="feature-tab-description">
-                      Data from professional networks, developer platforms, and more
-                    </p>
-                  </div>
-                </button>
-                
-                <button 
-                  className={`feature-tab ${activeFeature === 'analysis' ? 'active' : ''}`}
-                  onClick={() => setActiveFeature('analysis')}
-                >
-                  <div className={`feature-tab-icon ${activeFeature === 'analysis' ? 'active' : ''}`}>
-                    <CodeIcon className="icon" />
-                  </div>
-                  <div>
-                    <h3 className="feature-tab-title">Advanced Analysis</h3>
-                    <p className="feature-tab-description">
-                      ML-powered talent evaluation and scoring algorithms
-                    </p>
-                  </div>
-                </button>
-                
-                <button 
-                  className={`feature-tab ${activeFeature === 'interface' ? 'active' : ''}`}
-                  onClick={() => setActiveFeature('interface')}
-                >
-                  <div className={`feature-tab-icon ${activeFeature === 'interface' ? 'active' : ''}`}>
-                    <LayersIcon className="icon" />
-                  </div>
-                  <div>
-                    <h3 className="feature-tab-title">Intuitive Interface</h3>
-                    <p className="feature-tab-description">
-                      Rich profiles, collaboration tools, and workflow integration
-                    </p>
-                  </div>
-                </button>
-              </div>
+            <div className="analytics-grid">
+              <motion.div 
+                className="analytics-card"
+                key="data-collection"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className="analytics-card-header">
+                  <DatabaseIcon className="icon" />
+                  <h3>Comprehensive Data Collection</h3>
+                </div>
+                <p>Gather data from diverse sources to create a holistic view of potential founders and their entrepreneurial potential.</p>
+                <ul className="feature-list">
+                  <li className="feature-list-item">
+                    <span className="feature-check">✓</span>
+                    <span>Multiple data sources (LinkedIn, GitHub, Wellfound)</span>
+                  </li>
+                  <li className="feature-list-item">
+                    <span className="feature-check">✓</span>
+                    <span>Educational institutions and hackathons data</span>
+                  </li>
+                  <li className="feature-list-item">
+                    <span className="feature-check">✓</span>
+                    <span>GDPR and CCPA compliant with robust privacy controls</span>
+                  </li>
+                </ul>
+              </motion.div>
               
-              <div className="features-display">
-                {activeFeature === 'data' && (
-                  <div className="feature-content">
-                    <h3>Comprehensive Data Collection</h3>
-                    <p>
-                      Gather data from diverse sources to create a holistic view of potential founders:
-                    </p>
-                    <div className="feature-card">
-                      <div className="feature-card-header with-icon">
-                        <GlobeIcon className="icon-sm" />
-                        <h4>Multiple Data Sources</h4>
-                      </div>
-                      <div className="feature-card-body">
-                        <p>LinkedIn, GitHub, Wellfound, Crunchbase, educational institutions, hackathons, conferences, media, and more.</p>
-                      </div>
-                    </div>
-                    
-                    <div className="feature-card">
-                      <div className="feature-card-header with-icon">
-                        <ShieldIcon className="icon-sm" />
-                        <h4>Ethical & Compliant</h4>
-                      </div>
-                      <div className="feature-card-body">
-                        <p>GDPR and CCPA compliant data collection with robust privacy controls and ethical considerations.</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                {activeFeature === 'analysis' && (
-                  <div className="feature-content">
-                    <h3>Advanced Analysis & Talent Evaluation</h3>
-                    <p>
-                      Transform raw data into actionable insights using sophisticated algorithms:
-                    </p>
-                    <div className="feature-card">
-                      <div className="feature-card-header with-icon">
-                        <ZapIcon className="icon-sm" />
-                        <h4>ML-Powered Scoring</h4>
-                      </div>
-                      <div className="feature-card-body">
-                        <p>Customizable talent evaluation algorithms with weighted scoring, rule-based systems, and machine learning integration.</p>
-                      </div>
-                    </div>
-                    
-                    <div className="feature-card">
-                      <div className="feature-card-header with-icon">
-                        <UsersIcon className="icon-sm" />
-                        <h4>Network Analysis</h4>
-                      </div>
-                      <div className="feature-card-body">
-                        <p>Analyze professional networks, identify influencers, and discover connections between promising founders.</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                {activeFeature === 'interface' && (
-                  <div className="feature-content">
-                    <h3>Intuitive User Interface</h3>
-                    <p>
-                      Powerful tools to search, evaluate, and collaborate:
-                    </p>
-                    <div className="feature-card">
-                      <div className="feature-card-header with-icon">
-                        <DatabaseIcon className="icon-sm" />
-                        <h4>Rich Candidate Profiles</h4>
-                      </div>
-                      <div className="feature-card-body">
-                        <p>Interactive network graphs, skills matrices, timeline views, and ML score explanations.</p>
-                      </div>
-                    </div>
-                    
-                    <div className="feature-card">
-                      <div className="feature-card-header with-icon">
-                        <UsersIcon className="icon-sm" />
-                        <h4>Collaboration Tools</h4>
-                      </div>
-                      <div className="feature-card-body">
-                        <p>Candidate reviews, shared notes and tags, workflow management, and integration with CRM and deal management systems.</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <motion.div 
+                className="analytics-card"
+                key="advanced-analysis"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                <div className="analytics-card-header">
+                  <CodeIcon className="icon" />
+                  <h3>Advanced Analysis</h3>
+                </div>
+                <p>Transform raw data into actionable insights using sophisticated algorithms and machine learning techniques.</p>
+                <ul className="feature-list">
+                  <li className="feature-list-item">
+                    <span className="feature-check">✓</span>
+                    <span>ML-powered talent evaluation with weighted scoring</span>
+                  </li>
+                  <li className="feature-list-item">
+                    <span className="feature-check">✓</span>
+                    <span>Professional network analysis and identification</span>
+                  </li>
+                  <li className="feature-list-item">
+                    <span className="feature-check">✓</span>
+                    <span>Customizable rule-based evaluation systems</span>
+                  </li>
+                </ul>
+              </motion.div>
+              
+              <motion.div 
+                className="analytics-card"
+                key="intuitive-interface"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <div className="analytics-card-header">
+                  <LayersIcon className="icon" />
+                  <h3>Intuitive Interface</h3>
+                </div>
+                <p>Powerful tools to search, evaluate, and collaborate with your team on potential founder assessments.</p>
+                <ul className="feature-list">
+                  <li className="feature-list-item">
+                    <span className="feature-check">✓</span>
+                    <span>Rich candidate profiles with interactive visualizations</span>
+                  </li>
+                  <li className="feature-list-item">
+                    <span className="feature-check">✓</span>
+                    <span>Collaboration tools for candidate reviews and notes</span>
+                  </li>
+                  <li className="feature-list-item">
+                    <span className="feature-check">✓</span>
+                    <span>CRM and deal management system integration</span>
+                  </li>
+                </ul>
+              </motion.div>
             </div>
           </div>
         </section>
@@ -1029,11 +898,13 @@ function LandingPage({ onNavigate }) {
                 Identifying exceptional founders with data-driven insights
               </p>
               <div className="footer-social">
-                <a href="https://www.linkedin.com/company/undividedcapital" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="LinkedIn">
+                <a href="https://www.linkedin.com/company/undividedcapital" target="_blank" rel="noopener noreferrer" className="social-link linkedin-link" aria-label="LinkedIn">
                   <span className="sr-only">LinkedIn</span>
-                  <SocialIcon type="linkedin" />
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                  </svg>
                 </a>
-                <a href="https://github.com/Pr123beep/frontend2" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="GitHub">
+                <a href="https://github.com/Pr123beep/frontend2" target="_blank" rel="noopener noreferrer" className="social-link github-link" aria-label="GitHub">
                   <span className="sr-only">GitHub</span>
                   <SocialIcon type="github" />
                 </a>
@@ -1042,21 +913,12 @@ function LandingPage({ onNavigate }) {
 
             {[
               {
-                title: "Company",
+                title: "Links",
                 links: [
-                  { name: "About", url: "#about" },
-                  { name: "LinkedIn", url: "https://www.linkedin.com/company/undividedcapital" },
-                  { name: "Contact", url: "#contact" }
+                  { name: "LinkedIn", url: "https://www.linkedin.com/company/undividedcapital", external: true },
+                  { name: "GitHub", url: "https://github.com/Pr123beep/frontend2", external: true }
                 ],
-              },
-              {
-                title: "Resources",
-                links: [
-                  { name: "Documentation", url: "#documentation" },
-                  { name: "GitHub", url: "https://github.com/Pr123beep/frontend2" },
-                  { name: "Help Center", url: "#help" }
-                ],
-              },
+              }
             ].map((column, i) => (
               <div key={i} className="footer-links">
                 <h3 className="footer-column-title">{column.title}</h3>
@@ -1065,8 +927,8 @@ function LandingPage({ onNavigate }) {
                     <li key={link.name}>
                       <a href={link.url} 
                          className="footer-link"
-                         target={link.url.startsWith("http") ? "_blank" : ""}
-                         rel={link.url.startsWith("http") ? "noopener noreferrer" : ""}
+                         target={link.external ? "_blank" : ""}
+                         rel={link.external ? "noopener noreferrer" : ""}
                       >
                         {link.name}
                       </a>
@@ -1079,14 +941,6 @@ function LandingPage({ onNavigate }) {
 
           <div className="footer-bottom">
             <p className="copyright">&copy; {new Date().getFullYear()} Undivided Capital. All rights reserved.</p>
-            <div className="legal-links">
-              <a href="#privacy" className="legal-link">
-                Privacy Policy
-              </a>
-              <a href="#terms" className="legal-link">
-                Terms of Service
-              </a>
-            </div>
           </div>
         </div>
       </footer>
