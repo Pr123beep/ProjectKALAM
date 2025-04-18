@@ -297,16 +297,82 @@ function MainPage({ user }) {
     setCurrentPage(1); // Reset to first page when search changes
   };
 
+  // Helper function to search text in multiple fields
+  const searchInFields = (item, query) => {
+    if (!query) return true;
+    
+    query = query.toLowerCase().trim();
+    if (query === '') return true;
+    
+    // Basic profile info
+    const founderName = `${item.firstName} ${item.lastName}`.toLowerCase();
+    const companyName = (item.companyName || '').toLowerCase();
+    const headline = (item.linkedinHeadline || item.wellfoundHeadline || '').toLowerCase();
+    
+    // Current job data
+    const jobTitle = (item.linkedinJobTitle || '').toLowerCase();
+    const jobDesc = (item.linkedinJobDescription || '').toLowerCase();
+    
+    // Previous job data
+    const prevJobTitle = (item.linkedinPreviousJobTitle || '').toLowerCase();
+    const prevCompanyName = (item.previousCompanyName || '').toLowerCase();
+    const prevJobDesc = (item.linkedinPreviousJobDescription || '').toLowerCase();
+    
+    // Education data
+    const schoolName = (item.linkedinSchoolName || '').toLowerCase();
+    const schoolDegree = (item.linkedinSchoolDegree || '').toLowerCase();
+    const prevSchoolName = (item.linkedinPreviousSchoolName || '').toLowerCase();
+    const prevSchoolDegree = (item.linkedinPreviousSchoolDegree || '').toLowerCase();
+    
+    // Industry and location
+    const industry = (item.companyIndustry || '').toLowerCase();
+    const location = (item.location || item.currentLocation || '').toLowerCase();
+    
+    // Skills
+    const skills = (item.linkedinSkillsLabel || '').toLowerCase();
+    
+    // Additional companies
+    const company3 = (item.company3Name || '').toLowerCase();
+    const company4 = (item.company4Name || '').toLowerCase();
+    const company5 = (item.company5Name || '').toLowerCase();
+    
+    // Additional education
+    const education3 = (item.education3Name || '').toLowerCase();
+    
+    // College information
+    const collegeNames = Array.isArray(item.colleges) 
+      ? item.colleges.join(' ').toLowerCase() 
+      : (item.college || '').toLowerCase();
+    
+    // Check if query is found in any of these fields
+    return (
+      founderName.includes(query) ||
+      companyName.includes(query) ||
+      headline.includes(query) ||
+      jobTitle.includes(query) ||
+      jobDesc.includes(query) ||
+      prevJobTitle.includes(query) ||
+      prevCompanyName.includes(query) ||
+      prevJobDesc.includes(query) ||
+      schoolName.includes(query) ||
+      schoolDegree.includes(query) ||
+      prevSchoolName.includes(query) ||
+      prevSchoolDegree.includes(query) ||
+      industry.includes(query) ||
+      location.includes(query) ||
+      skills.includes(query) ||
+      company3.includes(query) ||
+      company4.includes(query) ||
+      company5.includes(query) ||
+      education3.includes(query) ||
+      collegeNames.includes(query)
+    );
+  };
+
   const filteredData = data.filter((item) => {
-    // Quick search filtering (prioritize this for performance)
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      const founderName = `${item.firstName} ${item.lastName}`.toLowerCase();
-      const companyName = (item.companyName || '').toLowerCase();
-      
-      if (!founderName.includes(query) && !companyName.includes(query)) {
-        return false;
-      }
+    // Enhanced search across all relevant profile fields
+    if (searchQuery && !searchInFields(item, searchQuery)) {
+      return false;
     }
     
     // Source filtering logic
@@ -453,12 +519,12 @@ function MainPage({ user }) {
           {/* Removed duplicate logout button */}
         </div>
         
-        {/* Quick search bar */}
+        {/* Quick search bar with updated placeholder */}
         <div className="search-container">
           <div className="search-bar">
             <input
               type="text"
-              placeholder="Search by founder or company name..."
+              placeholder="Search across all profile data (name, company, job, education...)"
               value={searchQuery}
               onChange={handleSearchChange}
               className="search-input"
@@ -490,8 +556,8 @@ function MainPage({ user }) {
             <div className="filter-helper-icon">🔍</div>
             <h3>Search and filter results</h3>
             <p>
-              Use the search bar above to quickly find founders or companies, or use 
-              the filters to narrow down results by source (LinkedIn/Wellfound), 
+              Use the search bar above to quickly find founders, companies, job titles, schools, industries and more.
+              Or use the filters to narrow down results by source (LinkedIn/Wellfound), 
               college, industry, and more!
             </p>
           </div>
