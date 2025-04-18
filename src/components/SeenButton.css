@@ -1,0 +1,78 @@
+.seen-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  position: relative;
+  cursor: pointer;
+  color: #718096;
+  transition: all 0.2s ease;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.seen-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #4299e1;
+}
+
+.seen-button.seen {
+  color: #4299e1;
+  background-color: rgba(66, 153, 225, 0.1);
+}
+
+.seen-button.seen:hover {
+  background-color: rgba(66, 153, 225, 0.2);
+}
+
+.seen-button.loading {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.seen-button .seen-icon {
+  transition: transform 0.2s ease;
+}
+
+.seen-button:hover .seen-icon {
+  transform: scale(1.1);
+}
+
+.seen-button.seen:hover .seen-icon {
+  transform: scale(1.1);
+}
+
+.seen-indicator {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #4299e1;
+  border: 1px solid white;
+}
+
+/* For dark mode compatibility */
+@media (prefers-color-scheme: dark) {
+  .seen-button {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  .seen-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .seen-button.seen {
+    color: #63b3ed;
+    background-color: rgba(66, 153, 225, 0.15);
+  }
+  
+  .seen-button.seen:hover {
+    background-color: rgba(66, 153, 225, 0.25);
+  }
+} 

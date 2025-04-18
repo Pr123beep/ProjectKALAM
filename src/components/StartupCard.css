@@ -1547,3 +1547,89 @@ body.modal-open .detail-overlay {
   overflow: hidden;
   transition: max-height 0.3s ease, opacity 0.3s ease;
 }
+
+/* Seen profiles styling */
+.card.seen-profile {
+  position: relative;
+  border-left: 3px solid #3498db;
+  overflow: hidden;
+}
+
+/* Change to a subtle corner ribbon design that won't clash with other elements */
+.card.seen-profile::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 0 50px 50px;
+  border-color: transparent transparent rgba(52, 152, 219, 0.7) transparent;
+  z-index: 1;
+}
+
+/* Add the text as a separate element to better control positioning */
+.card.seen-profile::after {
+  content: "VIEWED";
+  position: absolute;
+  bottom: 6px;
+  right: 7px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: white;
+  z-index: 2;
+  transform: rotate(-45deg);
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+  .card.seen-profile::before {
+    border-width: 0 0 40px 40px;
+  }
+  
+  .card.seen-profile::after {
+    bottom: 5px;
+    right: 6px;
+    font-size: 8px;
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .card.seen-profile {
+    border-left: 3px solid #63b3ed;
+  }
+  
+  .card.seen-profile::before {
+    border-color: transparent transparent rgba(99, 179, 237, 0.7) transparent;
+  }
+}
+
+/* Hover effect - slightly intensify the color */
+.card.seen-profile:hover::before {
+  border-color: transparent transparent rgba(52, 152, 219, 0.85) transparent;
+}
+
+/* Card actions container */
+.card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* Make the action buttons more prominent in dark mode */
+@media (prefers-color-scheme: dark) {
+  .card.seen-profile {
+    border-left: 3px solid #63b3ed;
+  }
+  
+  .card.seen-profile::before {
+    color: #63b3ed;
+    background-color: rgba(66, 153, 225, 0.15);
+  }
+}
+

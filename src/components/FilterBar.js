@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import '../App.css';
 import './FilterBar.css';
+import { getUserSeenProfiles } from '../supabaseClient';
 
 const getAbbreviationMatches = (abbreviation, dataList) => {
   const abbreviations = {
@@ -245,6 +246,10 @@ const FilterBar = ({ onApplyFilters }) => {
     'Research & Innovation'
   ];
 
+  const [seenFilter, setSeenFilter] = useState('all'); // 'all', 'seen', 'unseen'
+  // eslint-disable-next-line no-unused-vars
+  const [seenProfileIds, setSeenProfileIds] = useState([]);
+
   useEffect(() => {
     const checkMobile = () => {
       const isMobileView = window.innerWidth <= 768;
@@ -280,6 +285,31 @@ const FilterBar = ({ onApplyFilters }) => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
+
+  useEffect(() => {
+    // Only load seen profiles if we're filtering by seen status
+    if (seenFilter !== 'all') {
+      const loadSeenProfiles = async () => {
+        try {
+          const { data, error } = await getUserSeenProfiles();
+          if (error) throw error;
+          
+          // Store the seen profile IDs in state
+          const seenIds = data.map(item => item.founder_id);
+          setSeenProfileIds(seenIds);
+          
+          // Log the loaded seen profiles for debugging
+          console.log(`Loaded ${seenIds.length} seen profiles for filtering`);
+        } catch (error) {
+          console.error('Error loading seen profiles:', error);
+          // Reset to 'all' if there was an error
+          setSeenFilter('all');
+        }
+      };
+      
+      loadSeenProfiles();
+    }
+  }, [seenFilter]);
 
   const toggleFilters = () => {
     setIsCollapsed(!isCollapsed);
@@ -431,6 +461,18 @@ const FilterBar = ({ onApplyFilters }) => {
         college: updatedColleges
       };
     });
+  };
+
+  const handleSeenFilterChange = (value) => {
+    setSeenFilter(value);
+    
+    // Update filters when the seen filter changes
+    const updatedFilters = {
+      ...filters,
+      seenStatus: value
+    };
+    
+    onApplyFilters(updatedFilters);
   };
 
   return (
@@ -681,6 +723,53 @@ const FilterBar = ({ onApplyFilters }) => {
             </div>
           </div>
         </div>
+        
+        {/* Viewing Status Filter */}
+        <div className="filter-group">
+          <div className="filter-item">
+            <label className="seen-status-label">Viewing Status</label>
+            <div className="status-filter-container">
+              <div className="radio-button-group">
+                <label className="radio-label">
+                  <input
+                    type="radio"
+                    name="seenStatus"
+                    value="all"
+                    checked={seenFilter === 'all'}
+                    onChange={() => handleSeenFilterChange('all')}
+                  />
+                  <span className="radio-custom"></span>
+                  <span className="radio-text">All Profiles</span>
+                </label>
+                
+                <label className="radio-label">
+                  <input
+                    type="radio"
+                    name="seenStatus"
+                    value="seen"
+                    checked={seenFilter === 'seen'}
+                    onChange={() => handleSeenFilterChange('seen')}
+                  />
+                  <span className="radio-custom"></span>
+                  <span className="radio-text">Viewed Profiles</span>
+                </label>
+                
+                <label className="radio-label">
+                  <input
+                    type="radio"
+                    name="seenStatus"
+                    value="unseen"
+                    checked={seenFilter === 'unseen'}
+                    onChange={() => handleSeenFilterChange('unseen')}
+                  />
+                  <span className="radio-custom"></span>
+                  <span className="radio-text">New Profiles</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        
         <div className="filter-actions">
           <button className="apply-button" onClick={handleApply}>
             Apply Filters

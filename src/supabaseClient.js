@@ -550,3 +550,90 @@ export const getAllLabelCategories = async () => {
     return { data: [], error };
   }
 };
+
+// Seen Profiles functions
+// Mark a profile as seen
+export const markProfileAsSeen = async (founderData) => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('User not authenticated');
+
+    // Extract the founder ID in the same format as bookmarks
+    const founderId = founderData.id || `${founderData.firstName}-${founderData.lastName}`;
+
+    const { data, error } = await supabase
+      .from('seen_profiles')
+      .upsert([{
+        user_id: user.id,
+        founder_id: founderId,
+        seen_at: new Date().toISOString()
+      }])
+      .select();
+    
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error marking profile as seen:', error.message);
+    return { data: null, error };
+  }
+};
+
+// Remove a profile from seen list (mark as unseen)
+export const markProfileAsUnseen = async (founderId) => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { error } = await supabase
+      .from('seen_profiles')
+      .delete()
+      .match({ user_id: user.id, founder_id: founderId });
+    
+    if (error) throw error;
+    return { error: null };
+  } catch (error) {
+    console.error('Error marking profile as unseen:', error.message);
+    return { error };
+  }
+};
+
+// Check if a profile is marked as seen
+export const isProfileSeen = async (founderId) => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return { isSeen: false, error: null };
+
+    const { data, error } = await supabase
+      .from('seen_profiles')
+      .select('id, seen_at')
+      .match({ user_id: user.id, founder_id: founderId })
+      .single();
+    
+    if (error && error.code !== 'PGRST116') throw error; // PGRST116 is "no rows returned" error
+    
+    return { isSeen: !!data, seenAt: data?.seen_at, error: null };
+  } catch (error) {
+    console.error('Error checking seen status:', error.message);
+    return { isSeen: false, seenAt: null, error };
+  }
+};
+
+// Get all seen profiles for current user
+export const getUserSeenProfiles = async () => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { data, error } = await supabase
+      .from('seen_profiles')
+      .select('founder_id, seen_at')
+      .eq('user_id', user.id)
+      .order('seen_at', { ascending: false });
+    
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error getting seen profiles:', error.message);
+    return { data: null, error };
+  }
+};

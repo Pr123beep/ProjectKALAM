@@ -7,6 +7,7 @@ import FilterBar from './components/FilterBar';
 import StartupCard from './components/StartupCard';
 import Pagination from './components/Pagination';
 import './App.css';
+import { getUserSeenProfiles } from './supabaseClient';
 
 // Enhanced function for normalizing all types of college names
 const normalizeCollegeName = (name) => {
@@ -142,6 +143,7 @@ const shuffleArray = (array) => {
 
 function MainPage({ user }) {
   const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [filters, setFilters] = useState({
     college: [],
     companyIndustry: [],
@@ -157,6 +159,7 @@ function MainPage({ user }) {
   const [popupVisible, setPopupVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const itemsPerPage = 10; // Number of cards per page
+  const [seenProfileIds, setSeenProfileIds] = useState([]);
 
   useEffect(() => {
     // Use wellfoundData directly instead of copyData
@@ -292,6 +295,7 @@ function MainPage({ user }) {
     })));
     
     setData(deduped);
+    setFilteredData(deduped);
   }, []);
 
   useEffect(() => {
@@ -314,6 +318,27 @@ function MainPage({ user }) {
     }
   }, [data]);
 
+  useEffect(() => {
+    const loadSeenProfiles = async () => {
+      try {
+        const { data, error } = await getUserSeenProfiles();
+        if (error) throw error;
+        
+        if (data) {
+          // Store the seen profile IDs in state
+          const seenIds = data.map(item => item.founder_id);
+          setSeenProfileIds(seenIds);
+        }
+      } catch (error) {
+        console.error('Error loading seen profiles:', error);
+      }
+    };
+    
+    if (user) {
+      loadSeenProfiles();
+    }
+  }, [user]);
+
   const applyFilters = (newFilters) => {
     setFilters(newFilters);
     setCurrentPage(1); // Reset to first page when filters change
@@ -321,11 +346,246 @@ function MainPage({ user }) {
     setTimeout(() => {
       setPopupVisible(false);
     }, 3000);
+    
+    // Apply the seen filter if needed
+    if (newFilters.seenStatus && newFilters.seenStatus !== 'all') {
+      // If seen profiles weren't loaded yet, load them now
+      if (seenProfileIds.length === 0) {
+        getUserSeenProfiles().then(({ data }) => {
+          if (data) {
+            const seenIds = data.map(item => item.founder_id);
+            setSeenProfileIds(seenIds);
+            applyFiltersWithSeenData(newFilters, seenIds);
+          }
+        });
+      } else {
+        // We already have the seen profiles data
+        applyFiltersWithSeenData(newFilters, seenProfileIds);
+      }
+    } else {
+      // No seen filter, just apply regular filters
+      applyRegularFilters(newFilters);
+    }
+  };
+  
+  // Helper function to apply filters with seen data
+  const applyFiltersWithSeenData = (newFilters, seenIds) => {
+    // Start with all data
+    let filtered = [...data];
+    
+    // Apply other filters first
+    filtered = applyRegularFiltersToData(filtered, newFilters);
+    
+    // Then apply seen filter
+    if (newFilters.seenStatus === 'seen') {
+      filtered = filtered.filter(item => {
+        const founderId = item.id || `${item.firstName}-${item.lastName}`;
+        return seenIds.includes(founderId);
+      });
+    } else if (newFilters.seenStatus === 'unseen') {
+      filtered = filtered.filter(item => {
+        const founderId = item.id || `${item.firstName}-${item.lastName}`;
+        return !seenIds.includes(founderId);
+      });
+    }
+    
+    setFilteredData(filtered);
+  };
+  
+  // Apply regular filters without seen status
+  const applyRegularFilters = (newFilters) => {
+    const filtered = applyRegularFiltersToData(data, newFilters);
+    setFilteredData(filtered);
+  };
+  
+  // Common filtering logic
+  const applyRegularFiltersToData = (dataToFilter, newFilters) => {
+    return dataToFilter.filter(item => {
+      // Direct profile search by exact name (if any)
+      if (searchQuery && searchQuery.trim().length > 0) {
+        const exactNameSearch = `${item.firstName || ''} ${item.lastName || ''}`.toLowerCase() === searchQuery.toLowerCase().trim();
+        
+        // If this is an exact full name match, show the profile regardless of other filters
+        if (exactNameSearch) {
+          return true;
+        }
+      }
+      
+      // Enhanced search across all relevant profile fields
+      if (searchQuery && !searchInFields(item, searchQuery)) {
+        return false;
+      }
+      
+      // Source filtering logic - more lenient
+      const showLinkedIn = newFilters.profileSources.linkedin;
+      const showWellfound = newFilters.profileSources.wellfound;
+      const hasWellfoundData = Boolean(item.wellFoundURL || item.wellFoundProfileURL);
+      const hasLinkedInData = Boolean(item.linkedinProfileUrl);
+      
+      // If no checkboxes are selected, show ALL data
+      if (!showLinkedIn && !showWellfound) {
+        // Pass everything through when no source filters are selected
+      } 
+      // If only LinkedIn is checked
+      else if (showLinkedIn && !showWellfound) {
+        // Only show profiles with LinkedIn data but NO Wellfound data
+        if (!hasLinkedInData || hasWellfoundData) {
+          return false;
+        }
+      } 
+      // If only Wellfound is checked
+      else if (!showLinkedIn && showWellfound) {
+        // Show all profiles with Wellfound data, regardless of LinkedIn status
+        if (!hasWellfoundData) {
+          return false;
+        }
+      }
+      // If both LinkedIn and Wellfound are checked
+      else if (showLinkedIn && showWellfound) {
+        // Same behavior as only Wellfound checked - show all profiles with Wellfound data
+        if (!hasWellfoundData) {
+          return false;
+        }
+      }
+      
+      // Apply college filter
+      if (newFilters.college.length > 0) {
+        const collegeData = Array.isArray(item.colleges) ? item.colleges : item.college;
+        // Check if any of the selected colleges match
+        const hasMatchingCollege = newFilters.college.some(selectedCollege => 
+          matchesCollege(collegeData, selectedCollege)
+        );
+        
+        if (!hasMatchingCollege) {
+          return false;
+        }
+      }
+      
+      const industry = (item.companyIndustry || "").toLowerCase();
+      const location = (item.currentLocation || item.location || "").toLowerCase();
+      const followers = parseInt(item.linkedinFollowersCount) || 0;
+      
+      // Handle companyIndustry as an array
+      const industryMatches = newFilters.companyIndustry.length === 0 || 
+        newFilters.companyIndustry.some(selectedIndustry => 
+          industry.includes(selectedIndustry.toLowerCase())
+        );
+      
+      return (
+        industryMatches &&
+        location.includes(newFilters.currentLocation.toLowerCase()) &&
+        followers >= newFilters.followersMin &&
+        followers <= newFilters.followersMax
+      );
+    });
   };
 
+  // Update search functionality to use state
   const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
+    const newSearchQuery = e.target.value;
+    setSearchQuery(newSearchQuery);
     setCurrentPage(1); // Reset to first page when search changes
+    
+    // Apply current filters with the new search query
+    const currentFilteredData = data.filter(item => {
+      // If search query exists, check if the item matches
+      if (newSearchQuery.trim() !== '') {
+        // Direct profile search by exact name
+        const exactNameSearch = `${item.firstName || ''} ${item.lastName || ''}`.toLowerCase() === newSearchQuery.toLowerCase().trim();
+        
+        // If this is an exact match, include it regardless of other filters
+        if (exactNameSearch) {
+          return true;
+        }
+        
+        // Otherwise, search across all fields
+        if (!searchInFields(item, newSearchQuery)) {
+          return false;
+        }
+      }
+      
+      // Apply the rest of the filters
+      // Source filtering logic
+      const showLinkedIn = filters.profileSources.linkedin;
+      const showWellfound = filters.profileSources.wellfound;
+      const hasWellfoundData = Boolean(item.wellFoundURL || item.wellFoundProfileURL);
+      const hasLinkedInData = Boolean(item.linkedinProfileUrl);
+      
+      // If no source filters are selected, show all data
+      if (!showLinkedIn && !showWellfound) {
+        // Pass everything through
+      } 
+      // If only LinkedIn is checked
+      else if (showLinkedIn && !showWellfound) {
+        if (!hasLinkedInData || hasWellfoundData) {
+          return false;
+        }
+      } 
+      // If only Wellfound is checked
+      else if (!showLinkedIn && showWellfound) {
+        if (!hasWellfoundData) {
+          return false;
+        }
+      }
+      // If both LinkedIn and Wellfound are checked
+      else if (showLinkedIn && showWellfound) {
+        if (!hasWellfoundData) {
+          return false;
+        }
+      }
+      
+      // Apply college filter
+      if (filters.college.length > 0) {
+        const collegeData = Array.isArray(item.colleges) ? item.colleges : item.college;
+        // Check if any of the selected colleges match
+        const hasMatchingCollege = filters.college.some(selectedCollege => 
+          matchesCollege(collegeData, selectedCollege)
+        );
+        
+        if (!hasMatchingCollege) {
+          return false;
+        }
+      }
+      
+      const industry = (item.companyIndustry || "").toLowerCase();
+      const location = (item.currentLocation || item.location || "").toLowerCase();
+      const followers = parseInt(item.linkedinFollowersCount) || 0;
+      
+      // Handle companyIndustry as an array
+      const industryMatches = filters.companyIndustry.length === 0 || 
+        filters.companyIndustry.some(selectedIndustry => 
+          industry.includes(selectedIndustry.toLowerCase())
+        );
+      
+      return (
+        industryMatches &&
+        location.includes(filters.currentLocation.toLowerCase()) &&
+        followers >= filters.followersMin &&
+        followers <= filters.followersMax
+      );
+    });
+    
+    // Apply seen profile filtering if needed
+    if (filters.seenStatus && filters.seenStatus !== 'all' && seenProfileIds.length > 0) {
+      let seenFiltered = [...currentFilteredData];
+      
+      if (filters.seenStatus === 'seen') {
+        seenFiltered = seenFiltered.filter(item => {
+          const founderId = item.id || `${item.firstName}-${item.lastName}`;
+          return seenProfileIds.includes(founderId);
+        });
+      } else if (filters.seenStatus === 'unseen') {
+        seenFiltered = seenFiltered.filter(item => {
+          const founderId = item.id || `${item.firstName}-${item.lastName}`;
+          return !seenProfileIds.includes(founderId);
+        });
+      }
+      
+      setFilteredData(seenFiltered);
+    } else {
+      // No seen filter, just apply regular filters
+      setFilteredData(currentFilteredData);
+    }
   };
 
   // Helper function to search text in multiple fields
@@ -392,85 +652,6 @@ function MainPage({ user }) {
       field.toLowerCase().includes(query)
     );
   };
-
-  const filteredData = data.filter((item) => {
-    // Direct profile search by exact name (if any)
-    if (searchQuery && searchQuery.trim().length > 0) {
-      const exactNameSearch = `${item.firstName || ''} ${item.lastName || ''}`.toLowerCase() === searchQuery.toLowerCase().trim();
-      
-      // If this is an exact full name match, show the profile regardless of other filters
-      if (exactNameSearch) {
-        return true;
-      }
-    }
-    
-    // Enhanced search across all relevant profile fields
-    if (searchQuery && !searchInFields(item, searchQuery)) {
-      return false;
-    }
-    
-    // Source filtering logic - more lenient
-    const showLinkedIn = filters.profileSources.linkedin;
-    const showWellfound = filters.profileSources.wellfound;
-    const hasWellfoundData = Boolean(item.wellFoundURL || item.wellFoundProfileURL);
-    const hasLinkedInData = Boolean(item.linkedinProfileUrl);
-    
-    // If no checkboxes are selected, show ALL data
-    if (!showLinkedIn && !showWellfound) {
-      // Pass everything through when no source filters are selected
-    } 
-    // If only LinkedIn is checked
-    else if (showLinkedIn && !showWellfound) {
-      // Only show profiles with LinkedIn data but NO Wellfound data
-      if (!hasLinkedInData || hasWellfoundData) {
-        return false;
-      }
-    } 
-    // If only Wellfound is checked
-    else if (!showLinkedIn && showWellfound) {
-      // Show all profiles with Wellfound data, regardless of LinkedIn status
-      if (!hasWellfoundData) {
-        return false;
-      }
-    }
-    // If both LinkedIn and Wellfound are checked
-    else if (showLinkedIn && showWellfound) {
-      // Same behavior as only Wellfound checked - show all profiles with Wellfound data
-      if (!hasWellfoundData) {
-        return false;
-      }
-    }
-    
-    // Apply college filter
-    if (filters.college.length > 0) {
-      const collegeData = Array.isArray(item.colleges) ? item.colleges : item.college;
-      // Check if any of the selected colleges match
-      const hasMatchingCollege = filters.college.some(selectedCollege => 
-        matchesCollege(collegeData, selectedCollege)
-      );
-      
-      if (!hasMatchingCollege) {
-        return false;
-      }
-    }
-    
-    const industry = (item.companyIndustry || "").toLowerCase();
-    const location = (item.currentLocation || item.location || "").toLowerCase();
-    const followers = parseInt(item.linkedinFollowersCount) || 0;
-    
-    // Handle companyIndustry as an array
-    const industryMatches = filters.companyIndustry.length === 0 || 
-      filters.companyIndustry.some(selectedIndustry => 
-        industry.includes(selectedIndustry.toLowerCase())
-      );
-    
-    return (
-      industryMatches &&
-      location.includes(filters.currentLocation.toLowerCase()) &&
-      followers >= filters.followersMin &&
-      followers <= filters.followersMax
-    );
-  });
 
   useEffect(() => {
     if (filteredData.length > 0) {

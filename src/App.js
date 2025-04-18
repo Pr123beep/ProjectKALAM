@@ -8,6 +8,7 @@ import Register from './components/Register';
 import ResetPassword from './components/ResetPassword';
 import LabelsPage from './components/LabelsPage';
 import ProfilePage from './components/ProfilePage';
+import SeenProfilesPage from './components/SeenProfilesPage';
 import Navigation from './components/Navigation';
 import LoadingScreen from './components/LoadingScreen';
 import { supabase } from './supabaseClient';
@@ -110,6 +111,11 @@ function App() {
             <Route path="/profile/:profileId" element={
               <ProtectedRoute>
                 <ProfilePage />
+              </ProtectedRoute>
+            } />
+            <Route path="/seen-profiles" element={
+              <ProtectedRoute>
+                <SeenProfilesPage />
               </ProtectedRoute>
             } />
             <Route path="/" element={

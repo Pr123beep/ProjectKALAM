@@ -6,6 +6,7 @@ import ReactDOM from "react-dom";
 import iitRedditData from "../iit-reddit.json";
 import { generateFounderSummary } from "../utils/geminiApi";
 import LabelButton from './LabelButton';
+import { markProfileAsSeen, isProfileSeen } from '../supabaseClient';
 
 import "../App.css";
 import "./StartupCard.css";
@@ -235,10 +236,26 @@ const StartupCard = ({ data }) => {
   const [aiSummary, setAiSummary] = useState(null);
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const [summaryError, setSummaryError] = useState(null);
+  const [isSeen, setIsSeen] = useState(false);
 
   const founderKey = useMemo(() => {
     return `${data.firstName}_${data.lastName}_${data.companyName}`.toLowerCase().replace(/[^a-z0-9]/g, '_');
   }, [data.firstName, data.lastName, data.companyName]);
+
+  // Check if profile is already seen when the component mounts
+  useEffect(() => {
+    const checkSeenStatus = async () => {
+      try {
+        const founderId = data.id || `${data.firstName}-${data.lastName}`;
+        const { isSeen: seen } = await isProfileSeen(founderId);
+        setIsSeen(seen);
+      } catch (error) {
+        console.error('Error checking seen status:', error);
+      }
+    };
+    
+    checkSeenStatus();
+  }, [data]);
 
   useEffect(() => {
     setAiSummary(null);
@@ -251,6 +268,21 @@ const StartupCard = ({ data }) => {
       document.body.classList.add('body-no-scroll');
       document.addEventListener('touchmove', preventScrollOutsideModal, { passive: false });
       document.addEventListener('wheel', preventScrollOutsideModal, { passive: false });
+
+      // Mark profile as seen when details are opened
+      const markSeen = async () => {
+        try {
+          // Only mark as seen if not already seen
+          if (!isSeen) {
+            await markProfileAsSeen(data);
+            setIsSeen(true);
+          }
+        } catch (error) {
+          console.error('Error marking profile as seen:', error);
+        }
+      };
+
+      markSeen();
 
       const generateSummary = async () => {
         if (!aiSummary && !summaryError && !isLoadingSummary) {
@@ -285,7 +317,7 @@ const StartupCard = ({ data }) => {
       document.removeEventListener('touchmove', preventScrollOutsideModal);
       document.removeEventListener('wheel', preventScrollOutsideModal);
     };
-  }, [showDetails, data, aiSummary, summaryError, isLoadingSummary, founderKey]);
+  }, [showDetails, data, aiSummary, summaryError, isLoadingSummary, founderKey, isSeen]);
 
   useEffect(() => {
     if (showDetails) {
@@ -387,7 +419,7 @@ const StartupCard = ({ data }) => {
   );
 
   return (
-    <div className="card">
+    <div className={`card ${showDetails ? 'expanded' : ''} ${isSeen ? 'seen-profile' : ''}`}>
       {/* Source badge */}
       {data.source && (
         <div className={`source-badge ${data.source}`}>
