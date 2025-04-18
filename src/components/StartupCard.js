@@ -376,7 +376,15 @@ const StartupCard = ({ data }) => {
   }, [data.firstName, data.lastName, data.companyName]);
 
   const redditUrl = redditData?.results?.[0]?.url;
-  const isMentionedOnReddit = Boolean(redditData && redditData.results && redditData.results.length > 0);
+  // Only show "Mentioned on Reddit" when the URL exists
+  const isMentionedOnReddit = Boolean(redditUrl);
+  
+  // Determine if it's a verified Reddit mention from official Reddit domains
+  const isVerifiedRedditMention = redditUrl && (
+    redditUrl.includes('reddit.com') || 
+    redditUrl.includes('i.redd.it') || 
+    redditUrl.includes('v.redd.it')
+  );
 
   return (
     <div className="card">
@@ -490,14 +498,18 @@ const StartupCard = ({ data }) => {
           )}
         </div>
         
-        {/* Reddit mention button - Updated logic */}
+        {/* Reddit mention button - Updated logic with conditional label */}
         {isMentionedOnReddit && (
           <div 
-            className="reddit-mention" 
+            className={`reddit-mention ${isVerifiedRedditMention ? 'verified' : 'experimental'}`}
             onClick={() => redditUrl && window.open(redditUrl, "_blank")}
             style={{ cursor: redditUrl ? 'pointer' : 'default' }}
           >
-            <strong>Mentioned on Reddit</strong>
+            <strong>
+              {isVerifiedRedditMention 
+                ? "Mentioned on Reddit" 
+                : "Mentioned on Reddit (Experimental)"}
+            </strong>
             {redditUrl && <span className="reddit-link-indicator">→</span>}
           </div>
         )}

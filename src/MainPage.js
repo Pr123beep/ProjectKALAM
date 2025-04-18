@@ -204,7 +204,15 @@ function MainPage({ user }) {
                          redditData.results.length > 0 ? 
                          redditData.results[0].url : null;
         
-        const isMentionedOnReddit = Boolean(redditData);
+        // Only mark as mentioned on Reddit if there's a valid URL
+        const isMentionedOnReddit = Boolean(redditUrl);
+        
+        // Determine if it's from an official Reddit domain
+        const isVerifiedRedditMention = redditUrl && (
+          redditUrl.includes('reddit.com') || 
+          redditUrl.includes('i.redd.it') || 
+          redditUrl.includes('v.redd.it')
+        );
 
         if (!acc[key]) {
           acc[key] = { 
@@ -212,8 +220,9 @@ function MainPage({ user }) {
             colleges: item.college ? [item.college] : [],
             college: item.college || '',
             hasWellfound: Boolean(item.wellFoundURL || item.wellFoundProfileURL),
-            redditUrl,           // Add Reddit URL
-            isMentionedOnReddit  // Add Reddit mention status
+            redditUrl,                 // Add Reddit URL
+            isMentionedOnReddit,       // Add Reddit mention status
+            isVerifiedRedditMention    // Add verified Reddit status
           };
         } else {
           // Add college to colleges array if it exists and isn't already included
