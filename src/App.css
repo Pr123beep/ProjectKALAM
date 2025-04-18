@@ -853,3 +853,67 @@ a:hover {
   color: var(--primary-color);
   font-weight: 500;
 }
+
+.special-note {
+  display: inline-block;
+  font-size: 12px;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-left: 5px;
+  font-weight: 500;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.help-message {
+  margin-top: 15px;
+  text-align: center;
+  max-width: 600px;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.help-message.specific-profile {
+  background-color: #f1f9ff;
+  border: 1px solid #bde0fd;
+  margin-top: 20px;
+}
+
+.help-message p {
+  margin-bottom: 15px;
+  color: #4a5568;
+  line-height: 1.5;
+}
+
+.search-specific-btn {
+  background-color: #3182ce;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  margin-bottom: 5px;
+}
+
+.search-specific-btn:hover {
+  background-color: #2c5282;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.clear-filters-btn {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
