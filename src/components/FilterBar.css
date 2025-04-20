@@ -1155,3 +1155,150 @@
   font-weight: 600;
   margin-top: 5px;
 }
+
+/* Stealth Mode section styles - Enhanced with futuristic design */
+.stealth-mode-wrapper {
+  margin-top: 10px;
+  position: relative;
+  overflow: hidden;
+  padding: 12px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(45, 55, 72, 0.9));
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), inset 0 0 10px rgba(99, 102, 241, 0.2);
+}
+
+.stealth-mode-wrapper::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(99, 102, 241, 0.05) 10px,
+    rgba(99, 102, 241, 0.05) 20px
+  );
+  animation: stealthBackground 20s linear infinite;
+  z-index: 0;
+}
+
+.stealth-checkbox {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: 0;
+  position: relative;
+  transition: all 0.3s ease;
+  z-index: 1;
+}
+
+.stealth-checkbox input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.stealth-checkbox-icon {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(99, 102, 241, 0.8);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  background-color: transparent;
+  transition: all 0.3s ease;
+  color: var(--background-color);
+  overflow: hidden;
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.3);
+}
+
+.stealth-checkbox input:checked ~ .stealth-checkbox-icon {
+  background-color: #6366f1;
+  border-color: #6366f1;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+}
+
+.stealth-checkbox input:checked ~ .stealth-checkbox-icon svg {
+  stroke: white;
+  width: 15px;
+  height: 15px;
+  animation: check-animation 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+}
+
+.stealth-checkbox-label {
+  font-size: 14px;
+  position: relative;
+  display: inline-block;
+  color: white;
+  font-weight: 500;
+  text-shadow: 0 0 5px rgba(99, 102, 241, 0.5);
+  letter-spacing: 0.5px;
+}
+
+.stealth-checkbox:hover .stealth-checkbox-icon {
+  border-color: #6366f1;
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.6);
+  transform: scale(1.05);
+}
+
+.stealth-checkbox:hover .stealth-checkbox-label {
+  text-shadow: 0 0 8px rgba(99, 102, 241, 0.7);
+}
+
+@keyframes check-animation {
+  0% {
+    transform: scale(0) rotate(-15deg);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.2) rotate(5deg);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+}
+
+@keyframes stealthBackground {
+  0% {
+    transform: translateX(-50px) translateY(-50px) rotate(0deg);
+  }
+  100% {
+    transform: translateX(50px) translateY(50px) rotate(10deg);
+  }
+}
+
+/* Add a cool cyberpunk-style icon to the section header */
+.filter-section-title.stealth-title {
+  color: #6366f1;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  position: relative;
+  margin-bottom: 12px;
+  text-shadow: 0 0 5px rgba(99, 102, 241, 0.4);
+}
+
+.filter-section-title.stealth-title {
+  animation: stealthTitle 1.5s infinite alternate;
+}
+
+@keyframes stealthTitle {
+  0% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}

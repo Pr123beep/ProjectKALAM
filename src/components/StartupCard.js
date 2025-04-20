@@ -6,7 +6,7 @@ import ReactDOM from "react-dom";
 import iitRedditData from "../iit-reddit.json";
 import { generateFounderSummary } from "../utils/geminiApi";
 import LabelButton from './LabelButton';
-import { markProfileAsSeen, isProfileSeen } from '../supabaseClient';
+import { markProfileAsSeen, isProfileSeen, markProfileAsUnseen } from '../supabaseClient';
 
 import "../App.css";
 import "./StartupCard.css";
@@ -418,6 +418,50 @@ const StartupCard = ({ data }) => {
     redditUrl.includes('v.redd.it')
   );
 
+  // Check if the company is in stealth mode
+  const isStealthMode = useMemo(() => {
+    const fieldsToCheck = [
+      data.companyName,
+      data.previousCompanyName,
+      data.linkedinHeadline,
+      data.linkedinJobTitle,
+      data.linkedinPreviousJobTitle,
+      data.linkedinJobDescription,
+      data.linkedinPreviousJobDescription,
+      data.linkedinDescription
+    ];
+    
+    const stealthTerms = ['stealth', 'stealth mode', 'stealth startup', 'stealth ai'];
+    
+    return fieldsToCheck.some(field => {
+      if (!field) return false;
+      const fieldLower = String(field).toLowerCase();
+      return stealthTerms.some(term => fieldLower.includes(term));
+    });
+  }, [data]);
+
+  // Function to mark profile as unseen
+  const handleUnseenClick = async (e) => {
+    e.stopPropagation();
+    try {
+      const founderId = data.id || `${data.firstName}-${data.lastName}`;
+      await markProfileAsUnseen(founderId);
+      setIsSeen(false);
+      // Add a small visual feedback
+      const toast = document.createElement('div');
+      toast.className = 'label-toast';
+      toast.textContent = 'Profile marked as unseen';
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.classList.add('label-toast-hide');
+        setTimeout(() => document.body.removeChild(toast), 500);
+      }, 2000);
+    } catch (error) {
+      console.error('Error marking profile as unseen:', error);
+    }
+  };
+
   return (
     <div className={`card ${showDetails ? 'expanded' : ''} ${isSeen ? 'seen-profile' : ''}`}>
       {/* Source badge */}
@@ -429,6 +473,23 @@ const StartupCard = ({ data }) => {
       
       {/* Basic info shown on the card */}
       <div className="card-header">
+        <div className="badges-container">
+          {isSeen && (
+            <>
+              <div className="seen-badge">
+                <span>Seen</span>
+              </div>
+              <button className="unsee-button" onClick={handleUnseenClick} title="Mark as unseen">
+                <span>✕</span>
+              </button>
+            </>
+          )}
+          {isStealthMode && (
+            <div className="stealth-badge">
+              <span>⚡ Stealth Mode</span>
+            </div>
+          )}
+        </div>
         <div className="card-header-top">
           <h4 className="card-name">
             {/* Founder name and Wellfound profile link */}
@@ -719,6 +780,22 @@ const StartupCard = ({ data }) => {
                     </div>
                   </div>
                 </motion.div>
+
+                {/* Stealth Mode Banner */}
+                {isStealthMode && (
+                  <motion.div 
+                    className="stealth-mode-banner"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.25, duration: 0.4 }}
+                  >
+                    <div className="stealth-icon">⚡</div>
+                    <div className="stealth-content">
+                      <h3>Stealth Mode Company</h3>
+                      <p>This founder is working on a project that's currently in stealth mode. Stealth startups often keep their innovations under wraps while developing cutting-edge technology or disruptive business models.</p>
+                    </div>
+                  </motion.div>
+                )}
 
                 {/* Modal Content with section-by-section reveal */}
                 <motion.div 

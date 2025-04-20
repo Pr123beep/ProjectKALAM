@@ -141,7 +141,8 @@ const FilterBar = ({ onApplyFilters }) => {
     profileSources: {
       linkedin: false,
       wellfound: false
-    }
+    },
+    stealthMode: false
   });
 
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -316,7 +317,16 @@ const FilterBar = ({ onApplyFilters }) => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
+    
+    if (type === 'checkbox' && name === 'stealthMode') {
+      setFilters(prevFilters => ({
+        ...prevFilters,
+        stealthMode: checked
+      }));
+      return;
+    }
+    
     setFilters((prev) => ({
       ...prev,
       [name]: value
@@ -399,18 +409,17 @@ const FilterBar = ({ onApplyFilters }) => {
   };
 
   const handleApply = () => {
-    // Create a copy of the filters with numeric values parsed correctly
-    const filtersToApply = {
+    // Pass the current filters up to the parent component
+    onApplyFilters({
       ...filters,
-      followersMin: parseInt(filters.followersMin, 10) || 0,
-      followersMax: parseInt(filters.followersMax, 10) || 50000,
-      profileSources: filters.profileSources,
-      // Ensure companyIndustry is properly formatted
-      companyIndustry: filters.companyIndustry
-    };
+      followersMin: parseInt(filters.followersMin, 10),
+      followersMax: parseInt(filters.followersMax, 10),
+      seenFilter
+    });
     
-    // Apply the filters
-    onApplyFilters(filtersToApply);
+    if (isMobile) {
+      setIsCollapsed(true);
+    }
   };
 
   const handleClear = () => {
@@ -423,18 +432,11 @@ const FilterBar = ({ onApplyFilters }) => {
       profileSources: {
         linkedin: false,
         wellfound: false
-      }
+      },
+      stealthMode: false
     };
     setFilters(cleared);
-    onApplyFilters({
-      ...cleared,
-      followersMin: 0,
-      followersMax: 50000,
-      profileSources: {
-        linkedin: false,
-        wellfound: false
-      }
-    });
+    setSeenFilter('all');
   };
 
   const handleIndustryChange = (industry) => {
@@ -767,6 +769,36 @@ const FilterBar = ({ onApplyFilters }) => {
                 </label>
               </div>
             </div>
+          </div>
+        </div>
+        
+        {/* Stealth Mode Filter */}
+        <div className="filter-section">
+          <h3 className="filter-section-title stealth-title">⚡ Stealth Mode</h3>
+          <div className="stealth-mode-wrapper">
+            <label className="stealth-checkbox">
+              <input
+                type="checkbox"
+                name="stealthMode"
+                checked={filters.stealthMode}
+                onChange={handleChange}
+              />
+              <div className="stealth-checkbox-icon">
+                {filters.stealthMode && (
+                  <svg 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                )}
+              </div>
+              <span className="stealth-checkbox-label">Stealth Companies</span>
+            </label>
           </div>
         </div>
         

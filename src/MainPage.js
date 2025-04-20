@@ -153,7 +153,8 @@ function MainPage({ user }) {
     profileSources: {
       linkedin: false,
       wellfound: false
-    }
+    },
+    stealthMode: false // Add stealth mode filter
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [popupVisible, setPopupVisible] = useState(false);
@@ -398,6 +399,28 @@ function MainPage({ user }) {
     setFilteredData(filtered);
   };
   
+  // Helper function to check if a company is in stealth mode
+  const isInStealthMode = (item) => {
+    const fieldsToCheck = [
+      item.companyName,
+      item.previousCompanyName,
+      item.linkedinHeadline,
+      item.linkedinJobTitle,
+      item.linkedinPreviousJobTitle,
+      item.linkedinJobDescription,
+      item.linkedinPreviousJobDescription,
+      item.linkedinDescription
+    ];
+    
+    const stealthTerms = ['stealth', 'stealth mode', 'stealth startup', 'stealth ai'];
+    
+    return fieldsToCheck.some(field => {
+      if (!field) return false;
+      const fieldLower = field.toLowerCase();
+      return stealthTerms.some(term => fieldLower.includes(term));
+    });
+  };
+
   // Common filtering logic
   const applyRegularFiltersToData = (dataToFilter, newFilters) => {
     return dataToFilter.filter(item => {
@@ -461,21 +484,26 @@ function MainPage({ user }) {
         }
       }
       
-      const industry = (item.companyIndustry || "").toLowerCase();
       const location = (item.currentLocation || item.location || "").toLowerCase();
       const followers = parseInt(item.linkedinFollowersCount) || 0;
       
       // Handle companyIndustry as an array
-      const industryMatches = newFilters.companyIndustry.length === 0 || 
-        newFilters.companyIndustry.some(selectedIndustry => 
-          industry.includes(selectedIndustry.toLowerCase())
-        );
+      const industryMatches = (!newFilters.companyIndustry || newFilters.companyIndustry.length === 0) || 
+        newFilters.companyIndustry.some(industryFilter => {
+          return item.companyIndustry === industryFilter || 
+                 item.linkedinIndustry === industryFilter || 
+                 (item.linkedinJobDescription && item.linkedinJobDescription.toLowerCase().includes(industryFilter.toLowerCase()));
+        });
+      
+      // Apply stealth mode filter
+      const stealthModeMatches = !newFilters.stealthMode || isInStealthMode(item);
       
       return (
         industryMatches &&
         location.includes(newFilters.currentLocation.toLowerCase()) &&
         followers >= newFilters.followersMin &&
-        followers <= newFilters.followersMax
+        followers <= newFilters.followersMax &&
+        stealthModeMatches
       );
     });
   };
@@ -547,21 +575,26 @@ function MainPage({ user }) {
         }
       }
       
-      const industry = (item.companyIndustry || "").toLowerCase();
       const location = (item.currentLocation || item.location || "").toLowerCase();
       const followers = parseInt(item.linkedinFollowersCount) || 0;
       
       // Handle companyIndustry as an array
-      const industryMatches = filters.companyIndustry.length === 0 || 
-        filters.companyIndustry.some(selectedIndustry => 
-          industry.includes(selectedIndustry.toLowerCase())
-        );
+      const industryMatches = (!filters.companyIndustry || filters.companyIndustry.length === 0) || 
+        filters.companyIndustry.some(industryFilter => {
+          return item.companyIndustry === industryFilter || 
+                 item.linkedinIndustry === industryFilter || 
+                 (item.linkedinJobDescription && item.linkedinJobDescription.toLowerCase().includes(industryFilter.toLowerCase()));
+        });
+      
+      // Apply stealth mode filter
+      const stealthModeMatches = !filters.stealthMode || isInStealthMode(item);
       
       return (
         industryMatches &&
         location.includes(filters.currentLocation.toLowerCase()) &&
         followers >= filters.followersMin &&
-        followers <= filters.followersMax
+        followers <= filters.followersMax &&
+        stealthModeMatches
       );
     });
     
