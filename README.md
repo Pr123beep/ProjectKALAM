@@ -98,7 +98,7 @@ This project was created with an unhealthy amount of enthusiasm and questionable
 
 ---
 
-*Made with ❤️ and 🤪 by [Your Team Name]*
+*Made with ❤️ and 🤪 by Pratham Jain*
 
 *"Finding founders so good, you'll forget about your failed investments!"*
 
