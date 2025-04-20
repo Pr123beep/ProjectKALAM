@@ -1,4 +1,4 @@
-# ⚡ PROJECT KALAM: Stealth Unicorn Detector 9000 ⚡
+# ⚡ PROJECT KALAM ⚡
 
 <div align="center">
   
@@ -7,7 +7,6 @@
   ![License](https://img.shields.io/badge/license-MIT-green)
   ![Status](https://img.shields.io/badge/status-MIND%20BLOWING-orange)
   
-  <img src="https://i.imgur.com/placeholder.jpg" alt="Project KALAM Banner" width="600px"/>
   
   **K**ick-**A**ss **L**inkup **A**nd **M**atchmaking System
   
@@ -74,10 +73,7 @@ Our engineers worked in an actual bunker to create this top-secret feature:
 - **Exclusive Filter**: Toggle that says "show me only the mystical unicorns hiding in the shadows"
 - **Futuristic Interface**: UI designed after drinking 17 Red Bulls and watching Blade Runner on repeat
 
-<div align="center">
-  <img src="https://i.imgur.com/placeholder2.jpg" alt="Stealth Mode Screenshot" width="600px"/>
-  <p><i>Actual screenshot of money being printed discovered through stealth mode</i></p>
-</div>
+
 
 ## 🛠️ Tech Stack That Makes Engineers Weep
 
