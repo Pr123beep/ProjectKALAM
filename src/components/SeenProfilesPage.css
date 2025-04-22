@@ -9,7 +9,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
@@ -18,7 +18,7 @@
   font-size: 2rem;
   font-weight: 700;
   margin: 0;
-  color: #2d3748;
+  color: #000000;
 }
 
 .seen-profiles-controls {
@@ -85,26 +85,45 @@
 
 .seen-profiles-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .seen-profile-wrapper {
   position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
 }
 
-.seen-date-badge {
-  position: absolute;
-  top: -10px;
-  right: 10px;
-  background-color: #4299e1;
-  color: white;
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  z-index: 2;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.seen-profile-wrapper > div {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fix for card height consistency */
+.seen-profile-wrapper .card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  margin: 0; /* Remove any margins that might affect alignment */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  /* Add extra styling to compensate for removed badges */
+  padding-top: 0.75rem;
+}
+
+.seen-profile-wrapper .card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.seen-profile-wrapper .badges-container {
+  display: none !important; /* Ensure badges are completely hidden in seen profiles */
 }
 
 /* Dark mode support */
@@ -114,7 +133,7 @@
   }
   
   .seen-profiles-header h1 {
-    color: #e2e8f0;
+    color: #000000;
   }
   
   .sort-button {
@@ -138,7 +157,35 @@
     color: #a0aec0;
   }
   
-  .seen-date-badge {
-    background-color: #4299e1;
+  .seen-profile-wrapper .card {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  }
+  
+  .seen-profile-wrapper .card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .seen-profiles-container {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .seen-profiles-container {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+  
+  .seen-profiles-page {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .seen-profiles-container {
+    grid-template-columns: 1fr;
   }
 } 

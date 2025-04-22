@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import ReactDOM from 'react-dom';
 import { getUserLabels, getProfilesByLabel, updateProfileLabel, removeLabelFromProfile, getAllLabelCategories } from '../supabaseClient';
 import LabelButton from './LabelButton';
+import { generateFounderSummary } from '../utils/geminiApi';
+import wellfoundData from '../wellfndAndphantom.json'; // Import wellfound data
 import './LabelsPage.css';
 
 // Normalize label names to group similar labels
@@ -75,6 +77,14 @@ const CompanyIcon = () => (
   </svg>
 );
 
+const WorkIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+  </svg>
+);
+
 const CloseIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
        strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -103,6 +113,7 @@ const LabelsPage = () => {
   const [newLabelName, setNewLabelName] = useState('');
   const [totalProfiles, setTotalProfiles] = useState(0);
   const [categoryCount, setCategoryCount] = useState({});
+  const [profileData, setProfileData] = useState(null);
 
   // Use useCallback to memoize the fetchLabels function
   const fetchLabels = useCallback(async () => {
@@ -433,33 +444,247 @@ const LabelsPage = () => {
 
   const openProfileModal = (profile) => {
     setSelectedProfile(profile);
+    
+    // Convert label profile data format to StartupCard format
+    if (profile && profile.founder_data) {
+      const founderData = profile.founder_data;
+      const nameParts = founderData.name ? founderData.name.split(' ') : ['', ''];
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+      
+      // Try to find more detailed data from wellfound data
+      let enrichedData = {};
+      
+      try {
+        // Find matching profile in wellfound data
+        const matchingProfile = wellfoundData.find(item => {
+          // Match by name (first and last name)
+          const nameMatch = (item.firstName && item.lastName) && 
+            (item.firstName.toLowerCase() === firstName.toLowerCase() &&
+             item.lastName.toLowerCase() === lastName.toLowerCase());
+          
+          // Match by company name if available
+          const companyMatch = founderData.company && item.companyName && 
+            founderData.company.toLowerCase() === item.companyName.toLowerCase();
+          
+          // Match by LinkedIn URL if available
+          const linkedinMatch = founderData.linkedinUrl && item.linkedinProfileUrl &&
+            founderData.linkedinUrl === item.linkedinProfileUrl;
+            
+          return nameMatch || companyMatch || linkedinMatch;
+        });
+        
+        if (matchingProfile) {
+          console.log('Found matching profile in wellfound data for', firstName, lastName);
+          enrichedData = matchingProfile;
+        }
+      } catch (error) {
+        console.error('Error finding matching profile in wellfound data:', error);
+      }
+      
+      // Combine founder data with enriched data, preferring founder data when available
+      const profileDataObj = {
+        id: profile.founder_id,
+        firstName: firstName,
+        lastName: lastName,
+        companyName: founderData.company || enrichedData.companyName || '',
+        linkedinProfileUrl: founderData.linkedinUrl || enrichedData.linkedinProfileUrl || '',
+        wellFoundProfileURL: founderData.wellFoundUrl || enrichedData.wellFoundProfileURL || '',
+        location: founderData.location || enrichedData.location || enrichedData.currentLocation || '',
+        linkedinHeadline: founderData.headline || enrichedData.linkedinHeadline || '',
+        companyIndustry: founderData.industry || enrichedData.companyIndustry || '',
+        linkedinDescription: founderData.linkedinDescription || enrichedData.linkedinDescription || '',
+        linkedinJobTitle: founderData.linkedinJobTitle || enrichedData.linkedinJobTitle || '',
+        linkedinJobDescription: founderData.linkedinJobDescription || enrichedData.linkedinJobDescription || '',
+        linkedinJobLocation: founderData.linkedinJobLocation || enrichedData.linkedinJobLocation || '',
+        linkedinSkillsLabel: founderData.linkedinSkillsLabel || enrichedData.linkedinSkillsLabel || '',
+        linkedinPreviousJobTitle: enrichedData.linkedinPreviousJobTitle || '',
+        linkedinPreviousJobDescription: enrichedData.linkedinPreviousJobDescription || '',
+        colleges: enrichedData.colleges || (founderData.college ? [founderData.college] : []),
+        college: founderData.college || enrichedData.college || '',
+        aiSummary: founderData.aiSummary || profile.aiSummary || '',
+      };
+      
+      console.log('Combined profile data:', profileDataObj);
+      
+      setProfileData(profileDataObj);
+      
+      // If no AI summary exists, attempt to generate one
+      if (!founderData.aiSummary && !profile.aiSummary) {
+        generateSummary(profileDataObj);
+      }
+    }
+  };
+
+  // Function to generate AI summary for profiles
+  const generateSummary = async (profileData) => {
+    console.log('Generating summary for:', profileData.firstName, profileData.lastName);
+    
+    try {
+      // Check if we have enough data for a good summary
+      const hasDescription = profileData.linkedinDescription && profileData.linkedinDescription.length > 30;
+      const hasJobDescription = profileData.linkedinJobDescription && profileData.linkedinJobDescription.length > 30;
+      const hasPrevJobDescription = profileData.linkedinPreviousJobDescription && profileData.linkedinPreviousJobDescription.length > 30;
+      const hasHeadline = profileData.linkedinHeadline && profileData.linkedinHeadline.length > 10;
+      const hasJobTitle = profileData.linkedinJobTitle && profileData.linkedinJobTitle.length > 5;
+      const hasPrevJobTitle = profileData.linkedinPreviousJobTitle && profileData.linkedinPreviousJobTitle.length > 5;
+      const hasCompany = profileData.companyName && profileData.companyName.length > 2;
+      const hasCollege = (profileData.colleges && profileData.colleges.length > 0) || (profileData.college && profileData.college.length > 5);
+      
+      // Count available data points for summary
+      const dataPoints = [
+        hasDescription, hasJobDescription, hasPrevJobDescription, 
+        hasHeadline, hasJobTitle, hasPrevJobTitle, hasCompany, hasCollege
+      ].filter(Boolean).length;
+      
+      console.log('Data points available:', dataPoints);
+      
+      // If we have less than 2 meaningful data points, show manual summary
+      if (dataPoints < 2) {
+        console.log('Not enough profile data for AI summary generation');
+        
+        // Create manual summary with available data
+        const manualSummary = `
+          <div class="enhanced-profile-content">
+            <div class="profile-section">
+              <p class="profile-introduction">
+                ${hasHeadline ? profileData.linkedinHeadline : 
+                  `${profileData.firstName} ${profileData.lastName} ${hasJobTitle ? `works as ${profileData.linkedinJobTitle}` : ''} 
+                   ${hasCompany ? `at ${profileData.companyName}` : ''}.`}
+              </p>
+              ${hasCollege ? `<p class="profile-education">Educated at ${Array.isArray(profileData.colleges) ? profileData.colleges.join(', ') : profileData.college}.</p>` : ''}
+              ${hasJobDescription ? `<p class="profile-job">${profileData.linkedinJobDescription}</p>` : ''}
+            </div>
+          </div>
+        `;
+        
+        setProfileData(prevData => ({
+          ...prevData,
+          aiSummary: manualSummary
+        }));
+        return;
+      }
+      
+      // Simulate loading state
+      setProfileData(prevData => ({
+        ...prevData,
+        aiSummary: '<p><em>Generating AI summary...</em></p>'
+      }));
+      
+      console.log('Calling generateFounderSummary function');
+      
+      // Call the generator directly
+      try {
+        const summary = await generateFounderSummary(profileData);
+        console.log('Summary generated:', summary ? 'Success' : 'Failed');
+        
+        if (summary) {
+          // Format the summary with HTML
+          const formattedSummary = `
+            <div class="enhanced-profile-content">
+              <div class="profile-section">
+                <p class="profile-introduction">${summary}</p>
+              </div>
+              ${hasCollege ? `
+              <div class="profile-education-section">
+                <h4>Education</h4>
+                <p>${Array.isArray(profileData.colleges) ? profileData.colleges.join(', ') : profileData.college}</p>
+              </div>` : ''}
+            </div>
+          `;
+          
+          setProfileData(prevData => ({
+            ...prevData,
+            aiSummary: formattedSummary
+          }));
+        } else {
+          throw new Error('Summary generation failed');
+        }
+      } catch (error) {
+        console.error('Error generating AI summary:', error);
+        console.log('Available profile data:', {
+          headline: profileData.linkedinHeadline || profileData.wellfoundHeadline,
+          description: profileData.linkedinDescription?.substring(0, 50) + '...',
+          jobDesc: profileData.linkedinJobDescription?.substring(0, 50) + '...'
+        });
+        
+        // Fallback if the generator fails
+        let fallbackContent = '';
+        
+        if (hasDescription) {
+          fallbackContent = profileData.linkedinDescription;
+        } else if (hasJobDescription) {
+          fallbackContent = `${profileData.linkedinJobTitle || 'Professional'} at ${profileData.companyName || 'company'}: ${profileData.linkedinJobDescription}`;
+        } else if (hasPrevJobDescription) {
+          fallbackContent = `Previously as ${profileData.linkedinPreviousJobTitle || 'professional'}: ${profileData.linkedinPreviousJobDescription}`;
+        } else if (hasHeadline) {
+          fallbackContent = profileData.linkedinHeadline;
+        } else {
+          fallbackContent = `${profileData.firstName} ${profileData.lastName} ${hasJobTitle ? `works as ${profileData.linkedinJobTitle}` : ''} ${hasCompany ? `at ${profileData.companyName}` : ''}.`;
+        }
+        
+        const fallbackSummary = `
+          <div class="enhanced-profile-content">
+            <div class="profile-section">
+              <h3 class="profile-section-title">About</h3>
+              <p class="profile-introduction">${fallbackContent}</p>
+            </div>
+            ${hasCollege ? `
+            <div class="profile-education-section">
+              <h4>Education</h4>
+              <p>${Array.isArray(profileData.colleges) ? profileData.colleges.join(', ') : profileData.college}</p>
+            </div>` : ''}
+          </div>
+        `;
+        
+        setProfileData(prevData => ({
+          ...prevData,
+          aiSummary: fallbackSummary
+        }));
+      }
+    } catch (error) {
+      console.error('Error in generateSummary:', error);
+      
+      // Ultimate fallback
+      setProfileData(prevData => ({
+        ...prevData,
+        aiSummary: `
+          <div class="enhanced-profile-content">
+            <div class="profile-section">
+              <p class="profile-introduction">There was an error generating the AI summary. Please try again later.</p>
+              <p>Profile information for ${profileData.firstName} ${profileData.lastName}: ${profileData.linkedinHeadline || ''}</p>
+            </div>
+          </div>
+        `
+      }));
+    }
   };
 
   const closeProfileModal = () => {
     setSelectedProfile(null);
+    setProfileData(null);
   };
 
-  // Render the full profile modal with animations
+  // Replace the entire renderProfileModal function with this one
   const renderProfileModal = () => {
-    if (!selectedProfile) return null;
-
-    const { founder_data: profile } = selectedProfile;
-    const profileFirstName = profile.name?.split(' ')[0] || '';
-    const profileLastName = profile.name?.split(' ').slice(1).join(' ') || '';
-    const initials = (profileFirstName.charAt(0) || '') + (profileLastName.charAt(0) || '');
-
+    if (!selectedProfile || !profileData) return null;
+    
+    const handleClose = () => {
+      closeProfileModal();
+    };
+    
     return ReactDOM.createPortal(
-      <div className="modal-root" key="profile-modal-portal">
+      <div className="modal-root" key="label-profile-modal-portal">
         <motion.div
           className="detail-overlay"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          onClick={closeProfileModal}
+          onClick={handleClose}
         >
           <motion.div
-            className="detail-modal no-animation"
+            className="detail-modal simplified-modal"
             initial={{ opacity: 0, scale: 0.9, y: 50 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -470,10 +695,10 @@ const LabelsPage = () => {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close button in top-right corner with animation */}
+            {/* Close button */}
             <motion.button 
               className="close-button" 
-              onClick={closeProfileModal}
+              onClick={handleClose}
               whileHover={{ scale: 1.1, backgroundColor: "rgba(0, 0, 0, 0.2)" }}
               whileTap={{ scale: 0.95 }}
               initial={{ opacity: 0, rotate: -90 }}
@@ -482,21 +707,42 @@ const LabelsPage = () => {
             >
               <CloseIcon />
             </motion.button>
-
-            {/* Add label button near the close button */}
-            <div className="modal-label-button">
+            
+            {/* Label button */}
+            <motion.div 
+              className="label-button-container modal-label-button"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+            >
               <LabelButton 
-                founderData={{ 
-                  id: selectedProfile.founder_id,
-                  firstName: profileFirstName,
-                  lastName: profileLastName,
-                  ...profile 
-                }} 
-                onLabelChange={(labels) => console.log('Profile labels updated:', labels)}
+                founderData={profileData} 
+                onLabelChange={(labels) => {
+                  console.log('Profile labels updated:', labels);
+                  
+                  const labelNames = Array.isArray(labels) 
+                    ? labels.map(label => (label && typeof label === 'object' && label.label_name) ? label.label_name : label).join(', ')
+                    : '';
+                  
+                  const toast = document.createElement('div');
+                  toast.className = 'label-toast';
+                  toast.textContent = labels.length ? `Labels updated: ${labelNames}` : 'Labels cleared';
+                  document.body.appendChild(toast);
+                  
+                  setTimeout(() => {
+                    toast.classList.add('label-toast-hide');
+                    setTimeout(() => document.body.removeChild(toast), 500);
+                  }, 2000);
+                  
+                  // Refresh the labels after updating
+                  fetchLabels();
+                }}
+                className="modal-label-button"
+                dropdownDirection="down"
               />
-            </div>
-
-            {/* Modal Header with staggered animation */}
+            </motion.div>
+            
+            {/* Simplified header */}
             <motion.div 
               className="modal-header"
               initial={{ opacity: 0 }}
@@ -504,62 +750,55 @@ const LabelsPage = () => {
               transition={{ delay: 0.1 }}
             >
               <div className="profile-info">
-                {/* Avatar with animation */}
                 <motion.div 
                   className="profile-avatar"
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.2, duration: 0.4 }}
                 >
-                  {initials}
+                  {profileData.firstName?.charAt(0)}
+                  {profileData.lastName?.charAt(0)}
                 </motion.div>
 
                 <div className="profile-main">
-                  {/* Name with animation */}
                   <motion.h2 
                     className="profile-name"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3, duration: 0.4 }}
                   >
-                    {profile.name}
+                    {profileData.firstName} {profileData.lastName}
                   </motion.h2>
                   
-                  {/* Headline with animation */}
-                  {profile.headline && (
-                    <motion.p 
-                      className="profile-headline"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.4, duration: 0.4 }}
-                    >
-                      {profile.headline}
-                    </motion.p>
-                  )}
+                  <motion.p 
+                    className="profile-headline"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4, duration: 0.4 }}
+                  >
+                    {profileData.linkedinHeadline}
+                  </motion.p>
                   
-                  {/* Location with animation */}
-                  {profile.location && (
+                  {profileData.location && (
                     <motion.p 
                       className="profile-location"
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.5, duration: 0.4 }}
                     >
-                      <LocationIcon /> {profile.location}
+                      <LocationIcon /> {profileData.location}
                     </motion.p>
                   )}
                   
-                  {/* Profile links section */}
                   <motion.div 
                     className="profile-links"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6, duration: 0.4 }}
                   >
-                    {/* LinkedIn profile link */}
-                    {profile.linkedinUrl && (
+                    {profileData.linkedinProfileUrl && (
                       <a
-                        href={profile.linkedinUrl}
+                        href={profileData.linkedinProfileUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="profile-link linkedin-link"
@@ -568,10 +807,9 @@ const LabelsPage = () => {
                       </a>
                     )}
                     
-                    {/* Wellfound profile link */}
-                    {profile.wellFoundUrl && (
+                    {profileData.wellFoundProfileURL && (
                       <a 
-                        href={profile.wellFoundUrl} 
+                        href={profileData.wellFoundProfileURL} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="profile-link wellfound-link"
@@ -584,37 +822,54 @@ const LabelsPage = () => {
               </div>
             </motion.div>
 
-            {/* Modal Content with section-by-section reveal */}
+            {/* Simplified content - focus on AI summary */}
             <motion.div 
               className="modal-content"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              {/* Company Section */}
-              {profile.company && (
-                <motion.div 
-                  className="detail-section"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <h3 className="section-title">
-                    <CompanyIcon /> Company
-                  </h3>
-                  <div className="detail-card">
-                    <h4>{profile.company}</h4>
-                    {profile.industry && (
-                      <div className="industry">
-                        <strong>Industry:</strong> {profile.industry}
+              {/* AI Summary Section */}
+              <motion.div 
+                className="detail-section"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <h3 className="section-title">
+                  <span role="img" aria-label="AI">🤖</span> AI Profile Summary
+                </h3>
+                <div className="detail-card">
+                  <div className="ai-summary">
+                    {profileData.aiSummary ? (
+                      profileData.aiSummary.includes('Generating AI summary') ? (
+                        <div className="ai-summary-loading">
+                          <p>Generating AI summary...</p>
+                          <div className="loading-spinner"></div>
+                        </div>
+                      ) : (
+                        <div dangerouslySetInnerHTML={{ __html: profileData.aiSummary }} />
+                      )
+                    ) : (
+                      <div className="ai-summary-placeholder">
+                        <p>AI summary not available for this profile. Generating...</p>
+                        <div className="loading-spinner"></div>
+                        {profileData.linkedinDescription && (
+                          <div className="description">
+                            <h4>Profile Description:</h4>
+                            {profileData.linkedinDescription.split('\n\n').map((paragraph, idx) => (
+                              <p key={idx} className="description-paragraph">{paragraph}</p>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
-                </motion.div>
-              )}
+                </div>
+              </motion.div>
 
-              {/* About Section */}
-              {profile.linkedinDescription && (
+              {/* Basic Company Info */}
+              {(profileData.companyName) && (
                 <motion.div 
                   className="detail-section"
                   initial={{ opacity: 0, y: 20 }}
@@ -622,20 +877,21 @@ const LabelsPage = () => {
                   transition={{ delay: 0.4 }}
                 >
                   <h3 className="section-title">
-                    <span role="img" aria-label="About">📝</span> About
+                    <CompanyIcon /> Company
                   </h3>
                   <div className="detail-card">
-                    <div className="description">
-                      {profile.linkedinDescription.split('\n\n').map((paragraph, idx) => (
-                        <p key={idx} className="description-paragraph">{paragraph}</p>
-                      ))}
-                    </div>
+                    <h4>{profileData.companyName}</h4>
+                    {profileData.companyIndustry && (
+                      <p className="industry">
+                        Industry: {profileData.companyIndustry}
+                      </p>
+                    )}
                   </div>
                 </motion.div>
               )}
 
-              {/* Current Position Section */}
-              {profile.linkedinJobTitle && (
+              {/* Work Experience - if available */}
+              {(profileData.linkedinJobTitle || profileData.linkedinPreviousJobTitle) && (
                 <motion.div 
                   className="detail-section"
                   initial={{ opacity: 0, y: 20 }}
@@ -643,28 +899,32 @@ const LabelsPage = () => {
                   transition={{ delay: 0.5 }}
                 >
                   <h3 className="section-title">
-                    <span role="img" aria-label="Position">💼</span> Current Position
+                    <WorkIcon /> Work Experience
                   </h3>
                   <div className="detail-card">
-                    <h4>{profile.linkedinJobTitle}</h4>
-                    {profile.linkedinJobLocation && (
-                      <p className="job-location">
-                        <LocationIcon /> {profile.linkedinJobLocation}
-                      </p>
+                    {profileData.linkedinJobTitle && (
+                      <div className="work-item">
+                        <h4>{profileData.linkedinJobTitle}</h4>
+                        {profileData.linkedinJobDescription && (
+                          <p className="job-description">{profileData.linkedinJobDescription}</p>
+                        )}
+                      </div>
                     )}
-                    {profile.linkedinJobDescription && (
-                      <div className="description">
-                        {profile.linkedinJobDescription.split('\n\n').map((paragraph, idx) => (
-                          <p key={idx} className="description-paragraph">{paragraph}</p>
-                        ))}
+                    
+                    {profileData.linkedinPreviousJobTitle && (
+                      <div className="work-item previous-job">
+                        <h4>Previous: {profileData.linkedinPreviousJobTitle}</h4>
+                        {profileData.linkedinPreviousJobDescription && (
+                          <p className="job-description">{profileData.linkedinPreviousJobDescription}</p>
+                        )}
                       </div>
                     )}
                   </div>
                 </motion.div>
               )}
 
-              {/* Skills Section */}
-              {profile.linkedinSkillsLabel && (
+              {/* Skills Section - if available */}
+              {profileData.linkedinSkillsLabel && (
                 <motion.div 
                   className="detail-section"
                   initial={{ opacity: 0, y: 20 }}
@@ -674,51 +934,13 @@ const LabelsPage = () => {
                   <h3 className="section-title">
                     <span role="img" aria-label="Skills">🛠️</span> Skills
                   </h3>
-                  <div className="detail-card">
-                    <div className="skills-container">
-                      {profile.linkedinSkillsLabel.split(',').map((skill, idx) => (
-                        <span key={idx} className="skill-tag">{skill.trim()}</span>
-                      ))}
-                    </div>
+                  <div className="skills-container">
+                    {profileData.linkedinSkillsLabel.split(',').map((skill, idx) => (
+                      <span key={idx} className="skill-tag">{skill.trim()}</span>
+                    ))}
                   </div>
                 </motion.div>
               )}
-
-              {/* Notes */}
-              {selectedProfile.notes && (
-                <motion.div 
-                  className="detail-section"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.7 }}
-                >
-                  <h3 className="section-title">
-                    <span role="img" aria-label="Notes">📝</span> Notes
-                  </h3>
-                  <div className="detail-card">
-                    <div className="description">
-                      {selectedProfile.notes}
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Label Info */}
-              <motion.div 
-                className="detail-section"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 }}
-              >
-                <div className="labeled-profile-info">
-                  <p>
-                    <strong>Label:</strong> {selectedProfile.label_name}
-                  </p>
-                  <p>
-                    <strong>Added on:</strong> {new Date(selectedProfile.created_at).toLocaleDateString()}
-                  </p>
-                </div>
-              </motion.div>
             </motion.div>
           </motion.div>
         </motion.div>

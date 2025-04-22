@@ -813,4 +813,206 @@ html, body {
 .modal-label-button .label-dropdown {
   right: -15px;
   z-index: 15000;
+}
+
+/* Add styles for the simplified modal */
+.simplified-modal {
+  max-width: 700px;
+  max-height: 85vh;
+}
+
+.ai-summary {
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.ai-summary .enhanced-profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ai-summary .profile-section {
+  margin-bottom: 15px;
+}
+
+.ai-summary .profile-section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #2a5885;
+}
+
+.ai-summary .profile-introduction {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #333;
+}
+
+.ai-summary .profile-points-list {
+  padding-left: 0;
+  list-style-type: none;
+}
+
+.ai-summary .profile-point-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.ai-summary .profile-point-icon {
+  margin-right: 10px;
+  color: #4caf50;
+}
+
+.ai-summary .profile-skills-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ai-summary .profile-skill-badge {
+  background-color: #e8f0fe;
+  color: #1a73e8;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+}
+
+.ai-summary .profile-skill-icon {
+  margin-right: 5px;
+  font-size: 0.8rem;
+}
+
+.ai-summary .profile-connect-prompt {
+  margin-top: 15px;
+  font-style: italic;
+  color: #555;
+  text-align: center;
+  padding: 10px;
+  border-top: 1px solid #eee;
+}
+
+.ai-summary .connect-emoji {
+  margin-right: 5px;
+}
+
+.ai-summary-placeholder {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.ai-summary-placeholder p {
+  margin-bottom: 20px;
+}
+
+.ai-summary-placeholder .description {
+  text-align: left;
+  border-top: 1px solid #eee;
+  padding-top: 15px;
+  margin-top: 15px;
+}
+
+.ai-summary-placeholder .description h4 {
+  font-size: 1rem;
+  margin-bottom: 12px;
+  color: #444;
+}
+
+.ai-summary-placeholder .description-paragraph {
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Loading spinner for AI summary */
+.loading-spinner {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  margin: 15px auto;
+  border: 3px solid rgba(42, 157, 143, 0.2);
+  border-radius: 50%;
+  border-top-color: var(--primary-color, #2a9d8f);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.ai-summary-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+  color: #666;
+}
+
+.ai-summary-loading p {
+  margin-bottom: 15px;
+}
+
+.ai-summary .profile-education-section {
+  margin-top: 15px;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+}
+
+.ai-summary .profile-education-section h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #2a5885;
+}
+
+.ai-summary .profile-education {
+  margin-top: 10px;
+  font-style: italic;
+  color: #555;
+}
+
+.ai-summary .profile-job {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.work-item {
+  margin-bottom: 15px;
+}
+
+.work-item:last-child {
+  margin-bottom: 0;
+}
+
+.work-item h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #2d3748;
+}
+
+.job-description {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #4a5568;
+  white-space: pre-line;
+}
+
+.previous-job {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+.previous-job h4 {
+  color: #555;
 } 

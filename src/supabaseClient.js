@@ -301,66 +301,36 @@ export const getUserLabels = async () => {
 // Add a label to a profile
 export const addLabelToProfile = async (founderData, labelName) => {
   try {
-    console.log("Adding label for:", founderData);
     const user = await getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
-    // Create a consistent founder ID
-    let founderId = founderData.id;
-    
-    // If no ID exists, create one from name and company (most reliable data points)
-    if (!founderId) {
-      const nameComponent = founderData.firstName && founderData.lastName
-        ? `${founderData.firstName.trim()}-${founderData.lastName.trim()}`
-        : founderData.firstName || founderData.lastName || 'unknown';
-        
-      const companyComponent = founderData.companyName 
-        ? `-${founderData.companyName.trim().replace(/\s+/g, '-')}` 
-        : '';
-        
-      // Add a fallback using LinkedIn URL if available (unique identifier)
-      const linkedinIdComponent = founderData.linkedinProfileUrl
-        ? `-${founderData.linkedinProfileUrl.split('/').filter(Boolean).pop() || ''}`
-        : '';
-        
-      founderId = `${nameComponent}${companyComponent}${linkedinIdComponent}`.toLowerCase();
-    }
+    // Simple, consistent ID generation
+    const founderId = founderData.id || `${founderData.firstName}-${founderData.lastName}`;
+    const normalizedFounderId = String(founderId).trim().toLowerCase();
 
-    // Extract essential data to store in the labeled profile
+    // Only store essential data to keep the database entry small and fast
     const labelData = {
       user_id: user.id,
-      founder_id: founderId,
-      label_name: labelName,
+      founder_id: normalizedFounderId,
+      label_name: labelName.trim(),
       founder_data: {
         name: `${founderData.firstName} ${founderData.lastName}`,
-        company: founderData.companyName,
-        headline: founderData.linkedinHeadline,
-        industry: founderData.companyIndustry,
-        location: founderData.location,
-        college: founderData.college,
-        linkedinUrl: founderData.linkedinProfileUrl,
-        wellFoundUrl: founderData.wellFoundProfileURL,
-        linkedinDescription: founderData.linkedinDescription,
-        linkedinJobTitle: founderData.linkedinJobTitle,
-        linkedinJobLocation: founderData.linkedinJobLocation,
-        linkedinJobDescription: founderData.linkedinJobDescription,
-        linkedinSkillsLabel: founderData.linkedinSkillsLabel
-      },
-      notes: ''
+        company: founderData.companyName || '',
+        linkedinUrl: founderData.linkedinProfileUrl || ''
+      }
     };
 
-    console.log("Inserting label data:", labelData);
+    // Use a single, optimized query with returning data
     const { data, error } = await supabase
       .from('labels')
       .insert([labelData])
       .select();
     
     if (error) {
-      console.error("Supabase error:", error);
+      console.error("Error adding label:", error);
       throw error;
     }
     
-    console.log("Successfully added label:", data);
     return { data, error: null };
   } catch (error) {
     console.error('Error adding label:', error.message);
@@ -442,13 +412,23 @@ export const getProfileLabels = async (founderId) => {
     const user = await getCurrentUser();
     if (!user) return { labels: [], error: null };
 
+    // Normalize the founderId for consistency
+    const normalizedFounderId = String(founderId).trim().toLowerCase();
+    
+    // Use a simpler, more optimized query with proper indexes
     const { data, error } = await supabase
       .from('labels')
       .select('id, label_name')
-      .match({ user_id: user.id, founder_id: founderId });
+      .eq('user_id', user.id)
+      .eq('founder_id', normalizedFounderId)
+      .order('created_at', { ascending: false });
     
-    if (error) throw error;
+    if (error) {
+      console.error("Error fetching labels:", error);
+      throw error;
+    }
     
+    // Return the data immediately
     return { labels: data || [], error: null };
   } catch (error) {
     console.error('Error checking profile labels:', error.message);

@@ -68,23 +68,6 @@ const SeenProfilesPage = () => {
     setSortOrder(sortOrder === 'newest' ? 'oldest' : 'newest');
   };
   
-  // Format the date for display
-  const formatSeenDate = (dateObj) => {
-    if (!dateObj) return '';
-    
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    if (dateObj.toDateString() === today.toDateString()) {
-      return `Today at ${dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-    } else if (dateObj.toDateString() === yesterday.toDateString()) {
-      return `Yesterday at ${dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-    } else {
-      return dateObj.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
-    }
-  };
-  
   // Render the sorted profiles
   const sortedProfiles = sortProfiles();
   
@@ -117,10 +100,7 @@ const SeenProfilesPage = () => {
         <div className="seen-profiles-container">
           {sortedProfiles.map((profile, index) => (
             <div className="seen-profile-wrapper" key={`${profile.firstName}-${profile.lastName}-${index}`}>
-              <div className="seen-date-badge">
-                <span>Seen {formatSeenDate(profile.seenAt)}</span>
-              </div>
-              <StartupCard data={profile} />
+              <StartupCard data={profile} inSeenProfilesPage={true} />
             </div>
           ))}
         </div>

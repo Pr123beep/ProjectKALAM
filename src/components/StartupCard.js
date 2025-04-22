@@ -6,7 +6,7 @@ import ReactDOM from "react-dom";
 import iitRedditData from "../iit-reddit.json";
 import { generateFounderSummary } from "../utils/geminiApi";
 import LabelButton from './LabelButton';
-import { markProfileAsSeen, isProfileSeen, markProfileAsUnseen } from '../supabaseClient';
+import { markProfileAsSeen, isProfileSeen, markProfileAsUnseen, getProfileLabels } from '../supabaseClient';
 
 import "../App.css";
 import "./StartupCard.css";
@@ -34,26 +34,11 @@ const LocationIcon = () => (
   </svg>
 );
 
-const EducationIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-       strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-    <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5" />
-  </svg>
-);
-
 const WorkIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
        strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
     <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-  </svg>
-);
-
-const SkillsIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-       strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
   </svg>
 );
 
@@ -230,17 +215,23 @@ const getFollowersBadgeClass = (followersCount) => {
   return 'followers-ultra';
 };
 
-const StartupCard = ({ data }) => {
+const StartupCard = ({ data, inSeenProfilesPage }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
   const [aiSummary, setAiSummary] = useState(null);
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const [summaryError, setSummaryError] = useState(null);
   const [isSeen, setIsSeen] = useState(false);
+  const [hasLabels, setHasLabels] = useState(false);
+  const [profileLabels, setProfileLabels] = useState([]);
+  const isStealthMode = data && data.companyName && (
+    data.companyName.toLowerCase().includes('stealth') ||
+    (data.linkedinJobTitle && data.linkedinJobTitle.toLowerCase().includes('stealth'))
+  );
 
   const founderKey = useMemo(() => {
-    return `${data.firstName}_${data.lastName}_${data.companyName}`.toLowerCase().replace(/[^a-z0-9]/g, '_');
-  }, [data.firstName, data.lastName, data.companyName]);
+    return `${data.firstName}-${data.lastName}`;
+  }, [data.firstName, data.lastName]);
 
   // Check if profile is already seen when the component mounts
   useEffect(() => {
@@ -255,6 +246,24 @@ const StartupCard = ({ data }) => {
     };
     
     checkSeenStatus();
+  }, [data]);
+
+  // Check if profile has any labels when component mounts
+  useEffect(() => {
+    const checkLabels = async () => {
+      try {
+        const founderId = data.id || `${data.firstName}-${data.lastName}`;
+        const { labels, error } = await getProfileLabels(founderId);
+        if (error) throw error;
+        
+        setProfileLabels(labels);
+        setHasLabels(labels && labels.length > 0);
+      } catch (error) {
+        console.error('Error checking profile labels:', error);
+      }
+    };
+
+    checkLabels();
   }, [data]);
 
   useEffect(() => {
@@ -418,28 +427,6 @@ const StartupCard = ({ data }) => {
     redditUrl.includes('v.redd.it')
   );
 
-  // Check if the company is in stealth mode
-  const isStealthMode = useMemo(() => {
-    const fieldsToCheck = [
-      data.companyName,
-      data.previousCompanyName,
-      data.linkedinHeadline,
-      data.linkedinJobTitle,
-      data.linkedinPreviousJobTitle,
-      data.linkedinJobDescription,
-      data.linkedinPreviousJobDescription,
-      data.linkedinDescription
-    ];
-    
-    const stealthTerms = ['stealth', 'stealth mode', 'stealth startup', 'stealth ai'];
-    
-    return fieldsToCheck.some(field => {
-      if (!field) return false;
-      const fieldLower = String(field).toLowerCase();
-      return stealthTerms.some(term => fieldLower.includes(term));
-    });
-  }, [data]);
-
   // Function to mark profile as unseen
   const handleUnseenClick = async (e) => {
     e.stopPropagation();
@@ -474,20 +461,33 @@ const StartupCard = ({ data }) => {
       {/* Basic info shown on the card */}
       <div className="card-header">
         <div className="badges-container">
-          {isSeen && (
+          {/* Only show badges if NOT in seen profiles page */}
+          {!inSeenProfilesPage && (
             <>
-              <div className="seen-badge">
-                <span>Seen</span>
-              </div>
-              <button className="unsee-button" onClick={handleUnseenClick} title="Mark as unseen">
-                <span>✕</span>
-              </button>
+              {isSeen && (
+                <>
+                  <div className="seen-badge">
+                    <span>Seen</span>
+                  </div>
+                  <button className="unsee-button" onClick={handleUnseenClick} title="Mark as unseen">
+                    <span>✕</span>
+                  </button>
+                </>
+              )}
+              {hasLabels && profileLabels.length > 0 && (
+                <div className="labeled-badge" title={`Labels: ${profileLabels.map(label => label.label_name).join(', ')}`}>
+                  <span>🏷️ {profileLabels.length === 1 
+                    ? profileLabels[0].label_name 
+                    : `${profileLabels[0].label_name} +${profileLabels.length - 1}`}
+                  </span>
+                </div>
+              )}
+              {isStealthMode && (
+                <div className="stealth-badge">
+                  <span>⚡ Stealth Mode</span>
+                </div>
+              )}
             </>
-          )}
-          {isStealthMode && (
-            <div className="stealth-badge">
-              <span>⚡ Stealth Mode</span>
-            </div>
           )}
         </div>
         <div className="card-header-top">
@@ -525,32 +525,6 @@ const StartupCard = ({ data }) => {
               {data.companyName}
             </a>
           </h4>
-          
-          {/* Label button in the card header - ensure this is always rendered */}
-          {data.firstName && data.lastName && (
-            <LabelButton 
-              founderData={data} 
-              onLabelChange={(labels) => {
-                console.log('Profile labels:', labels);
-                
-                const labelNames = Array.isArray(labels) 
-                  ? labels.map(label => (label && typeof label === 'object' && label.label_name) ? label.label_name : label).join(', ')
-                  : '';
-                
-                const toast = document.createElement('div');
-                toast.className = 'label-toast';
-                toast.textContent = labels.length ? `Labels updated: ${labelNames}` : 'Labels cleared';
-                document.body.appendChild(toast);
-                
-                setTimeout(() => {
-                  toast.classList.add('label-toast-hide');
-                  setTimeout(() => document.body.removeChild(toast), 500);
-                }, 2000);
-              }}
-              className="header-label-button"
-              dropdownDirection="down"
-            />
-          )}
         </div>
         <p className="card-headline">{data.linkedinHeadline || data.wellfoundHeadline}</p>
       </div>
@@ -658,6 +632,10 @@ const StartupCard = ({ data }) => {
                     founderData={data} 
                     onLabelChange={(labels) => {
                       console.log('Profile labels:', labels);
+                      
+                      // Update has labels state when labels change
+                      setProfileLabels(labels);
+                      setHasLabels(labels && labels.length > 0);
                       
                       const labelNames = Array.isArray(labels) 
                         ? labels.map(label => (label && typeof label === 'object' && label.label_name) ? label.label_name : label).join(', ')
@@ -780,22 +758,6 @@ const StartupCard = ({ data }) => {
                     </div>
                   </div>
                 </motion.div>
-
-                {/* Stealth Mode Banner */}
-                {isStealthMode && (
-                  <motion.div 
-                    className="stealth-mode-banner"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.25, duration: 0.4 }}
-                  >
-                    <div className="stealth-icon">⚡</div>
-                    <div className="stealth-content">
-                      <h3>Stealth Mode Company</h3>
-                      <p>This founder is working on a project that's currently in stealth mode. Stealth startups often keep their innovations under wraps while developing cutting-edge technology or disruptive business models.</p>
-                    </div>
-                  </motion.div>
-                )}
 
                 {/* Modal Content with section-by-section reveal */}
                 <motion.div 
@@ -1058,167 +1020,21 @@ const StartupCard = ({ data }) => {
                         {/* Company 6 to 12 */}
                         {[6, 7, 8, 9, 10, 11, 12].map(num => {
                           const companyName = data[`company${num}Name`];
-                          const designation = data[`company${num}Designation`];
-                          const dateRange = data[`company${num}DateRange`];
+                          if (!companyName) return null;
                           
-                          return companyName ? (
+                          return (
                             <div key={`company-${num}`} className="detail-card career-card">
                               <h4>
-                                {designation || "Professional"}
+                                {data[`company${num}Designation`] || "Professional"}
                                 {` at ${companyName}`}
                               </h4>
-                              {dateRange && (
-                                <p className="date-range">{dateRange}</p>
+                              {data[`company${num}DateRange`] && (
+                                <p className="date-range">{data[`company${num}DateRange`]}</p>
                               )}
                               <div className="career-tag">Past Position</div>
                             </div>
-                          ) : null;
+                          );
                         })}
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {/* Education History */}
-                  {(data.currentSchool || data.linkedinSchoolName || collegeDisplay || 
-                    data.linkedinPreviousSchoolName || data.education3Name) && (
-                    <motion.div 
-                      className="detail-section"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.6 }}
-                    >
-                      <h3 className="section-title">
-                        <EducationIcon /> Education
-                      </h3>
-
-                      {/* Current Education */}
-                      {(data.currentSchool || data.linkedinSchoolName || collegeDisplay) && (
-                        <div className="detail-card education-card">
-                          <h4>{data.linkedinSchoolName || collegeDisplay}</h4>
-                          {data.linkedinSchoolDegree && (
-                            <p className="degree">{data.linkedinSchoolDegree}</p>
-                          )}
-                          {data.linkedinSchoolDateRange && (
-                            <p className="date-range">{data.linkedinSchoolDateRange}</p>
-                          )}
-                          {data.linkedinSchoolDescription && (
-                            <div className="detail-section">
-                              {formatSimpleDescription(data.linkedinSchoolDescription)}
-                            </div>
-                          )}
-                          {data.linkedinSchoolUrl && (
-                            <a
-                              href={data.linkedinSchoolUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="school-link"
-                            >
-                              School Page
-                            </a>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Previous School */}
-                      {data.linkedinPreviousSchoolName && (
-                        <div className="detail-card education-card">
-                          <h4>{data.linkedinPreviousSchoolName}</h4>
-                          {data.linkedinPreviousSchoolDegree && (
-                            <p className="degree">
-                              {data.linkedinPreviousSchoolDegree}
-                            </p>
-                          )}
-                          {data.linkedinPreviousSchoolDateRange && (
-                            <p className="date-range">
-                              {data.linkedinPreviousSchoolDateRange}
-                            </p>
-                          )}
-                          {data.linkedinPreviousSchoolDescription && (
-                            <div className="detail-section">
-                              {formatSimpleDescription(data.linkedinPreviousSchoolDescription)}
-                            </div>
-                          )}
-                          {data.linkedinPreviousSchoolUrl && (
-                            <a
-                              href={data.linkedinPreviousSchoolUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="school-link"
-                            >
-                              School Page
-                            </a>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Education 3 */}
-                      {data.education3Name && (
-                        <div className="detail-card education-card">
-                          <h4>{data.education3Name}</h4>
-                          {data.education3DateRange && (
-                            <p className="date-range">{data.education3DateRange}</p>
-                          )}
-                          <div className="education-tag">Additional Education</div>
-                        </div>
-                      )}
-
-                      {/* Show a "View More" button if there are more education entries */}
-                      {(data.education4Name || data.education5Name || data.education6Name ||
-                        data.education7Name || data.education8Name || data.education9Name ||
-                        data.education10Name || data.education11Name || data.education12Name) && (
-                        <button 
-                          className="view-more-button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            const element = document.getElementById('additional-education');
-                            if (element) {
-                              element.style.display = element.style.display === 'none' ? 'block' : 'none';
-                              e.target.textContent = element.style.display === 'none' ? 'View More Education' : 'View Less';
-                            }
-                          }}
-                        >
-                          View More Education
-                        </button>
-                      )}
-
-                      {/* Additional education (hidden by default) */}
-                      <div id="additional-education" style={{display: 'none'}}>
-                        {/* Education 4 to 12 */}
-                        {[4, 5, 6, 7, 8, 9, 10, 11, 12].map(num => {
-                          const educationName = data[`education${num}Name`];
-                          const dateRange = data[`education${num}DateRange`];
-                          
-                          return educationName ? (
-                            <div key={`education-${num}`} className="detail-card education-card">
-                              <h4>{educationName}</h4>
-                              {dateRange && (
-                                <p className="date-range">{dateRange}</p>
-                              )}
-                              <div className="education-tag">Additional Education</div>
-                            </div>
-                          ) : null;
-                        })}
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {/* Skills */}
-                  {data.linkedinSkillsLabel && (
-                    <motion.div 
-                      className="detail-section"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.7 }}
-                    >
-                      <h3 className="section-title">
-                        <SkillsIcon /> Skills
-                      </h3>
-                      <div className="skills-container">
-                        {data.linkedinSkillsLabel.split(",").map((skill, index) => (
-                          <span key={index} className="skill-tag">
-                            {skill.trim()}
-                          </span>
-                        ))}
                       </div>
                     </motion.div>
                   )}
