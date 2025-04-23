@@ -7,7 +7,7 @@ const LoadingScreen = ({ onFinished }) => {
   useEffect(() => {
     const interval = setInterval(() => {
       setLoadingProgress(prevProgress => {
-        const newProgress = prevProgress + Math.random() * 15;
+        const newProgress = prevProgress + Math.random() * 8;
         return newProgress >= 100 ? 100 : newProgress;
       });
     }, 400);
@@ -15,8 +15,8 @@ const LoadingScreen = ({ onFinished }) => {
     const timer = setTimeout(() => {
       clearInterval(interval);
       setLoadingProgress(100);
-      setTimeout(onFinished, 1000); 
-    }, 3000);
+      setTimeout(onFinished, 2000);
+    }, 6000);
     
     return () => {
       clearInterval(interval);

@@ -52,6 +52,7 @@ const ResetPasswordRoute = () => {
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [assetsLoaded, setAssetsLoaded] = useState(false);
 
   useEffect(() => {
     const getSessionAndSetUser = async () => {
@@ -61,14 +62,27 @@ function App() {
       // Preload assets
       const preloadImages = () => {
         const imageUrls = ['/uc.png', '/scaler.png'];
+        let loadedCount = 0;
+        
         imageUrls.forEach(url => {
           const img = new Image();
+          img.onload = () => {
+            loadedCount++;
+            if (loadedCount === imageUrls.length) {
+              setAssetsLoaded(true);
+            }
+          };
+          img.onerror = () => {
+            loadedCount++;
+            if (loadedCount === imageUrls.length) {
+              setAssetsLoaded(true);
+            }
+          };
           img.src = url;
         });
       };
       
       preloadImages();
-      setIsLoading(false);
     };
 
     getSessionAndSetUser();
@@ -83,6 +97,18 @@ function App() {
       authListener?.subscription?.unsubscribe();
     };
   }, []);
+
+  // Wait for both assets to load and minimum loading time
+  useEffect(() => {
+    if (assetsLoaded) {
+      // Keep showing loading screen for minimum time
+      const minLoadingTimer = setTimeout(() => {
+        setIsLoading(false);
+      }, 2000); // Ensure loading screen shows for at least 2 seconds after assets load
+      
+      return () => clearTimeout(minLoadingTimer);
+    }
+  }, [assetsLoaded]);
 
   const handleAuthSuccess = (user) => {
     setUser(user);
