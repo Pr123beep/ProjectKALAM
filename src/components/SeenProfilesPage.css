@@ -113,8 +113,9 @@
   margin: 0; /* Remove any margins that might affect alignment */
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  /* Add extra styling to compensate for removed badges */
   padding-top: 0.75rem;
+  padding-bottom: 15px; /* Standard padding without extra space for badge */
+  position: relative;
 }
 
 .seen-profile-wrapper .card:hover {
@@ -124,6 +125,119 @@
 
 .seen-profile-wrapper .badges-container {
   display: none !important; /* Ensure badges are completely hidden in seen profiles */
+}
+
+/* Remove the old seen-date-badge styles */
+.seen-profile-wrapper .seen-date-badge {
+  display: none;
+}
+
+/* Improved styling for the compact badge to ensure perfect positioning */
+.seen-profile-wrapper .seen-date-badge-compact {
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  width: 24px;
+  height: 24px;
+  background-color: #f0f4ff;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-top-right-radius: 8px;
+  border-bottom-left-radius: 8px;
+  border-top-left-radius: 0;
+  border-bottom-right-radius: 0;
+  font-size: 11px;
+  color: #3b82f6; /* Bright blue color */
+  z-index: 999; /* Very high z-index to ensure it stays on top */
+  cursor: help;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.seen-profile-wrapper .seen-date-badge-compact:hover {
+  transform: scale(1.1);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+  background-color: #e0e7ff;
+}
+
+/* Make sure the eye icon is visible and properly styled */
+.seen-profile-wrapper .seen-date-badge-compact .seen-date-icon {
+  font-size: 14px;
+  line-height: 1;
+  color: #3b82f6; /* Bright blue color */
+}
+
+/* Remove BOTH blue badges from corners */
+.seen-profile-wrapper .card::before,
+.seen-profile-wrapper .card::after,
+.card::before,
+.card::after {
+  display: none !important;
+}
+
+/* Ensure the tooltip displays correctly */
+.seen-profile-wrapper .seen-date-badge-compact[data-tooltip]::before {
+  content: attr(title);
+  position: absolute;
+  top: 0; /* Position to the right */
+  right: 100%; /* Position to the left of the badge */
+  transform: translateX(-5px);
+  background-color: rgba(50, 50, 50, 0.9);
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0s ease, visibility 0s ease, transform 0s ease; /* No delay */
+  z-index: 201;
+}
+
+.seen-profile-wrapper .seen-date-badge-compact[data-tooltip]:hover::before {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-10px);
+  transition-delay: 0s; /* Show immediately on hover */
+}
+
+/* Prevent overlap with the card button */
+.seen-profile-wrapper .card-button {
+  margin-bottom: 8px;
+  margin-top: auto;
+}
+
+/* Dark mode tweaks for better contrast */
+@media (prefers-color-scheme: dark) {
+  .seen-profile-wrapper .seen-date-badge-compact {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.4);
+    color: #60a5fa;
+  }
+  
+  .seen-profile-wrapper .seen-date-badge-compact:hover {
+    background-color: rgba(59, 130, 246, 0.2);
+  }
+  
+  .seen-profile-wrapper .seen-date-badge-compact .seen-date-icon {
+    color: #60a5fa;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .seen-profile-wrapper .seen-date-badge-compact {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .seen-profile-wrapper .card {
+    padding-bottom: 35px;
+  }
 }
 
 /* Dark mode support */
@@ -188,4 +302,10 @@
   .seen-profiles-container {
     grid-template-columns: 1fr;
   }
+}
+
+@keyframes subtle-pulse {
+  0% { opacity: 0.8; }
+  50% { opacity: 1; }
+  100% { opacity: 0.8; }
 } 

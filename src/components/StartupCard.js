@@ -464,12 +464,49 @@ const StartupCard = ({ data, inSeenProfilesPage }) => {
     }
   };
 
+  // Format the seen date for display
+  const formatSeenDate = (date) => {
+    if (!date) return '';
+    const seenDate = new Date(date);
+    
+    // If it's today, return the time
+    const today = new Date();
+    if (seenDate.toDateString() === today.toDateString()) {
+      return `Today at ${seenDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    }
+    
+    // If it's yesterday
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    if (seenDate.toDateString() === yesterday.toDateString()) {
+      return `Yesterday at ${seenDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    }
+    
+    // If it's within the last week
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    if (seenDate > oneWeekAgo) {
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      return `${days[seenDate.getDay()]} at ${seenDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    }
+    
+    // Otherwise return the full date
+    return seenDate.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
   return (
     <div className={`card ${showDetails ? 'expanded' : ''} ${isSeen ? 'seen-profile' : ''}`}>
       {/* Source badge */}
       {data.source && (
         <div className={`source-badge ${data.source}`}>
           {data.source === 'linkedin' ? 'LinkedIn' : 'Wellfound'}
+        </div>
+      )}
+      
+      {/* Seen date badge as a tooltip on SeenProfilesPage */}
+      {inSeenProfilesPage && data.seenAt && (
+        <div className="seen-date-badge-compact" title={`Viewed: ${formatSeenDate(data.seenAt)}`} data-tooltip="true">
+          <span className="seen-date-icon" aria-label="Seen">👁️</span>
         </div>
       )}
       
