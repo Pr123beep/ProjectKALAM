@@ -86,8 +86,8 @@ html, body {
   background-color: #f7fafc;
   border-radius: 8px;
   padding: 16px;
-  overflow-y: visible;
-  max-height: none;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
   position: sticky;
   top: 80px;
 }
@@ -103,6 +103,8 @@ html, body {
   list-style: none;
   padding: 0;
   margin: 0;
+  max-height: 100%;
+  overflow-y: auto;
 }
 
 .labels-list .label-item {
@@ -761,10 +763,12 @@ html, body {
   .labels-content {
     flex-direction: column;
   }
-  
   .labels-sidebar {
     width: 100%;
-    margin-bottom: 16px;
+    max-height: 300px;
+    margin-bottom: 20px;
+    position: relative;
+    top: 0;
   }
   
   .profile-info {

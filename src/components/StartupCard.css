@@ -1851,3 +1851,83 @@ body.modal-open .detail-overlay {
 .unsee-button:active {
   transform: scale(0.95);
 }
+
+/* Add styles for career progression grouping */
+.career-company-group {
+  margin-bottom: 24px;
+  border-left: 3px solid #e9ecef;
+  padding-left: 20px;
+  position: relative;
+}
+
+.career-company-group:last-child {
+  margin-bottom: 0;
+}
+
+.company-group-name {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #2d3748;
+  position: relative;
+  left: -20px;
+  padding-left: 20px;
+  margin-top: 0;
+}
+
+.career-progression {
+  margin-bottom: 8px;
+  padding: 12px;
+  border-radius: 6px;
+  position: relative;
+}
+
+.career-progression:last-child {
+  margin-bottom: 0;
+}
+
+.position-title {
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0 0 6px 0;
+  color: #4a5568;
+}
+
+.career-progression-arrow {
+  position: absolute;
+  bottom: -18px;
+  left: 20px;
+  color: #a0aec0;
+  font-size: 16px;
+  z-index: 1;
+}
+
+/* Highlight first and last positions */
+.career-progression:first-of-type {
+  background-color: rgba(66, 153, 225, 0.1);
+}
+
+.career-progression:last-of-type {
+  background-color: rgba(72, 187, 120, 0.1);
+}
+
+/* Optional: Add a timeline dot */
+.career-progression:before {
+  content: '';
+  position: absolute;
+  left: -24px;
+  top: 15px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #a0aec0;
+  z-index: 1;
+}
+
+.career-progression:first-of-type:before {
+  background-color: #4299e1;
+}
+
+.career-progression:last-of-type:before {
+  background-color: #48bb78;
+}

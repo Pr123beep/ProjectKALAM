@@ -8,6 +8,8 @@ import StartupCard from './components/StartupCard';
 import Pagination from './components/Pagination';
 import './App.css';
 import { getUserSeenProfiles } from './supabaseClient';
+import ScrollToTop from './components/ScrollToTop';
+import ScrollButton from './components/ScrollButton';
 
 // Enhanced function for normalizing all types of college names
 const normalizeCollegeName = (name) => {
@@ -159,8 +161,60 @@ function MainPage({ user }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [popupVisible, setPopupVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [shouldScrollTop, setShouldScrollTop] = useState(false); // New state to control scrolling
   const itemsPerPage = 10; // Number of cards per page
   const [seenProfileIds, setSeenProfileIds] = useState([]);
+
+  // Effect to handle scrolling when the page changes
+  useEffect(() => {
+    if (shouldScrollTop) {
+      // Custom smooth scrolling function with easing
+      const smoothScrollToTop = () => {
+        // Get current scroll position
+        const currentPosition = window.pageYOffset;
+        
+        // If already at top, skip animation
+        if (currentPosition === 0) return;
+        
+        // Animation settings
+        const duration = 800; // ms, duration of animation
+        const startTime = performance.now();
+        
+        // Easing function - cubic ease-out for a natural, satisfying feel
+        const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+        
+        // Animation function using requestAnimationFrame for smooth animation
+        function animateScroll(currentTime) {
+          const elapsedTime = currentTime - startTime;
+          const progress = Math.min(elapsedTime / duration, 1);
+          const easeProgress = easeOutCubic(progress);
+          
+          // Calculate new position and scroll to it
+          const position = currentPosition - (currentPosition * easeProgress);
+          window.scrollTo(0, position);
+          
+          // Continue animation if not complete
+          if (progress < 1) {
+            requestAnimationFrame(animateScroll);
+          } else {
+            // Final scroll to ensure we're at the top
+            window.scrollTo(0, 0);
+          }
+        }
+        
+        // Start the animation
+        requestAnimationFrame(animateScroll);
+      };
+      
+      // Execute the smooth scrolling
+      smoothScrollToTop();
+      
+      // Reset state after animation is likely complete
+      setTimeout(() => {
+        setShouldScrollTop(false);
+      }, 850);
+    }
+  }, [shouldScrollTop]);
 
   useEffect(() => {
     // Use wellfoundData directly instead of copyData
@@ -731,9 +785,10 @@ function MainPage({ user }) {
   const hasSpecialCaseProfile = augmentedFilteredData.length > filteredData.length;
 
   const handlePageChange = (pageNumber) => {
+    // Set the new page
     setCurrentPage(pageNumber);
-    // Scroll to top when changing pages
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Trigger scroll to top
+    setShouldScrollTop(true);
   };
 
   // Add this useEffect for better debugging the college search
@@ -909,6 +964,12 @@ function MainPage({ user }) {
           />
         )}
       </main>
+      
+      {/* Only include ScrollToTop when we need to scroll */}
+      {shouldScrollTop && <ScrollToTop />}
+      
+      {/* Always include the scroll button for manual scrolling */}
+      <ScrollButton />
     </div>
   );
 }
