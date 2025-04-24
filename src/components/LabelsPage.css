@@ -964,24 +964,11 @@ html, body {
   margin-bottom: 15px;
 }
 
-.ai-summary .profile-education-section {
-  margin-top: 15px;
-  padding-top: 12px;
-  border-top: 1px solid #eee;
-}
 
-.ai-summary .profile-education-section h4 {
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin-bottom: 6px;
-  color: #2a5885;
-}
 
-.ai-summary .profile-education {
-  margin-top: 10px;
-  font-style: italic;
-  color: #555;
-}
+
+
+
 
 .ai-summary .profile-job {
   margin-top: 10px;
