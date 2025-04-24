@@ -641,7 +641,7 @@ function MainPage({ user }) {
   const applyRegularFiltersToData = (dataToFilter, newFilters) => {
     // Start with all data
     let filteredResults = [...dataToFilter];
-    
+        
     // Apply stealth mode filter if enabled
     if (newFilters.stealthMode) {
       filteredResults = filteredResults.filter(item => isInStealthMode(item));
@@ -674,7 +674,7 @@ function MainPage({ user }) {
       filteredResults = filteredResults.filter(item => {
         return item.location && 
                item.location.toLowerCase().includes(newFilters.currentLocation.toLowerCase());
-      });
+        });
     }
     
     // Apply followers range filter
