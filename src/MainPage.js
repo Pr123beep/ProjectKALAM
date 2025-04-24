@@ -312,7 +312,7 @@ function MainPage({ user }) {
       wellfound: false
     },
     stealthMode: false, // Add stealth mode filter
-    sortByRanking: true // Enable ranking sort by default
+    sortByRanking: false // Ranking sort disabled by default
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [popupVisible, setPopupVisible] = useState(false);
@@ -505,7 +505,7 @@ function MainPage({ user }) {
       colleges: item.colleges
     })));
     
-    // Sort by ranking by default
+    // Only sort by ranking if enabled in filters
     if (filters.sortByRanking) {
       deduped = sortByRanking(deduped);
       console.log('Initial data sorted by ranking');
