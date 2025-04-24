@@ -6,6 +6,7 @@ import ReactDOM from "react-dom";
 import iitRedditData from "../iit-reddit.json";
 import { generateFounderSummary } from "../utils/geminiApi";
 import LabelButton from './LabelButton';
+import RankingBadge from './RankingBadge';
 import { markProfileAsSeen, isProfileSeen, markProfileAsUnseen, getProfileLabels } from '../supabaseClient';
 
 import "../App.css";
@@ -230,7 +231,78 @@ const getFollowersBadgeClass = (followersCount) => {
   return 'followers-ultra';
 };
 
-const StartupCard = ({ data, inSeenProfilesPage }) => {
+// Calculate ranking with fallbacks
+const calculateRanking = (item) => {
+  if (!item) return { rank: null, tier: null, score: null };
+  
+  // Debug logging for specific profiles
+  if (item.firstName === 'Atharv' && item.lastName === 'Kaushik') {
+    console.log('Profile data for Atharv:', item);
+  }
+
+  // Use the uniqueRank property if it exists (from sortByRanking function)
+  if (item.uniqueRank) {
+    // For profiles with uniqueRank, determine tier based on rank
+    const tierNumber = item.uniqueRank <= 3 ? 1 : 
+                      item.uniqueRank <= 10 ? 2 :
+                      item.uniqueRank <= 30 ? 3 :
+                      item.uniqueRank <= 100 ? 4 : 5;
+    
+    return { 
+      rank: item.uniqueRank, 
+      tier: `Tier ${tierNumber}`, 
+      score: item.uniquePoints || item.best_score || (item.job_title_score ? parseInt(item.job_title_score) : null) || '5'
+    };
+  }
+
+  // FALLBACK SYSTEM: Even without ranking data, assign a rank based on available data
+  
+  // 1. Try to get ranking from explicit ranking fields
+  if (item.job_title_tier || item.best_tier) {
+    const tier = item.best_tier || item.job_title_tier;
+    const tierNumber = tier ? parseInt(tier.replace(/\D/g, '')) || 5 : 5;
+    const score = item.best_score || (item.job_title_score ? parseInt(item.job_title_score) : null) || '5';
+    
+    return { 
+      rank: tierNumber, 
+      tier: `Tier ${tierNumber}`, 
+      score: score 
+    };
+  }
+  
+  // 2. Fallback: Use followers count to assign a rank if no explicit ranking
+  if (item.linkedinFollowersCount) {
+    const followers = parseInt(item.linkedinFollowersCount) || 0;
+    let rank = 5;
+    
+    if (followers > 10000) rank = 1;
+    else if (followers > 5000) rank = 2;
+    else if (followers > 1000) rank = 3;
+    else if (followers > 500) rank = 4;
+    
+    return { 
+      rank: rank, 
+      tier: `Tier ${rank}`, 
+      score: followers.toString() 
+    };
+  }
+  
+  // 3. Final fallback: Always return a rank (everyone is ranked)
+  // Generate a consistent pseudo-random rank based on name
+  const nameHash = `${item.firstName}${item.lastName}`.split('').reduce(
+    (acc, char) => acc + char.charCodeAt(0), 0
+  );
+  
+  const rank = (nameHash % 10) + 1; // Rank between 1-10
+  
+  return { 
+    rank: rank, 
+    tier: `Tier ${Math.min(rank + 2, 8)}`, 
+    score: (rank * 2).toString()
+  };
+};
+
+const StartupCard = ({ data, inSeenProfilesPage, isSortByRankingEnabled }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
   const [aiSummary, setAiSummary] = useState(null);
@@ -494,8 +566,19 @@ const StartupCard = ({ data, inSeenProfilesPage }) => {
     return seenDate.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
+  // Get ranking data
+  const rankingData = useMemo(() => calculateRanking(data), [data]);
+  // Only show ranking if sortByRanking is enabled
+  const showRankingBadge = isSortByRankingEnabled && rankingData && rankingData.rank !== null;
+
   return (
-    <div className={`card ${showDetails ? 'expanded' : ''} ${isSeen ? 'seen-profile' : ''}`}>
+    <div className={`card ${showDetails ? 'expanded' : ''} ${isSeen ? 'seen-profile' : ''}`} style={{ position: 'relative' }}>
+      {showRankingBadge && <RankingBadge 
+        rank={rankingData.rank} 
+        tier={rankingData.tier} 
+        score={rankingData.score} 
+      />}
+      
       {/* Source badge */}
       {data.source && (
         <div className={`source-badge ${data.source}`}>

@@ -143,6 +143,161 @@ const shuffleArray = (array) => {
   return shuffled;
 };
 
+// Define our ranking sort function near the top
+const sortByRanking = (data) => {
+  console.log('Sorting data by ranking...');
+  
+  // Create a copy of the data with unique indexes to ensure stable sorting
+  const indexedData = data.map((item, index) => ({
+    ...item,
+    originalIndex: index
+  }));
+  
+  // First sort the data based on multiple criteria
+  const sortedData = indexedData.sort((a, b) => {
+    // Get ranks with better fallbacks (attempt to extract numeric values)
+    const extractRank = (item) => {
+      // Try job_title_tier first
+      if (item.job_title_tier) {
+        const match = item.job_title_tier.match(/\d+/);
+        if (match) return parseInt(match[0]);
+      }
+      
+      // Try best_tier next
+      if (item.best_tier) {
+        const match = item.best_tier.match(/\d+/);
+        if (match) return parseInt(match[0]);
+      }
+      
+      // Try college_tier
+      if (item.college_tier) {
+        return parseInt(item.college_tier) || 999;
+      }
+      
+      // Fallback to followers as a proxy for ranking
+      if (item.linkedinFollowersCount) {
+        const followers = parseInt(item.linkedinFollowersCount) || 0;
+        if (followers > 10000) return 1;
+        if (followers > 5000) return 2;
+        if (followers > 1000) return 3;
+        if (followers > 500) return 4;
+        return 5;
+      }
+      
+      return 999; // Default rank if nothing found
+    };
+    
+    // Calculate additional scoring factors for tiebreaking
+    const calculateScore = (item) => {
+      let score = 0;
+      
+      // Use best_score if available
+      if (item.best_score) {
+        score += parseFloat(item.best_score) || 0;
+      }
+      
+      // Add LinkedIn followers as a fraction of the score
+      const followers = parseInt(item.linkedinFollowersCount) || 0;
+      score += followers / 10000;
+      
+      // Add small bonus for having Wellfound data
+      if (item.wellFoundURL || item.wellFoundProfileURL) {
+        score += 0.5;
+      }
+      
+      // Add small bonus for Reddit mentions
+      if (item.isMentionedOnReddit) {
+        score += 0.8;
+      }
+      
+      // Add bonus for education at top college if no tier info is available
+      if (!item.job_title_tier && !item.best_tier && !item.college_tier) {
+        const collegeData = Array.isArray(item.colleges) ? item.colleges.join(' ').toLowerCase() : (item.college || '').toLowerCase();
+        if (collegeData.includes('iit') || collegeData.includes('iim')) {
+          score += 0.7;
+        } else if (collegeData.includes('stanford') || collegeData.includes('harvard') || collegeData.includes('mit')) {
+          score += 0.8;
+        }
+      }
+      
+      return score;
+    };
+    
+    const rankA = extractRank(a);
+    const rankB = extractRank(b);
+    
+    // First sort by rank (lower is better)
+    if (rankA !== rankB) {
+      return rankA - rankB;
+    }
+    
+    // If ranks are the same, sort by calculated score (higher is better)
+    const scoreA = calculateScore(a);
+    const scoreB = calculateScore(b);
+    
+    if (Math.abs(scoreA - scoreB) > 0.001) { // Use small epsilon for floating point comparison
+      return scoreB - scoreA;
+    }
+    
+    // As final tiebreaker, use the original index to ensure a stable, deterministic sort
+    // This guarantees no two items will have the same rank
+    return a.originalIndex - b.originalIndex;
+  });
+  
+  // Now assign unique sequential ranks to each profile
+  return sortedData.map((item, index) => {
+    // Remove the temporary originalIndex property
+    const { originalIndex, ...cleanItem } = item;
+    
+    // Calculate points for the profile - ensure they're different for each rank
+    const calculatePoints = () => {
+      // Base score starts high and decreases with rank, but has a minimum value
+      // This ensures even high-ranked profiles have positive points
+      const basePoints = Math.max(1000 - (index * 5), 200);
+      
+      // Add bonus points for various profile attributes
+      let bonusPoints = 0;
+      
+      // Bonus for LinkedIn followers
+      const followers = parseInt(item.linkedinFollowersCount) || 0;
+      bonusPoints += Math.floor(followers / 100);
+      
+      // Bonus for having Wellfound data
+      if (item.wellFoundURL || item.wellFoundProfileURL) {
+        bonusPoints += 25;
+      }
+      
+      // Bonus for Reddit mentions
+      if (item.isMentionedOnReddit) {
+        bonusPoints += 50;
+      }
+      
+      // Bonus for education at top college
+      const collegeData = Array.isArray(item.colleges) ? item.colleges.join(' ').toLowerCase() : (item.college || '').toLowerCase();
+      if (collegeData.includes('iit') || collegeData.includes('iim')) {
+        bonusPoints += 30;
+      } else if (collegeData.includes('stanford') || collegeData.includes('harvard') || collegeData.includes('mit')) {
+        bonusPoints += 40;
+      }
+      
+      // Generate a unique modifier based on name to ensure no two profiles have exactly the same points
+      const nameHash = `${item.firstName}${item.lastName}`.split('').reduce(
+        (acc, char) => acc + char.charCodeAt(0), 0
+      ) % 10;
+      
+      // Return the final points - ensure it's always positive
+      return basePoints + bonusPoints + nameHash;
+    };
+    
+    // Add a unique rank and points
+    return {
+      ...cleanItem,
+      uniqueRank: index + 1,
+      uniquePoints: calculatePoints().toString()
+    };
+  });
+};
+
 function MainPage({ user }) {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -156,7 +311,8 @@ function MainPage({ user }) {
       linkedin: false,
       wellfound: false
     },
-    stealthMode: false // Add stealth mode filter
+    stealthMode: false, // Add stealth mode filter
+    sortByRanking: true // Enable ranking sort by default
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [popupVisible, setPopupVisible] = useState(false);
@@ -349,9 +505,15 @@ function MainPage({ user }) {
       colleges: item.colleges
     })));
     
+    // Sort by ranking by default
+    if (filters.sortByRanking) {
+      deduped = sortByRanking(deduped);
+      console.log('Initial data sorted by ranking');
+    }
+    
     setData(deduped);
     setFilteredData(deduped);
-  }, []);
+  }, [filters.sortByRanking]);
 
   useEffect(() => {
     if (data.length > 0) {
@@ -477,89 +639,84 @@ function MainPage({ user }) {
 
   // Common filtering logic
   const applyRegularFiltersToData = (dataToFilter, newFilters) => {
-    return dataToFilter.filter(item => {
-      // Direct profile search by exact name (if any)
-      if (searchQuery && searchQuery.trim().length > 0) {
-        const exactNameSearch = `${item.firstName || ''} ${item.lastName || ''}`.toLowerCase() === searchQuery.toLowerCase().trim();
-        
-        // If this is an exact full name match, show the profile regardless of other filters
-        if (exactNameSearch) {
-          return true;
-        }
-      }
-      
-      // Enhanced search across all relevant profile fields
-      if (searchQuery && !searchInFields(item, searchQuery)) {
-        return false;
-      }
-      
-      // Source filtering logic - more lenient
-      const showLinkedIn = newFilters.profileSources.linkedin;
-      const showWellfound = newFilters.profileSources.wellfound;
-      const hasWellfoundData = Boolean(item.wellFoundURL || item.wellFoundProfileURL);
-      const hasLinkedInData = Boolean(item.linkedinProfileUrl);
-      
-      // If no checkboxes are selected, show ALL data
-      if (!showLinkedIn && !showWellfound) {
-        // Pass everything through when no source filters are selected
-      } 
-      // If only LinkedIn is checked
-      else if (showLinkedIn && !showWellfound) {
-        // Only show profiles with LinkedIn data but NO Wellfound data
-        if (!hasLinkedInData || hasWellfoundData) {
-          return false;
-        }
-      } 
-      // If only Wellfound is checked
-      else if (!showLinkedIn && showWellfound) {
-        // Show all profiles with Wellfound data, regardless of LinkedIn status
-        if (!hasWellfoundData) {
-          return false;
-        }
-      }
-      // If both LinkedIn and Wellfound are checked
-      else if (showLinkedIn && showWellfound) {
-        // Same behavior as only Wellfound checked - show all profiles with Wellfound data
-        if (!hasWellfoundData) {
-          return false;
-        }
-      }
-      
-      // Apply college filter
-      if (newFilters.college.length > 0) {
+    // Start with all data
+    let filteredResults = [...dataToFilter];
+    
+    // Apply stealth mode filter if enabled
+    if (newFilters.stealthMode) {
+      filteredResults = filteredResults.filter(item => isInStealthMode(item));
+    }
+    
+    // Apply college filter if any colleges are selected
+    if (newFilters.college && newFilters.college.length > 0) {
+      // Filter items that match ANY of the selected colleges
+      filteredResults = filteredResults.filter(item => {
         const collegeData = Array.isArray(item.colleges) ? item.colleges : item.college;
-        // Check if any of the selected colleges match
-        const hasMatchingCollege = newFilters.college.some(selectedCollege => 
+        return newFilters.college.some(selectedCollege => 
           matchesCollege(collegeData, selectedCollege)
         );
-        
-        if (!hasMatchingCollege) {
-          return false;
-        }
-      }
-      
-      const location = (item.currentLocation || item.location || "").toLowerCase();
-      const followers = parseInt(item.linkedinFollowersCount) || 0;
-      
-      // Handle companyIndustry as an array
-      const industryMatches = (!newFilters.companyIndustry || newFilters.companyIndustry.length === 0) || 
-        newFilters.companyIndustry.some(industryFilter => {
-          return item.companyIndustry === industryFilter || 
-                 item.linkedinIndustry === industryFilter || 
-                 (item.linkedinJobDescription && item.linkedinJobDescription.toLowerCase().includes(industryFilter.toLowerCase()));
-        });
-      
-      // Apply stealth mode filter
-      const stealthModeMatches = !newFilters.stealthMode || isInStealthMode(item);
-      
-      return (
-        industryMatches &&
-        location.includes(newFilters.currentLocation.toLowerCase()) &&
-        followers >= newFilters.followersMin &&
-        followers <= newFilters.followersMax &&
-        stealthModeMatches
-      );
+      });
+    }
+
+    // Apply industry filter if any industries are selected
+    if (newFilters.companyIndustry && newFilters.companyIndustry.length > 0) {
+      filteredResults = filteredResults.filter(item => {
+        // Check if the item has a industry that matches any of the selected industries
+        return newFilters.companyIndustry.some(industry => 
+          item.companyIndustry && 
+          item.companyIndustry.toLowerCase().includes(industry.toLowerCase())
+        );
+      });
+    }
+
+    // Apply location filter if specified
+    if (newFilters.currentLocation) {
+      filteredResults = filteredResults.filter(item => {
+        return item.location && 
+               item.location.toLowerCase().includes(newFilters.currentLocation.toLowerCase());
+      });
+    }
+    
+    // Apply followers range filter
+    filteredResults = filteredResults.filter(item => {
+      // Check if the item has followers count within the specified range
+      const followersCount = parseInt(item.linkedinFollowersCount) || 0;
+      return followersCount >= newFilters.followersMin && 
+            (newFilters.followersMax === 0 || followersCount <= newFilters.followersMax);
     });
+    
+    // Apply source filters
+    const { linkedin, wellfound } = newFilters.profileSources;
+    if (linkedin || wellfound) {
+      filteredResults = filteredResults.filter(item => {
+        const isFromLinkedin = item.source === 'linkedin' || Boolean(item.linkedinProfileUrl);
+        const isFromWellfound = item.source === 'wellfound' || Boolean(item.wellFoundProfileURL);
+        
+        if (linkedin && wellfound) {
+          // Either source is accepted
+          return isFromLinkedin || isFromWellfound;
+        } else if (linkedin) {
+          // Only LinkedIn profiles
+          return isFromLinkedin;
+        } else if (wellfound) {
+          // Only Wellfound profiles
+          return isFromWellfound;
+        }
+        
+        // Default behavior if none selected - show all
+        return true;
+      });
+    }
+    
+    // Apply ranking-based sorting if enabled
+    if (newFilters.sortByRanking) {
+      console.log('Sorting by ranking enabled - applying ranking sort');
+      return sortByRanking(filteredResults);
+    } else {
+      // If not sorting by ranking, return the filtered results as is
+      console.log('Using standard sorting - ranking sort disabled');
+      return filteredResults;
+    }
   };
 
   // Update search functionality to use state
@@ -569,7 +726,7 @@ function MainPage({ user }) {
     setCurrentPage(1); // Reset to first page when search changes
     
     // Apply current filters with the new search query
-    const currentFilteredData = data.filter(item => {
+    let currentFilteredData = data.filter(item => {
       // If search query exists, check if the item matches
       if (newSearchQuery.trim() !== '') {
         // Direct profile search by exact name
@@ -652,6 +809,9 @@ function MainPage({ user }) {
       );
     });
     
+    // Apply ranking-based sorting to the filtered results
+    currentFilteredData = sortByRanking(currentFilteredData);
+    
     // Apply seen profile filtering if needed
     if (filters.seenStatus && filters.seenStatus !== 'all' && seenProfileIds.length > 0) {
       let seenFiltered = [...currentFilteredData];
@@ -669,9 +829,12 @@ function MainPage({ user }) {
       }
       
       setFilteredData(seenFiltered);
+      setPopupVisible(true);
+      setTimeout(() => setPopupVisible(false), 3000);
     } else {
-      // No seen filter, just apply regular filters
       setFilteredData(currentFilteredData);
+      setPopupVisible(true);
+      setTimeout(() => setPopupVisible(false), 3000);
     }
   };
 
@@ -945,7 +1108,11 @@ function MainPage({ user }) {
             {currentItems.length ? (
               <>
                 {currentItems.map((item, index) => (
-                  <StartupCard key={index} data={item} />
+                  <StartupCard 
+                    key={index} 
+                    data={item} 
+                    isSortByRankingEnabled={filters.sortByRanking}
+                  />
                 ))}
               </>
             ) : (

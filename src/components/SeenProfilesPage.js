@@ -100,7 +100,11 @@ const SeenProfilesPage = () => {
         <div className="seen-profiles-container">
           {sortedProfiles.map((profile, index) => (
             <div className="seen-profile-wrapper" key={`${profile.firstName}-${profile.lastName}-${index}`}>
-              <StartupCard data={profile} inSeenProfilesPage={true} />
+              <StartupCard 
+                data={profile} 
+                inSeenProfilesPage={true} 
+                isSortByRankingEnabled={false} 
+              />
             </div>
           ))}
         </div>

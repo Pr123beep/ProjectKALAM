@@ -142,7 +142,8 @@ const FilterBar = ({ onApplyFilters }) => {
       linkedin: false,
       wellfound: false
     },
-    stealthMode: false
+    stealthMode: false,
+    sortByRanking: true
   });
 
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -409,21 +410,30 @@ const FilterBar = ({ onApplyFilters }) => {
   };
 
   const handleApply = () => {
-    // Pass the current filters up to the parent component
-    onApplyFilters({
+    // Create updated filters object that includes the seen filter status
+    const updatedFilters = {
       ...filters,
-      followersMin: parseInt(filters.followersMin, 10),
-      followersMax: parseInt(filters.followersMax, 10),
-      seenFilter
-    });
+      seenStatus: seenFilter
+    };
     
-    if (isMobile) {
-      setIsCollapsed(true);
+    // Log before sending to parent
+    console.log('Applying filters:', updatedFilters);
+    
+    // Check if sort by ranking is enabled
+    if (updatedFilters.sortByRanking) {
+      console.log('Sorting by ranking is enabled');
     }
+    
+    // Pass the updated filters to the parent component
+    onApplyFilters(updatedFilters);
   };
 
   const handleClear = () => {
-    const cleared = {
+    // Keep sort by ranking setting when clearing other filters
+    const keepSortByRanking = filters.sortByRanking;
+    
+    // Reset filters to default values
+    setFilters({
       college: [],
       companyIndustry: [],
       currentLocation: '',
@@ -433,10 +443,28 @@ const FilterBar = ({ onApplyFilters }) => {
         linkedin: false,
         wellfound: false
       },
-      stealthMode: false
-    };
-    setFilters(cleared);
+      stealthMode: false,
+      sortByRanking: keepSortByRanking // Maintain sorting preference
+    });
+    
+    // Reset seen filter to 'all'
     setSeenFilter('all');
+    
+    // Also apply the reset filters immediately
+    onApplyFilters({
+      college: [],
+      companyIndustry: [],
+      currentLocation: '',
+      followersMin: 0,
+      followersMax: 50000,
+      profileSources: {
+        linkedin: false,
+        wellfound: false
+      },
+      stealthMode: false,
+      seenStatus: 'all',
+      sortByRanking: keepSortByRanking // Maintain sorting preference
+    });
   };
 
   const handleIndustryChange = (industry) => {
@@ -475,6 +503,13 @@ const FilterBar = ({ onApplyFilters }) => {
     };
     
     onApplyFilters(updatedFilters);
+  };
+
+  const handleSortByRankingChange = (e) => {
+    setFilters({
+      ...filters,
+      sortByRanking: e.target.checked
+    });
   };
 
   return (
@@ -773,41 +808,44 @@ const FilterBar = ({ onApplyFilters }) => {
         </div>
         
         {/* Stealth Mode Filter */}
-        <div className="filter-section">
-          <h3 className="filter-section-title stealth-title">⚡ Stealth Mode</h3>
-          <div className="stealth-mode-wrapper">
-            <label className="stealth-checkbox">
-              <input
-                type="checkbox"
-                name="stealthMode"
-                checked={filters.stealthMode}
-                onChange={handleChange}
-              />
-              <div className="stealth-checkbox-icon">
-                {filters.stealthMode && (
-                  <svg 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                )}
-              </div>
-              <span className="stealth-checkbox-label">Stealth Companies</span>
-            </label>
+        <div className="filter-group">
+          <h4 className="filter-section-title">Stealth Mode</h4>
+          <div className="stealth-filter">
+            <CustomCheckbox
+              type="stealth"
+              label="Only Stealth Mode Startups"
+              checked={filters.stealthMode}
+              onChange={() => setFilters({...filters, stealthMode: !filters.stealthMode})}
+            />
+          </div>
+        </div>
+        
+        {/* Ranking Sort Option */}
+        <div className="filter-group">
+          <h4 className="filter-section-title">Ranking</h4>
+          <div className="ranking-filter">
+            <CustomCheckbox
+              type="ranking"
+              label="Sort by Tier Ranking"
+              checked={filters.sortByRanking}
+              onChange={handleSortByRankingChange}
+            />
+            <p className="filter-note">Show founders in order of their tier ranking</p>
           </div>
         </div>
         
         <div className="filter-actions">
-          <button className="apply-button" onClick={handleApply}>
+          <button
+            className="apply-button"
+            onClick={handleApply}
+          >
             Apply Filters
           </button>
-          <button className="clear-button" onClick={handleClear}>
-            Clear Filters
+          <button
+            className="clear-button"
+            onClick={handleClear}
+          >
+            Clear All
           </button>
         </div>
       </div>

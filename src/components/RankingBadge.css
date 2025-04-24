@@ -1,0 +1,156 @@
+.ranking-badge {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  min-width: 80px;
+  padding: 10px 15px;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  z-index: 100;
+  border: 3px solid rgba(255, 255, 255, 0.7);
+  overflow: hidden;
+  transform: scale(1.2);
+  transform-origin: top right;
+}
+
+/* Make badge more visible */
+.ranking-badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  z-index: -1;
+}
+
+/* Glowing effect for badges */
+.ranking-badge::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.ranking-badge:hover::after {
+  opacity: 1;
+}
+
+.ranking-badge-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 2;
+}
+
+.ranking-icon {
+  font-size: 30px;
+  margin-bottom: 2px;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.2));
+}
+
+.ranking-label {
+  font-size: 22px;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.ranking-tier {
+  font-size: 14px;
+  opacity: 0.9;
+  font-weight: normal;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  padding: 2px 6px;
+  margin-top: 3px;
+  backdrop-filter: blur(2px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.ranking-score {
+  font-size: 16px;
+  opacity: 1;
+  margin-top: 6px;
+  font-weight: bold;
+  background-color: rgba(255, 255, 255, 0.25);
+  border-radius: 15px;
+  padding: 3px 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  letter-spacing: 0.5px;
+  min-width: 90px;
+  text-align: center;
+}
+
+/* Animation for the badge */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(255, 255, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+/* For responsive design */
+@media (max-width: 768px) {
+  .ranking-badge {
+    top: -10px;
+    right: -10px;
+    min-width: 70px;
+    padding: 8px 12px;
+  }
+  
+  .ranking-icon {
+    font-size: 24px;
+  }
+  
+  .ranking-label {
+    font-size: 18px;
+  }
+}
+
+/* Add an alternate style for top 10 rankings */
+.ranking-badge[style*="background-color: #0077B5"] {
+  background: linear-gradient(135deg, #0077B5, #00A2E8);
+  animation: pulse 2s infinite;
+}
+
+/* Special sparkle for top 3 */
+.ranking-badge[style*="background-color: #FFD700"] {
+  background: linear-gradient(45deg, #FFD700, #FFF8E1);
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.8);
+  animation: pulse 2s infinite;
+}
+
+.ranking-badge[style*="background-color: #C0C0C0"] {
+  background: linear-gradient(45deg, #C0C0C0, #F5F5F5);
+  box-shadow: 0 0 20px rgba(192, 192, 192, 0.7);
+  animation: pulse 2s infinite;
+}
+
+.ranking-badge[style*="background-color: #CD7F32"] {
+  background: linear-gradient(45deg, #CD7F32, #E8C496);
+  box-shadow: 0 0 18px rgba(205, 127, 50, 0.7);
+  animation: pulse 2s infinite;
+} 
