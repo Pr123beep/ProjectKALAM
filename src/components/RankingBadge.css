@@ -1,17 +1,23 @@
 .ranking-badge {
   position: absolute;
-  top: -15px;
-  right: -15px;
-  min-width: 90px;
-  padding: 10px 15px;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  top: -10px;
+  left: -8px;
+  min-width: 34px;
+  min-height: 34px;
+  width: auto;
+  height: auto;
+  padding: 5px 7px;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   z-index: 100;
-  border: 2px solid rgba(255, 255, 255, 0.8);
+  border: 1.5px solid rgba(255, 255, 255, 0.8);
   overflow: hidden;
-  transform: scale(1);
-  transform-origin: top right;
+  transform: scale(0.95);
+  transform-origin: top left;
   backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Badge backdrop glow */
@@ -50,12 +56,12 @@
 
 .ranking-badge-content {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   color: white;
   font-weight: bold;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
   position: relative;
   z-index: 2;
 }
@@ -64,51 +70,50 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 4px;
 }
 
 .ranking-icon {
-  font-size: 28px;
-  margin-right: 6px;
-  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.2));
+  font-size: 20px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .ranking-label {
-  font-size: 24px;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0;
+  font-weight: 700;
+  display: none;
 }
 
 .ranking-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: none;
 }
 
 .ranking-title {
-  font-size: 10px;
+  font-size: 8px;
   font-weight: 700;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
   background-color: rgba(0, 0, 0, 0.2);
-  padding: 2px 8px;
-  border-radius: 10px;
-  margin-bottom: 4px;
+  padding: 1px 4px;
+  border-radius: 8px;
+  margin-bottom: 2px;
   white-space: nowrap;
 }
 
 .ranking-tier {
-  font-size: 12px;
+  font-size: 9px;
   font-weight: 600;
   opacity: 0.95;
   background-color: rgba(255, 255, 255, 0.25);
-  border-radius: 10px;
-  padding: 2px 8px;
-  margin-top: 2px;
-  margin-bottom: 3px;
+  border-radius: 8px;
+  padding: 1px 4px;
+  margin-top: 1px;
+  margin-bottom: 1px;
   backdrop-filter: blur(2px);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   letter-spacing: 0.5px;
 }
 
@@ -116,7 +121,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .ranking-score {
@@ -125,33 +130,33 @@
   opacity: 1;
   font-weight: bold;
   background-color: rgba(255, 255, 255, 0.25);
-  border-radius: 12px;
-  padding: 3px 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  padding: 2px 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   letter-spacing: 0.5px;
 }
 
 .score-value {
-  font-size: 16px;
+  font-size: 10px;
   font-weight: 700;
-  margin-right: 3px;
+  margin-right: 2px;
 }
 
 .score-label {
-  font-size: 10px;
+  font-size: 7px;
   font-weight: 700;
   opacity: 0.9;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 
 /* Sparkle effect */
 .badge-sparkle {
   position: absolute;
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
   background-color: white;
   border-radius: 50%;
-  box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 6px 1px rgba(255, 255, 255, 0.8);
   pointer-events: none;
   z-index: 1;
 }
@@ -178,31 +183,15 @@
 /* For responsive design */
 @media (max-width: 768px) {
   .ranking-badge {
-    top: -10px;
-    right: -10px;
-    min-width: 80px;
-    padding: 8px 12px;
-    transform: scale(0.9);
+    top: -8px;
+    left: -6px;
+    min-width: 30px;
+    min-height: 30px;
+    padding: 4px 6px;
   }
   
   .ranking-icon {
-    font-size: 22px;
-  }
-  
-  .ranking-label {
-    font-size: 20px;
-  }
-  
-  .ranking-title {
-    font-size: 9px;
-  }
-  
-  .ranking-tier {
-    font-size: 11px;
-  }
-  
-  .score-value {
-    font-size: 14px;
+    font-size: 18px;
   }
 }
 
@@ -224,8 +213,34 @@
 .ranking-badge[style*="FFD700"],
 .ranking-badge[style*="C0C0C0"],
 .ranking-badge[style*="CD7F32"] {
-  clip-path: polygon(0 0, 100% 0, 100% 80%, 50% 100%, 0 80%);
-  padding-bottom: 20px;
+  clip-path: polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);
+  padding-bottom: 12px;
+}
+
+/* Added medal-specific styles for top ranks */
+.ranking-badge[style*="FFD700"] {
+  border: 2px solid #FFF8DC; /* Gold medal with cream border */
+  min-width: 36px;
+  min-height: 36px;
+}
+
+.ranking-badge[style*="C0C0C0"] {
+  border: 2px solid #F5F5F5; /* Silver medal with light border */
+  min-width: 36px;
+  min-height: 36px;
+}
+
+.ranking-badge[style*="CD7F32"] {
+  border: 2px solid #FFE4C4; /* Bronze medal with light peach border */
+  min-width: 36px;
+  min-height: 36px;
+}
+
+/* Make top 3 slightly larger for emphasis */
+.ranking-badge[style*="FFD700"],
+.ranking-badge[style*="C0C0C0"],
+.ranking-badge[style*="CD7F32"] {
+  transform: scale(1.05);
 }
 
 /* Glass effect for top rankings */
@@ -235,4 +250,82 @@
 .ranking-badge[style*="1E88E5"] {
   background-blend-mode: overlay;
   backdrop-filter: blur(10px);
+}
+
+/* Details dialog that appears on hover */
+.ranking-details-dialog {
+  position: absolute;
+  top: 35px;
+  left: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  padding: 12px;
+  min-width: 180px;
+  transform-origin: top left;
+  z-index: 110;
+  border-left: 5px solid;
+  color: #333;
+  pointer-events: none; /* Allow hovering over the dialog without triggering mouseLeave */
+}
+
+.ranking-details-dialog::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 15px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid white;
+}
+
+.details-dialog-header {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.details-dialog-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.details-label {
+  font-weight: 600;
+  color: #555;
+}
+
+.details-value {
+  font-weight: 500;
+}
+
+.details-dialog-footer {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #777;
+  text-align: center;
+  font-style: italic;
+}
+
+/* Style for Top 10 badges */
+.ranking-badge[style*="1E88E5"] {
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  background-blend-mode: soft-light;
+}
+
+/* Style for Top 50 badges */
+.ranking-badge[style*="43A047"] {
+  border: 2px solid rgba(255, 255, 255, 0.6);
+}
+
+/* Style for other ranks */
+.ranking-badge[style*="78909C"] {
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
 } 

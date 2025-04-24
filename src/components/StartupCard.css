@@ -1660,17 +1660,16 @@ body.modal-open .detail-overlay {
 /* Adjust badges container position when ranking badge is present */
 .card[style*="position: relative"] .ranking-badge + div + .badges-container,
 .card[style*="position: relative"] .ranking-badge ~ .badges-container {
-  top: 50px; /* Move badges further down when ranking badge is present */
+  top: 15px; /* Move badges to allow for the badge */
   right: 10px; /* Keep consistent with the default right position */
 }
 
 /* Make the badge position absolute to the card */
 .ranking-badge {
   position: absolute !important;
-  top: -15px !important;
-  right: -15px !important;
+  top: -10px !important;
+  left: -8px !important; 
   z-index: 30 !important; /* Ensure it's on top */
-  transform: scale(1) !important; /* Overriding the transform to ensure consistent sizing */
 }
 
 /* Adjust source badge position to prevent overlap with other badges */
@@ -1687,14 +1686,16 @@ body.modal-open .detail-overlay {
   z-index: 19; /* Lower than badges-container */
 }
 
-/* When ranking badge exists, move the source badge down */
+/* When ranking badge exists, move the source badge */
 .card[style*="position: relative"] .ranking-badge ~ .source-badge {
-  top: 35px;
+  top: 15px; /* Adjust for the medium-sized badge */
+  right: 10px; /* Keep it on the right side */
 }
 
-/* When both ranking badge and badges-container exist, move source badge further down */
+/* When both ranking badge and badges-container exist, adjust positioning */
 .card[style*="position: relative"] .ranking-badge ~ .badges-container ~ .source-badge {
-  top: 85px;
+  top: 50px; /* Adjust for both badge and badges container */
+  right: 10px;
 }
 .seen-badge {
   background-color: rgba(59, 130, 246, 0.15);

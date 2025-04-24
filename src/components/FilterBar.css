@@ -4,8 +4,51 @@
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   padding: 20px;
+  min-width: 250px; /* Minimum width */
   max-width: 100%;
-  overflow: hidden;
+  position: relative; /* Required for resize handle */
+  overflow: visible; /* Changed from auto to visible for better resize handling */
+  transition: width 0.2s ease; /* Smooth transition when resizing */
+  z-index: 100; /* Ensure it stays above other content */
+}
+
+/* Resize handle styles - improved for easier interaction */
+.resize-handle {
+  position: absolute;
+  width: 12px; /* Wider for easier grabbing */
+  right: -6px; /* Position it half outside for better usability */
+  top: 0;
+  bottom: 0;
+  cursor: ew-resize;
+  background: linear-gradient(to right, transparent, rgba(42, 157, 143, 0.1));
+  opacity: 0.5;
+  transition: opacity 0.2s ease, background 0.2s ease;
+  z-index: 101; /* Above the filter bar */
+}
+
+.resize-handle:hover,
+.resize-handle:active,
+.advanced-filter-bar.resizing .resize-handle {
+  opacity: 1;
+  background: linear-gradient(to right, transparent, rgba(42, 157, 143, 0.3));
+}
+
+/* Visual indicator when resizing */
+.advanced-filter-bar.resizing {
+  border-right: 2px solid var(--primary-color);
+  user-select: none; /* Prevent text selection while resizing */
+}
+
+/* Ensures filter content adapts when resizing */
+.filter-content {
+  width: 100%;
+  overflow-x: hidden; /* Prevent horizontal scrolling within the content */
+}
+
+@media (max-width: 768px) {
+  .resize-handle {
+    display: none; /* Hide resize handle on mobile */
+  }
 }
 
 /* Filter heading styles */
@@ -17,6 +60,7 @@
   font-weight: 600;
   border-bottom: 2px solid #f0f0f0;
   padding-bottom: 12px;
+  padding-right: 20px; /* Add padding for resize handle visibility */
 }
 
 /* Filter group container */

@@ -311,10 +311,6 @@ const StartupCard = ({ data, inSeenProfilesPage, isSortByRankingEnabled }) => {
   const [isSeen, setIsSeen] = useState(false);
   const [hasLabels, setHasLabels] = useState(false);
   const [profileLabels, setProfileLabels] = useState([]);
-  const isStealthMode = data && data.companyName && (
-    data.companyName.toLowerCase().includes('stealth') ||
-    (data.linkedinJobTitle && data.linkedinJobTitle.toLowerCase().includes('stealth'))
-  );
 
   const founderKey = useMemo(() => {
     return `${data.firstName}-${data.lastName}`;
@@ -615,11 +611,6 @@ const StartupCard = ({ data, inSeenProfilesPage, isSortByRankingEnabled }) => {
                     ? profileLabels[0].label_name 
                     : `${profileLabels[0].label_name} +${profileLabels.length - 1}`}
                   </span>
-                </div>
-              )}
-              {isStealthMode && (
-                <div className="stealth-badge">
-                  <span>⚡ Stealth Mode</span>
                 </div>
               )}
             </>

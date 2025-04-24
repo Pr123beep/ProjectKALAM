@@ -1,5 +1,5 @@
 // src/components/FilterBar.js
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import '../App.css';
 import './FilterBar.css';
 import { getUserSeenProfiles } from '../supabaseClient';
@@ -148,7 +148,9 @@ const FilterBar = ({ onApplyFilters }) => {
 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
   const filterRef = useRef(null);
+  const resizeRef = useRef(null);
 
   const [suggestions, setSuggestions] = useState({
     college: [],
@@ -168,7 +170,7 @@ const FilterBar = ({ onApplyFilters }) => {
       'IIT Kanpur',
       'IIT Roorkee',
       'IIT Guwahati',
-      'IIT Hyderabad',
+      
       
       // IIMs
       'IIM Bangalore',
@@ -252,41 +254,113 @@ const FilterBar = ({ onApplyFilters }) => {
   // eslint-disable-next-line no-unused-vars
   const [seenProfileIds, setSeenProfileIds] = useState([]);
 
+  // Resize functionality with localStorage persistence
+  const startResize = useCallback((e) => {
+    e.preventDefault();
+    setIsResizing(true);
+  }, []);
+
+  const handleResize = useCallback((e) => {
+    if (!isResizing || !filterRef.current) return;
+    
+    // Calculate new width based on mouse position
+    const containerRect = filterRef.current.parentElement.getBoundingClientRect();
+    const newWidth = e.clientX - containerRect.left;
+    
+    // Apply minimum and maximum constraints
+    const minWidth = 250;
+    const maxWidth = Math.min(
+      window.innerWidth * 0.85,
+      containerRect.width - 20
+    );
+    
+    const width = Math.max(minWidth, Math.min(newWidth, maxWidth));
+    
+    // Set the new width
+    filterRef.current.style.width = `${width}px`;
+    
+    // Save to localStorage
+    localStorage.setItem('filterBarWidth', width);
+
+    // Dispatch a custom resize event for other components to respond
+    window.dispatchEvent(new CustomEvent('filterBarResize', { detail: { width } }));
+  }, [isResizing]);
+
+  const stopResize = useCallback(() => {
+    setIsResizing(false);
+    
+    // Add a slight delay before removing the resizing class for better visual feedback
+    setTimeout(() => {
+      if (filterRef.current) {
+        filterRef.current.classList.remove('resizing');
+      }
+    }, 200);
+  }, []);
+  
+  // Load saved width on initial render with responsive behavior
   useEffect(() => {
+    if (!isMobile && filterRef.current) {
+      const savedWidth = localStorage.getItem('filterBarWidth');
+      const containerWidth = filterRef.current.parentElement?.getBoundingClientRect().width || window.innerWidth;
+      
+      let targetWidth;
+      if (savedWidth) {
+        // Apply saved width, but ensure it's not too big for current viewport
+        targetWidth = Math.min(parseInt(savedWidth), containerWidth * 0.85);
+      } else {
+        // Default to 30% of container width if no saved value
+        targetWidth = Math.max(250, Math.min(350, containerWidth * 0.3));
+      }
+      
+      // Apply the width
+      filterRef.current.style.width = `${targetWidth}px`;
+    } else if (isMobile && filterRef.current) {
+      // Full width on mobile
+      filterRef.current.style.width = '100%';
+    }
+  }, [isMobile]);
+
+  useEffect(() => {
+    // Check if we are on mobile
     const checkMobile = () => {
       const isMobileView = window.innerWidth <= 768;
       setIsMobile(isMobileView);
       
+      // Collapse the filter bar by default on mobile
       setIsCollapsed(isMobileView);
     };
     
+    // Call once on mount
     checkMobile();
     
+    // Add event listener for resize
     window.addEventListener('resize', checkMobile);
     
+    // Handle scroll for sticky behavior
     const handleScroll = () => {
-      if (window.innerWidth <= 768 && filterRef.current) {
-        if (window.scrollY > 50) {
-          setIsCollapsed(true);
-          filterRef.current.classList.add('filter-sticky');
-          document.body.classList.add('has-sticky-filter');
-          void filterRef.current.offsetHeight;
-        } else if (window.scrollY < 10) {
-          filterRef.current.classList.remove('filter-sticky');
-          document.body.classList.remove('has-sticky-filter');
-        }
+      if (!filterRef.current || !isMobile) return;
+      
+      const scrollY = window.scrollY;
+      const filterTop = filterRef.current.getBoundingClientRect().top + scrollY;
+      
+      if (scrollY > filterTop) {
+        filterRef.current.classList.add('filter-sticky');
+        document.body.classList.add('has-sticky-filter');
+      } else {
+        filterRef.current.classList.remove('filter-sticky');
+        document.body.classList.remove('has-sticky-filter');
       }
     };
     
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    
+    window.addEventListener('scroll', handleScroll);
     handleScroll();
     
+    // Clean up
     return () => {
       window.removeEventListener('resize', checkMobile);
       window.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [isMobile]);  // Add isMobile as dependency
 
   useEffect(() => {
     // Only load seen profiles if we're filtering by seen status
@@ -512,18 +586,45 @@ const FilterBar = ({ onApplyFilters }) => {
     });
   };
 
+  // Add a separate useEffect for resize functionality
+  useEffect(() => {
+    if (isResizing) {
+      // Add the resizing class to the filter bar
+      if (filterRef.current) {
+        filterRef.current.classList.add('resizing');
+      }
+      
+      // Add event listeners for resize
+      window.addEventListener('mousemove', handleResize);
+      window.addEventListener('mouseup', stopResize);
+    }
+    
+    return () => {
+      // Clean up event listeners
+      window.removeEventListener('mousemove', handleResize);
+      window.removeEventListener('mouseup', stopResize);
+    };
+  }, [isResizing, handleResize, stopResize]);
+
   return (
-    <div className={`advanced-filter-bar ${isCollapsed ? 'collapsed' : ''}`} ref={filterRef}>
+    <div 
+      className={`advanced-filter-bar ${isCollapsed ? 'collapsed' : ''} ${isMobile ? 'filter-sticky' : ''}`}
+      ref={filterRef}
+    >
       {isMobile && (
-        <div className="filter-mobile-header" onClick={toggleFilters}>
-          <h3 className="filter-heading">Decontaminators!</h3>
-          <button className="filter-toggle-btn">
-            {isCollapsed ? 'Show Filters ▼' : 'Hide Filters ▲'}
+        <div className="filter-mobile-header">
+          <h3 className="filter-heading">Filters</h3>
+          <button 
+            className="filter-toggle-btn"
+            onClick={toggleFilters}
+            aria-label={isCollapsed ? "Expand filters" : "Collapse filters"}
+          >
+            {isCollapsed ? '↓' : '↑'}
           </button>
         </div>
       )}
       
-      {!isMobile && <h3 className="filter-heading">Decontaminators!</h3>}
+      {!isMobile && <h3 className="filter-heading">Filters</h3>}
       
       <div className={`filter-content ${isCollapsed ? 'hidden' : ''}`}>
         <div className="filter-group">
@@ -835,20 +936,23 @@ const FilterBar = ({ onApplyFilters }) => {
         </div>
         
         <div className="filter-actions">
-          <button
-            className="apply-button"
-            onClick={handleApply}
-          >
+          <button className="apply-button" onClick={handleApply}>
             Apply Filters
           </button>
-          <button
-            className="clear-button"
-            onClick={handleClear}
-          >
+          <button className="clear-button" onClick={handleClear}>
             Clear All
           </button>
         </div>
       </div>
+      
+      {/* Add resize handle */}
+      {!isMobile && (
+        <div 
+          className="resize-handle" 
+          ref={resizeRef}
+          onMouseDown={startResize}
+        ></div>
+      )}
     </div>
   );
 };
