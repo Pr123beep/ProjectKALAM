@@ -540,39 +540,41 @@ function MainPage({ user }) {
     }
     
     // Apply college filter if any colleges are selected
-    if (newFilters.college && newFilters.college.length > 0) {
+    
       // Filter items that match ANY of the selected colleges
+      // Apply college filter if any colleges are selected
       if (newFilters.college && newFilters.college.length > 0) {
         filteredResults = filteredResults.filter(item => {
-          const collegeData = Array.isArray(item.colleges)
+          const yourColleges = Array.isArray(item.colleges)
             ? item.colleges
-            : [item.college];
+            : [ item.college ];
       
+          // 1️⃣ “Match All” mode: require a 1:1 fuzzy match
           if (newFilters.collegeMatchAll) {
-            // require _all_ selected colleges
-            return newFilters.college.every(sel =>
-              matchesCollege(collegeData, sel)
+            const sel = newFilters.college;
+            if (sel.length !== yourColleges.length) return false;
+      
+            // every selected tag matches at least one of the item’s colleges
+            const allSelMatch = sel.every(filterCollege =>
+              yourColleges.some(itemCollege =>
+                matchesCollege([ itemCollege ], filterCollege)
+              )
             );
-          } else {
-            // default: any
-            return newFilters.college.some(sel =>
-              matchesCollege(collegeData, sel)
+            // and every item‐college matches at least one selected tag
+            const allYourMatch = yourColleges.every(itemCollege =>
+              sel.some(filterCollege =>
+                matchesCollege([ itemCollege ], filterCollege)
+              )
             );
+            return allSelMatch && allYourMatch;
           }
+      
+          // 2️⃣ “Match Any” mode: at least one selected tag fuzzy‐matches
+          return newFilters.college.some(filterCollege =>
+            matchesCollege(yourColleges, filterCollege)
+          );
         });
       }
-    }
-
-    // Apply industry filter if any industries are selected
-    if (newFilters.companyIndustry && newFilters.companyIndustry.length > 0) {
-      filteredResults = filteredResults.filter(item => {
-        // Check if the item has a industry that matches any of the selected industries
-        return newFilters.companyIndustry.some(industry => 
-          item.companyIndustry && 
-          item.companyIndustry.toLowerCase().includes(industry.toLowerCase())
-        );
-      });
-    }
 
     // Apply location filter if specified
     if (newFilters.currentLocation) {
@@ -625,14 +627,9 @@ filteredResults = filteredResults.filter(item => {
 
     
     // Apply ranking-based sorting if enabled
-    if (newFilters.sortByRanking) {
-      console.log('Sorting by ranking enabled - applying ranking sort');
-      return sortByRanking(filteredResults);
-    } else {
-      // If not sorting by ranking, return the filtered results as is
-      console.log('Using standard sorting - ranking sort disabled');
-      return filteredResults;
-    }
+    return newFilters.sortByRanking
+    ? sortByRanking(filteredResults)
+    : filteredResults;
   };
 
   // Update search functionality to use state
@@ -685,19 +682,7 @@ else if (showLinkedIn && showWellfound) {
 }
       
       // Apply college filter
-      if (filters.college.length > 0) {
-        if (filters.college.length > 0) {
-          const collegeData = Array.isArray(item.colleges)
-            ? item.colleges
-            : [item.college];
-        
-          const pass = filters.collegeMatchAll
-            ? filters.college.every(sel => matchesCollege(collegeData, sel))
-            : filters.college.some(sel => matchesCollege(collegeData, sel));
-        
-          if (!pass) return false;
-        }
-      }
+      
       
       const location = (item.currentLocation || item.location || "").toLowerCase();
       const followers = parseInt(item.linkedinFollowersCount) || 0;
