@@ -160,19 +160,40 @@ const shuffleArray = (array) => {
   return shuffled;
 };
 function sortByRanking(data) {
-  // 1) sort descending by your new 0–0.5 score
-  const sorted = [...data].sort((a, b) =>
-    computeRuleBasedScore(b) - computeRuleBasedScore(a)
-  );
+  // 1) Sort by rule-based score, descending
+  // 2) If equal, break ties by LinkedIn followers
+  // 3) If still equal, by company best_score
+  // 4) Finally, by alphabetical name
+  const sorted = [...data].sort((a, b) => {
+    // primary: rule-based score
+    const sa = computeRuleBasedScore(a);
+    const sb = computeRuleBasedScore(b);
+    if (sb !== sa) return sb - sa;
 
-  // 2) assign uniqueRank so the badge component can pick it up
-  return sorted.map((item, idx) => ({
+    // secondary: LinkedIn followers
+    const fa = parseInt(a.linkedinFollowersCount, 10) || 0;
+    const fb = parseInt(b.linkedinFollowersCount, 10) || 0;
+    if (fb !== fa) return fb - fa;
+
+    // tertiary: best_score (company)
+    const ca = parseFloat(a.best_score) || 0;
+    const cb = parseFloat(b.best_score) || 0;
+    if (cb !== ca) return cb - ca;
+
+    // final fallback: lastName+firstName alphabetical
+    const na = (`${a.lastName}${a.firstName}`).toLowerCase();
+    const nb = (`${b.lastName}${b.firstName}`).toLowerCase();
+    return na.localeCompare(nb);
+  });
+
+  // re-assign uniqueRank & uniquePoints
+  return sorted.map((item, i) => ({
     ...item,
-    uniqueRank:   idx + 1,
-    // optional: convert your 0–0.5 into a 0–50 “points” integer for display
+    uniqueRank:   i + 1,
     uniquePoints: Math.round(computeRuleBasedScore(item) * 100)
   }));
 }
+
 
 function MainPage({ user }) {
   const [data, setData] = useState([]);
