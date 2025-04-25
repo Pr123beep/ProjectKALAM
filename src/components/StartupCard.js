@@ -595,7 +595,7 @@ const StartupCard = ({
 
 <motion.button 
   className="close-button" 
-  onClick={onClose}
+  onClick={() => toggleDetails()}
   whileHover={{ scale: 1.1, backgroundColor: "rgba(0, 0, 0, 0.2)" }}
   whileTap={{ scale: 0.95 }}
   initial={{ opacity: 0, rotate: -90 }}
@@ -954,7 +954,7 @@ const StartupCard = ({
                 {/* Close button in top-right corner with animation */}
                 <motion.button 
                   className="close-button" 
-                  onClick={onClose}
+                  onClick={()=>toggleDetails()}
                   whileHover={{ scale: 1.1, backgroundColor: "rgba(0, 0, 0, 0.2)" }}
                   whileTap={{ scale: 0.95 }}
                   initial={{ opacity: 0, rotate: -90 }}
