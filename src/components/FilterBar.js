@@ -143,7 +143,7 @@ const FilterBar = ({ onApplyFilters }) => {
       wellfound: false
     },
     stealthMode: false,
-    sortByRanking: true
+    sortByRanking: false
   });
 
   const [isCollapsed, setIsCollapsed] = useState(false);

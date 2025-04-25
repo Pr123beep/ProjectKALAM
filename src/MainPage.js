@@ -11,6 +11,7 @@ import { getUserSeenProfiles } from './supabaseClient';
 import ScrollToTop from './components/ScrollToTop';
 import ScrollButton from './components/ScrollButton';
 
+
 // Enhanced function for normalizing all types of college names
 const normalizeCollegeName = (name) => {
   if (!name) return '';
@@ -104,6 +105,22 @@ const matchesCollege = (itemColleges, searchTerm) => {
   // Process single college string
   return matchesIIMA(itemColleges);
 };
+function computeRuleBasedScore(item) {
+  // parse their 0–10 scores:
+  const school   = parseFloat(item.college_score)     || 0; // 0–10
+  const company  = parseFloat(item.best_score)        || 0; // 0–10
+  const jobTitle = parseFloat(item.job_title_score)   || 0; // 0–10
+
+  // weights (out of the 0.5 total rule-based bucket):
+  const wSchool   = 0.20;
+  const wCompany  = 0.18;
+  const wJobTitle = 0.12;
+
+  // each component is (score/10) * weight
+  return (school   / 10) * wSchool
+       + (company  / 10) * wCompany
+       + (jobTitle / 10) * wJobTitle;
+}
 
 // Updated helper function to format result counts with ++ for rounded numbers
 const formatResultCount = (count) => {
@@ -142,161 +159,20 @@ const shuffleArray = (array) => {
   }
   return shuffled;
 };
+function sortByRanking(data) {
+  // 1) sort descending by your new 0–0.5 score
+  const sorted = [...data].sort((a, b) =>
+    computeRuleBasedScore(b) - computeRuleBasedScore(a)
+  );
 
-// Define our ranking sort function near the top
-const sortByRanking = (data) => {
-  console.log('Sorting data by ranking...');
-  
-  // Create a copy of the data with unique indexes to ensure stable sorting
-  const indexedData = data.map((item, index) => ({
+  // 2) assign uniqueRank so the badge component can pick it up
+  return sorted.map((item, idx) => ({
     ...item,
-    originalIndex: index
+    uniqueRank:   idx + 1,
+    // optional: convert your 0–0.5 into a 0–50 “points” integer for display
+    uniquePoints: Math.round(computeRuleBasedScore(item) * 100)
   }));
-  
-  // First sort the data based on multiple criteria
-  const sortedData = indexedData.sort((a, b) => {
-    // Get ranks with better fallbacks (attempt to extract numeric values)
-    const extractRank = (item) => {
-      // Try job_title_tier first
-      if (item.job_title_tier) {
-        const match = item.job_title_tier.match(/\d+/);
-        if (match) return parseInt(match[0]);
-      }
-      
-      // Try best_tier next
-      if (item.best_tier) {
-        const match = item.best_tier.match(/\d+/);
-        if (match) return parseInt(match[0]);
-      }
-      
-      // Try college_tier
-      if (item.college_tier) {
-        return parseInt(item.college_tier) || 999;
-      }
-      
-      // Fallback to followers as a proxy for ranking
-      if (item.linkedinFollowersCount) {
-        const followers = parseInt(item.linkedinFollowersCount) || 0;
-        if (followers > 10000) return 1;
-        if (followers > 5000) return 2;
-        if (followers > 1000) return 3;
-        if (followers > 500) return 4;
-        return 5;
-      }
-      
-      return 999; // Default rank if nothing found
-    };
-    
-    // Calculate additional scoring factors for tiebreaking
-    const calculateScore = (item) => {
-      let score = 0;
-      
-      // Use best_score if available
-      if (item.best_score) {
-        score += parseFloat(item.best_score) || 0;
-      }
-      
-      // Add LinkedIn followers as a fraction of the score
-      const followers = parseInt(item.linkedinFollowersCount) || 0;
-      score += followers / 10000;
-      
-      // Add small bonus for having Wellfound data
-      if (item.wellFoundURL || item.wellFoundProfileURL) {
-        score += 0.5;
-      }
-      
-      // Add small bonus for Reddit mentions
-      if (item.isMentionedOnReddit) {
-        score += 0.8;
-      }
-      
-      // Add bonus for education at top college if no tier info is available
-      if (!item.job_title_tier && !item.best_tier && !item.college_tier) {
-        const collegeData = Array.isArray(item.colleges) ? item.colleges.join(' ').toLowerCase() : (item.college || '').toLowerCase();
-        if (collegeData.includes('iit') || collegeData.includes('iim')) {
-          score += 0.7;
-        } else if (collegeData.includes('stanford') || collegeData.includes('harvard') || collegeData.includes('mit')) {
-          score += 0.8;
-        }
-      }
-      
-      return score;
-    };
-    
-    const rankA = extractRank(a);
-    const rankB = extractRank(b);
-    
-    // First sort by rank (lower is better)
-    if (rankA !== rankB) {
-      return rankA - rankB;
-    }
-    
-    // If ranks are the same, sort by calculated score (higher is better)
-    const scoreA = calculateScore(a);
-    const scoreB = calculateScore(b);
-    
-    if (Math.abs(scoreA - scoreB) > 0.001) { // Use small epsilon for floating point comparison
-      return scoreB - scoreA;
-    }
-    
-    // As final tiebreaker, use the original index to ensure a stable, deterministic sort
-    // This guarantees no two items will have the same rank
-    return a.originalIndex - b.originalIndex;
-  });
-  
-  // Now assign unique sequential ranks to each profile
-  return sortedData.map((item, index) => {
-    // Remove the temporary originalIndex property
-    const { originalIndex, ...cleanItem } = item;
-    
-    // Calculate points for the profile - ensure they're different for each rank
-    const calculatePoints = () => {
-      // Base score starts high and decreases with rank, but has a minimum value
-      // This ensures even high-ranked profiles have positive points
-      const basePoints = Math.max(1000 - (index * 5), 200);
-      
-      // Add bonus points for various profile attributes
-      let bonusPoints = 0;
-      
-      // Bonus for LinkedIn followers
-      const followers = parseInt(item.linkedinFollowersCount) || 0;
-      bonusPoints += Math.floor(followers / 100);
-      
-      // Bonus for having Wellfound data
-      if (item.wellFoundURL || item.wellFoundProfileURL) {
-        bonusPoints += 25;
-      }
-      
-      // Bonus for Reddit mentions
-      if (item.isMentionedOnReddit) {
-        bonusPoints += 50;
-      }
-      
-      // Bonus for education at top college
-      const collegeData = Array.isArray(item.colleges) ? item.colleges.join(' ').toLowerCase() : (item.college || '').toLowerCase();
-      if (collegeData.includes('iit') || collegeData.includes('iim')) {
-        bonusPoints += 30;
-      } else if (collegeData.includes('stanford') || collegeData.includes('harvard') || collegeData.includes('mit')) {
-        bonusPoints += 40;
-      }
-      
-      // Generate a unique modifier based on name to ensure no two profiles have exactly the same points
-      const nameHash = `${item.firstName}${item.lastName}`.split('').reduce(
-        (acc, char) => acc + char.charCodeAt(0), 0
-      ) % 10;
-      
-      // Return the final points - ensure it's always positive
-      return basePoints + bonusPoints + nameHash;
-    };
-    
-    // Add a unique rank and points
-    return {
-      ...cleanItem,
-      uniqueRank: index + 1,
-      uniquePoints: calculatePoints().toString()
-    };
-  });
-};
+}
 
 function MainPage({ user }) {
   const [data, setData] = useState([]);
