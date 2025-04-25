@@ -1346,3 +1346,32 @@
     transform: scale(1.02);
   }
 }
+/* Keep the header clean */
+.multi-select-dropdown {
+  display: flex;
+  flex-direction: column;
+  height: 300px;
+  border: 1px solid #ccc;
+  background: #fff;
+}
+
+.multi-select-dropdown .options-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.multi-select-dropdown .match-mode-footer {
+  flex-shrink: 0;
+  border-top: 1px solid #eee;
+  padding: 0.5em 1em;
+  background: #fafafa;
+}
+
+.match-mode-footer label {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.9em;
+}
+.match-mode-footer input {
+  margin-right: 0.5em;
+}

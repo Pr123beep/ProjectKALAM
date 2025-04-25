@@ -134,6 +134,7 @@ const CustomCheckbox = ({ type, label, checked, onChange }) => {
 const FilterBar = ({ onApplyFilters }) => {
   const [filters, setFilters] = useState({
     college: [],
+    collegeMatchAll: false,
     companyIndustry: [],
     currentLocation: '',
     followersMin: 0,
@@ -487,7 +488,8 @@ const FilterBar = ({ onApplyFilters }) => {
     // Create updated filters object that includes the seen filter status
     const updatedFilters = {
       ...filters,
-      seenStatus: seenFilter
+      seenStatus: seenFilter,
+      collegeMatchAll: filters.collegeMatchAll 
     };
     
     // Log before sending to parent
@@ -640,6 +642,7 @@ const FilterBar = ({ onApplyFilters }) => {
               >
                 {filters.college.length === 0 ? (
                   <span className="placeholder-text">Select Colleges</span>
+                  
                 ) : (
                   <div className="selected-tags">
                     {filters.college.map(college => (
@@ -659,51 +662,61 @@ const FilterBar = ({ onApplyFilters }) => {
                     ))}
                   </div>
                 )}
+                
                 <span className="dropdown-icon">{activeSuggestion === 'college' ? '▲' : '▼'}</span>
               </div>
               
               {activeSuggestion === 'college' && (
-                <div className="multi-select-options" onClick={(e) => e.stopPropagation()}>
-                  <div className="search-in-dropdown">
-                    <input
-                      type="text"
-                      placeholder="Search colleges..."
-                      onClick={(e) => e.stopPropagation()}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        if (value.length > 0) {
-                          const filteredSuggestions = getAbbreviationMatches(value, sampleData.college);
-                          setSuggestions(prev => ({
-                            ...prev,
-                            college: filteredSuggestions
-                          }));
-                        } else {
-                          setSuggestions(prev => ({
-                            ...prev,
-                            college: sampleData.college
-                          }));
-                        }
-                      }}
-                      className="dropdown-search-input"
-                    />
-                  </div>
-                  {(suggestions.college.length > 0 ? suggestions.college : sampleData.college).map(college => (
-                    <div key={college} className="multi-select-option">
-                      <label className="college-checkbox">
-                        <input
-                          type="checkbox"
-                          checked={filters.college.includes(college)}
-                          onChange={(e) => {
-                            e.stopPropagation();
-                            handleCollegeChange(college);
-                          }}
-                        />
-                        <span className="college-name">{college}</span>
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              )}
+  <div className="multi-select-dropdown">
+    {/* Scrollable list */}
+    <div className="options-list">
+      <div className="search-in-dropdown">
+        <input
+          type="text"
+          placeholder="Search colleges..."
+          onClick={e => e.stopPropagation()}
+          onChange={e => {
+            const value = e.target.value;
+            if (value.length > 0) {
+              const filtered = getAbbreviationMatches(value, sampleData.college);
+              setSuggestions(prev => ({ ...prev, college: filtered.slice(0, 5) }));
+            } else {
+              setSuggestions(prev => ({ ...prev, college: sampleData.college }));
+            }
+          }}
+          className="dropdown-search-input"
+        />
+      </div>
+      {(suggestions.college.length > 0 ? suggestions.college : sampleData.college).map(college => (
+        <div key={college} className="multi-select-option">
+          <label className="college-checkbox">
+            <input
+              type="checkbox"
+              checked={filters.college.includes(college)}
+              onChange={() => handleCollegeChange(college)}
+            />
+            <span className="college-name">{college}</span>
+          </label>
+        </div>
+      ))}
+    </div>
+
+    {/* Fixed footer */}
+    <div className="match-mode-footer">
+      <label>
+        <input
+          type="checkbox"
+          checked={filters.collegeMatchAll}
+          onChange={e =>
+            setFilters(f => ({ ...f, collegeMatchAll: e.target.checked }))
+          }
+        />
+        Require all selected colleges
+      </label>
+    </div>
+  </div>
+)}
+
             </div>
           </div>
           <div className="filter-item">

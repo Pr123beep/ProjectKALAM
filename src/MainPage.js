@@ -180,6 +180,7 @@ function MainPage({ user }) {
   const [filters, setFilters] = useState({
     college: [],
     companyIndustry: [],
+    collegeMatchAll: false,
     currentLocation: '',
     followersMin: 0,
     followersMax: 50000,
@@ -336,10 +337,17 @@ function MainPage({ user }) {
         );
 
         if (!acc[key]) {
+          const parsedColleges = item.college
+  ? item.college
+      .split(/[,;]+/)        // split on commas or semicolons
+      .map(c => c.trim())     // trim whitespace
+      .filter(Boolean)        // drop any empty strings
+  : [];
           acc[key] = { 
             ...item, 
-            colleges: item.college ? [item.college] : [],
-            college: item.college || '',
+            colleges: parsedColleges,
+  college: parsedColleges.join(', '),
+            
             hasWellfound: Boolean(item.wellFoundURL || item.wellFoundProfileURL),
             redditUrl,                 // Add Reddit URL
             isMentionedOnReddit,       // Add Reddit mention status
@@ -347,15 +355,23 @@ function MainPage({ user }) {
           };
         } else {
           // Add college to colleges array if it exists and isn't already included
-          if (item.college && !acc[key].colleges.includes(item.college)) {
-            acc[key].colleges.push(item.college);
-          }
+          
           
           // Update the single college field if it's empty and we have a new one
           if (!acc[key].college && item.college) {
             acc[key].college = item.college;
           }
-          
+          if (item.college) {
+            item.college
+              .split(/[,;]+/)
+              .map(c => c.trim())
+              .filter(Boolean)
+              .forEach(col => {
+                if (!acc[key].colleges.includes(col)) {
+                  acc[key].colleges.push(col);
+                }
+              });
+          }
           // Update Wellfound data if present
           if (item.wellFoundURL) {
             acc[key].wellFoundURL = item.wellFoundURL;
@@ -526,12 +542,25 @@ function MainPage({ user }) {
     // Apply college filter if any colleges are selected
     if (newFilters.college && newFilters.college.length > 0) {
       // Filter items that match ANY of the selected colleges
-      filteredResults = filteredResults.filter(item => {
-        const collegeData = Array.isArray(item.colleges) ? item.colleges : item.college;
-        return newFilters.college.some(selectedCollege => 
-          matchesCollege(collegeData, selectedCollege)
-        );
-      });
+      if (newFilters.college && newFilters.college.length > 0) {
+        filteredResults = filteredResults.filter(item => {
+          const collegeData = Array.isArray(item.colleges)
+            ? item.colleges
+            : [item.college];
+      
+          if (newFilters.collegeMatchAll) {
+            // require _all_ selected colleges
+            return newFilters.college.every(sel =>
+              matchesCollege(collegeData, sel)
+            );
+          } else {
+            // default: any
+            return newFilters.college.some(sel =>
+              matchesCollege(collegeData, sel)
+            );
+          }
+        });
+      }
     }
 
     // Apply industry filter if any industries are selected
@@ -562,27 +591,38 @@ function MainPage({ user }) {
     });
     
     // Apply source filters
-    const { linkedin, wellfound } = newFilters.profileSources;
-    if (linkedin || wellfound) {
-      filteredResults = filteredResults.filter(item => {
-        const isFromLinkedin = item.source === 'linkedin' || Boolean(item.linkedinProfileUrl);
-        const isFromWellfound = item.source === 'wellfound' || Boolean(item.wellFoundProfileURL);
-        
-        if (linkedin && wellfound) {
-          // Either source is accepted
-          return isFromLinkedin || isFromWellfound;
-        } else if (linkedin) {
-          // Only LinkedIn profiles
-          return isFromLinkedin;
-        } else if (wellfound) {
-          // Only Wellfound profiles
-          return isFromWellfound;
-        }
-        
-        // Default behavior if none selected - show all
-        return true;
-      });
-    }
+   // Apply source filters
+const { linkedin, wellfound } = newFilters.profileSources;
+filteredResults = filteredResults.filter(item => {
+  const isFromLinkedin = Boolean(item.linkedinProfileUrl);
+  const isFromWellfound = Boolean(
+      item.wellFoundProfileURL ||
+      item.wellFoundURL
+     );
+  // 1) neither checked → everything passes
+  if (!linkedin && !wellfound) {
+    return true;
+  }
+
+  // 2) LinkedIn only → any LinkedIn profile
+  if (linkedin && !wellfound) {
+    return isFromLinkedin && !isFromWellfound
+  }
+
+  // 3) Wellfound only → require both sources
+  if (!linkedin && wellfound) {
+    return isFromLinkedin && isFromWellfound;
+  }
+
+  // 4) both checked → also require both
+  if (linkedin && wellfound) {
+    return isFromLinkedin && isFromWellfound;
+  }
+
+  // fallback
+  return true;
+});
+
     
     // Apply ranking-based sorting if enabled
     if (newFilters.sortByRanking) {
@@ -621,44 +661,41 @@ function MainPage({ user }) {
       
       // Apply the rest of the filters
       // Source filtering logic
-      const showLinkedIn = filters.profileSources.linkedin;
-      const showWellfound = filters.profileSources.wellfound;
-      const hasWellfoundData = Boolean(item.wellFoundURL || item.wellFoundProfileURL);
-      const hasLinkedInData = Boolean(item.linkedinProfileUrl);
-      
-      // If no source filters are selected, show all data
-      if (!showLinkedIn && !showWellfound) {
-        // Pass everything through
-      } 
-      // If only LinkedIn is checked
-      else if (showLinkedIn && !showWellfound) {
-        if (!hasLinkedInData || hasWellfoundData) {
-          return false;
-        }
-      } 
-      // If only Wellfound is checked
-      else if (!showLinkedIn && showWellfound) {
-        if (!hasWellfoundData) {
-          return false;
-        }
-      }
-      // If both LinkedIn and Wellfound are checked
-      else if (showLinkedIn && showWellfound) {
-        if (!hasWellfoundData) {
-          return false;
-        }
-      }
+      const showLinkedIn  = filters.profileSources.linkedin;
+const showWellfound = filters.profileSources.wellfound;
+
+const hasLinkedIn  = Boolean(item.linkedinProfileUrl);
+const hasWellfound = Boolean(item.wellFoundProfileURL || item.wellFoundURL);
+
+// neither
+if (!showLinkedIn && !showWellfound) {
+  // pass
+} 
+// linkedin only
+else if (showLinkedIn && !showWellfound) {
+  if (!(hasLinkedIn && !hasWellfound)) return false;
+}
+// wellfound only
+else if (!showLinkedIn && showWellfound) {
+  if (!(hasLinkedIn && hasWellfound)) return false;
+}
+// both
+else if (showLinkedIn && showWellfound) {
+  if (!(hasLinkedIn && hasWellfound)) return false;
+}
       
       // Apply college filter
       if (filters.college.length > 0) {
-        const collegeData = Array.isArray(item.colleges) ? item.colleges : item.college;
-        // Check if any of the selected colleges match
-        const hasMatchingCollege = filters.college.some(selectedCollege => 
-          matchesCollege(collegeData, selectedCollege)
-        );
+        if (filters.college.length > 0) {
+          const collegeData = Array.isArray(item.colleges)
+            ? item.colleges
+            : [item.college];
         
-        if (!hasMatchingCollege) {
-          return false;
+          const pass = filters.collegeMatchAll
+            ? filters.college.every(sel => matchesCollege(collegeData, sel))
+            : filters.college.some(sel => matchesCollege(collegeData, sel));
+        
+          if (!pass) return false;
         }
       }
       
