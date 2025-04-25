@@ -256,22 +256,29 @@ const LabelsPage = () => {
                     <button
   className="view-profile-button"
   onClick={() => {
-    const [firstName, ...rest] = (fd.name || '').split(' ')
-    const lastName = rest.join(' ')
+    const fullName = fd.name || ''
+    const tokens = fullName.split(' ').filter(Boolean)
+    if (tokens.length === 0) return
+
+    const last = tokens.pop()             // Alam
+    const first = tokens.join(' ')        // Sohel Rana
+
     const json = wellfoundData.find(
       item =>
-        item.firstName === firstName &&
-        item.lastName === lastName
+        item.firstName === first &&
+        item.lastName === last
     )
-    if (!json) {
-      console.warn(`No JSON for ${fd.name}`)
-      return
+
+    if (json) {
+      setSelectedFounder(json)
+    } else {
+      console.warn(`No JSON for ${fullName}`)
     }
-    setSelectedFounder(json)
   }}
 >
   View Full Profile
 </button>
+
                       <button
                         className="remove-label-button"
                         onClick={() => handleRemove(profile.id)}
