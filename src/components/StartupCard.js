@@ -302,8 +302,17 @@ const calculateRanking = (item) => {
   };
 };
 
-const StartupCard = ({ data, inSeenProfilesPage, isSortByRankingEnabled }) => {
-  const [showDetails, setShowDetails] = useState(false);
+const StartupCard = ({
+  data,
+  inSeenProfilesPage,
+  isSortByRankingEnabled,
+  initiallyExpanded = false,    // ← new prop, default false
+  modalOnly = false,
+  onClose = () => {},
+}) => {
+  
+  // initialize showDetails from the prop
+  const [showDetails, setShowDetails] = useState(initiallyExpanded);
   const [isToggling, setIsToggling] = useState(false);
   const [aiSummary, setAiSummary] = useState(null);
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
@@ -311,6 +320,14 @@ const StartupCard = ({ data, inSeenProfilesPage, isSortByRankingEnabled }) => {
   const [isSeen, setIsSeen] = useState(false);
   const [hasLabels, setHasLabels] = useState(false);
   const [profileLabels, setProfileLabels] = useState([]);
+  
+
+  // if the prop flips to true later, make sure we open
+  useEffect(() => {
+    if (initiallyExpanded) {
+      setShowDetails(true);
+    }
+  }, [initiallyExpanded]);
 
   const founderKey = useMemo(() => {
     return `${data.firstName}-${data.lastName}`;
@@ -455,6 +472,7 @@ const StartupCard = ({ data, inSeenProfilesPage, isSortByRankingEnabled }) => {
       });
     }
   };
+  
 
   const collegeDisplay = React.useMemo(() => {
     if (Array.isArray(data.colleges) && data.colleges.length > 0) {
@@ -566,6 +584,204 @@ const StartupCard = ({ data, inSeenProfilesPage, isSortByRankingEnabled }) => {
   const rankingData = useMemo(() => calculateRanking(data), [data]);
   // Only show ranking if sortByRanking is enabled
   const showRankingBadge = isSortByRankingEnabled && rankingData && rankingData.rank !== null;
+  if (modalOnly) {
+    return ReactDOM.createPortal(
+      <div className="detail-overlay" onClick={onClose}>
+        <div
+          className="detail-modal no-animation"
+          onClick={e => e.stopPropagation()}
+        >
+          {/* ─── START COPY HERE ─── */}
+
+<motion.button 
+  className="close-button" 
+  onClick={onClose}
+  whileHover={{ scale: 1.1, backgroundColor: "rgba(0, 0, 0, 0.2)" }}
+  whileTap={{ scale: 0.95 }}
+  initial={{ opacity: 0, rotate: -90 }}
+  animate={{ opacity: 1, rotate: 0 }}
+  transition={{ delay: 0.3 }}
+>
+  <CloseIcon />
+</motion.button>
+
+<motion.div 
+  className="label-button-container modal-label-button"
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  transition={{ delay: 0.4 }}
+>
+  <LabelButton 
+    founderData={data} 
+      onLabelChange={(labels) => {
+          console.log('Profile labels:', labels);
+          setProfileLabels(labels);
+          setHasLabels(labels.length > 0);
+         // …any toast or other side-effects
+        }} 
+    className="modal-label-button"
+    dropdownDirection="down"
+  />
+</motion.div>
+
+<motion.div 
+  className="modal-header"
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  transition={{ delay: 0.1 }}
+>
+  <div className="profile-info">
+    {data.source && (
+      <motion.div 
+        className={`source-badge ${data.source}`}
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.2, duration: 0.4 }}
+      >
+        {data.source === 'linkedin' ? 'LinkedIn' : 'Wellfound'}
+      </motion.div>
+    )}
+    
+    <motion.div 
+      className="profile-avatar"
+      initial={{ scale: 0.8, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ delay: 0.2, duration: 0.4 }}
+    >
+      {data.firstName?.charAt(0)}{data.lastName?.charAt(0)}
+    </motion.div>
+
+    <div className="profile-main">
+      <motion.h2 
+        className="profile-name"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.4 }}
+      >
+        {data.firstName} {data.lastName}
+      </motion.h2>
+      
+      <motion.p 
+        className="profile-headline"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4, duration: 0.4 }}
+      >
+        {data.linkedinHeadline || data.wellfoundHeadline}
+      </motion.p>
+      
+      {data.location && (
+        <motion.p 
+          className="profile-location"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.4 }}
+        >
+          <LocationIcon /> {data.location}
+        </motion.p>
+      )}
+      
+      <motion.div 
+        className="profile-links"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, duration: 0.4 }}
+      >
+        {/* LinkedIn & Wellfound profile links here */}
+      </motion.div>
+    </div>
+  </div>
+</motion.div>
+
+<motion.div 
+  className="modal-content"
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  transition={{ delay: 0.2 }}
+>
+
+  {/* AI Summary Section */}
+  <motion.div 
+    className="detail-section ai-summary"
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.3 }}
+  >
+    <h3 className="section-title">📋 Summary</h3>
+    <div className="detail-card">
+      {/* loading / error / aiSummary logic */}
+    </div>
+  </motion.div>
+
+  {/* Enhanced Description */}
+  {data.linkedinDescription && (
+    <motion.div className="detail-section" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+      {formatEnhancedDescription(data.linkedinDescription)}
+    </motion.div>
+  )}
+
+  {/* Current Position */}
+  {(data.currentJob || data.linkedinJobTitle || data.companyName) && (
+    <motion.div className="detail-section" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+      <h3 className="section-title"><WorkIcon /> Current Position</h3>
+      <div className="detail-card">
+        {/* title, dateRange, location, industry, links */}
+      </div>
+    </motion.div>
+  )}
+
+  {/* Work Experience */}
+  {data.linkedinJobDescription && (
+    <motion.div className="detail-section" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
+      <h3 className="section-title"><WorkIcon /> Work Experience</h3>
+      <div className="detail-card">
+        {/* current + previous job descriptions */}
+      </div>
+    </motion.div>
+  )}
+
+  {/* Career History */}
+  {/* …your logic grouping company3–12… */}
+
+  {/* Education */}
+  {(data.linkedinSchoolName || data.linkedinPreviousSchoolName || collegeDisplay !== "Not specified") && (
+    <motion.div className="detail-section" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }}>
+      <h3 className="section-title"><EducationIcon /> Education</h3>
+      <div className="detail-card">
+        {/* list of schools/colleges */}
+      </div>
+    </motion.div>
+  )}
+
+  {/* Location & Contact */}
+  {(data.location || data.email) && (
+    <motion.div className="detail-section" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
+      <h3 className="section-title"><LocationIcon /> Location & Contact</h3>
+      <div className="detail-card">
+        {/* location and email */}
+      </div>
+    </motion.div>
+  )}
+
+  {/* Skills */}
+  {data.linkedinSkillsLabel && (
+    <motion.div className="detail-section" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.65 }}>
+      <h3 className="section-title"><SkillsIcon /> Skills</h3>
+      <div className="detail-card">
+        {/* skill tags */}
+      </div>
+    </motion.div>
+  )}
+
+</motion.div>
+
+
+
+        </div>
+      </div>,
+      document.body
+    );
+  }
 
   return (
     <div className={`card ${showDetails ? 'expanded' : ''} ${isSeen ? 'seen-profile' : ''}`} style={{ position: 'relative' }}>
@@ -738,7 +954,7 @@ const StartupCard = ({ data, inSeenProfilesPage, isSortByRankingEnabled }) => {
                 {/* Close button in top-right corner with animation */}
                 <motion.button 
                   className="close-button" 
-                  onClick={toggleDetails}
+                  onClick={onClose}
                   whileHover={{ scale: 1.1, backgroundColor: "rgba(0, 0, 0, 0.2)" }}
                   whileTap={{ scale: 0.95 }}
                   initial={{ opacity: 0, rotate: -90 }}

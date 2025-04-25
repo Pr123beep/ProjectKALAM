@@ -1,3 +1,20 @@
+:root {
+  --card-bg: #ffffff;
+  --card-border: #e2e8f0;
+  --card-radius: 12px;
+  --card-shadow: rgba(0, 0, 0, 0.05);
+  --card-shadow-hover: rgba(0, 0, 0, 0.1);
+
+  --primary: #2a9d8f;
+  --primary-hover: #21867a;
+
+  --danger: #e53e3e;
+  --danger-bg-hover: rgba(229, 62, 62, 0.1);
+
+  --text-dark: #2d3748;
+  --text-muted: #718096;
+}
+
 html, body {
   height: 100%;
   overflow-y: auto !important;
@@ -240,160 +257,88 @@ html, body {
 
 .labeled-profiles-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
-  padding-bottom: 40px;
-  margin-top: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.25rem;
+}
+
+/* collapse to single column on narrow viewports */
+@media (max-width: 600px) {
+  .labeled-profiles-list {
+    grid-template-columns: 1fr;
+  }
 }
 
 .labeled-profile-card {
   display: flex;
   flex-direction: column;
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  padding: 16px;
-  border: 1px solid #e2e8f0;
-  border-top-width: 4px;
-  transition: all 0.2s;
-  height: auto;
-  min-height: 230px;
-  max-height: 300px;
-  justify-content: flex-start;
-  position: relative;
-  overflow: hidden;
+  justify-content: space-between;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-radius);
+  box-shadow: 0 4px 12px var(--card-shadow);
+  padding: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
-
 .labeled-profile-card:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  transform: translateY(-3px);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px var(--card-shadow-hover);
 }
 
 .labeled-profile-content {
   flex: 1;
-  display: flex;
-  flex-direction: column;
   overflow: hidden;
 }
 
 .labeled-profile-name {
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 600;
-  margin: 0 0 8px 0;
-  color: #2d3748;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  line-height: 1.3;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
 }
 
-.labeled-profile-details {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 8px;
-}
-
-.labeled-profile-company,
-.labeled-profile-sector {
-  font-size: 12px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  max-width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: inline-block;
-}
-
-.labeled-profile-company {
-  background-color: #e6fffa;
-  color: #2c7a7b;
-}
-
-.labeled-profile-sector {
-  background-color: #ebf4ff;
-  color: #4c51bf;
-}
-
-.labeled-profile-headline {
-  font-size: 13px;
-  color: #4a5568;
-  margin-bottom: 8px;
-  line-height: 1.4;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  max-height: 40px;
-}
-
-.labeled-profile-notes {
-  font-size: 13px;
-  color: #718096;
-  margin-bottom: 8px;
-  padding: 6px;
-  background-color: #f7fafc;
-  border-radius: 4px;
-  border-left: 3px solid var(--primary-color);
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.labeled-profile-date {
-  font-size: 11px;
-  color: #a0aec0;
-  margin-top: 10px;
-  margin-bottom: 6px;
+.labeled-profile-content p {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin: 0.25rem 0;
 }
 
 .labeled-profile-actions {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: auto;
-  padding-top: 10px;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.view-profile-button,
+.remove-label-button {
+  flex: 1;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .view-profile-button {
-  background-color: var(--primary-color);
-  color: white;
+  background: var(--primary);
+  color: #fff;
   border: none;
-  flex: 1;
-  min-width: 100px;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: center;
 }
 
 .view-profile-button:hover {
-  background-color: #21867a;
+  background: var(--primary-hover);
   transform: translateY(-2px);
 }
 
 .remove-label-button {
-  background-color: white;
-  color: #e53e3e;
-  border: 1px solid #e53e3e;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: center;
+  background: #fff;
+  color: var(--danger);
+  border: 1px solid var(--danger);
 }
 
 .remove-label-button:hover {
-  background-color: #fff5f5;
+  background: var(--danger-bg-hover);
   transform: translateY(-2px);
 }
 
@@ -1020,3 +965,29 @@ html, body {
 .previous-job h4 {
   color: #555;
 } 
+
+
+.card-header-pill {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+/* the little label badge */
+.company-pill {
+  background: rgba(42, 157, 143, 0.15);
+  color: #2a9d8f;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+/* the “Labeled on” date */
+.labeled-on {
+  font-size: 0.75rem;
+  color: #718096;
+}
