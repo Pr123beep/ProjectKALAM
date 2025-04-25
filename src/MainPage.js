@@ -1,5 +1,5 @@
 // src/MainPage.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import wellfoundData from './wellfndAndphantom.json'; // Import Wellfound data
 import iitRedditData from './iit-reddit.json'; // Import Reddit data
@@ -11,7 +11,17 @@ import { getUserSeenProfiles } from './supabaseClient';
 import ScrollToTop from './components/ScrollToTop';
 import ScrollButton from './components/ScrollButton';
 
-
+const DEFAULT_FILTERS = {
+  college: [],
+  companyIndustry: [],
+  collegeMatchAll: false,
+  currentLocation: '',
+  followersMin: 0,
+  followersMax: 50000,
+  profileSources: { linkedin: false, wellfound: false },
+  stealthMode: false,
+  sortByRanking: false
+};
 // Enhanced function for normalizing all types of college names
 const normalizeCollegeName = (name) => {
   if (!name) return '';
@@ -196,6 +206,7 @@ function sortByRanking(data) {
 
 
 function MainPage({ user }) {
+  const dataRef  = useRef([])
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [filters, setFilters] = useState({
@@ -426,6 +437,8 @@ function MainPage({ user }) {
     
     setData(deduped);
     setFilteredData(deduped);
+    dataRef.current = deduped;
+
   }, [filters.sortByRanking]);
 
   useEffect(() => {
@@ -447,6 +460,22 @@ function MainPage({ user }) {
         data.find(item => item.wellFoundURL || item.wellFoundProfileURL));
     }
   }, [data]);
+  useEffect(() => {
+    const handleReset = () => {
+      // 1) wipe out all filters
+      setFilters(DEFAULT_FILTERS);
+      setCurrentPage(1);
+  
+      // 2) reshuffle & reapply
+      const reshuffled = shuffleArray([...dataRef.current]);
+      setData(reshuffled);
+      setFilteredData(reshuffled);
+    };
+  
+    window.addEventListener('resetFilters', handleReset);
+    return () => window.removeEventListener('resetFilters', handleReset);
+  }, []);
+  
 
   useEffect(() => {
     const loadSeenProfiles = async () => {

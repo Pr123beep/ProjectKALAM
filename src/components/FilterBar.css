@@ -10,6 +10,8 @@
   overflow: visible; /* Changed from auto to visible for better resize handling */
   transition: width 0.2s ease; /* Smooth transition when resizing */
   z-index: 100; /* Ensure it stays above other content */
+  transform: translateY(20px);
+  transition: transform 0.3s ease-out;
 }
 
 /* Resize handle styles - improved for easier interaction */
@@ -1374,4 +1376,16 @@
 }
 .match-mode-footer input {
   margin-right: 0.5em;
+}
+
+
+/* FilterBar.css */
+
+
+
+.advanced-filter-bar.filter-sticky {
+  position: fixed;
+  top: 80px;               /* height of your KALAM header */
+  transform: translateY(0); 
+  z-index: 10;             /* ensure it sits *below* header which should have higher z-index */
 }

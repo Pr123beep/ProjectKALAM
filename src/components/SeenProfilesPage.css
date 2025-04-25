@@ -1,3 +1,5 @@
+/* SeenProfilesPage.css*/
+
 .seen-profiles-page {
   max-width: 1200px;
   margin: 0 auto;
@@ -20,7 +22,9 @@
   margin: 0;
   color: #000000;
 }
-
+.content {
+  margin-top: 60px;
+}
 .seen-profiles-controls {
   display: flex;
   gap: 1rem;

@@ -48,6 +48,7 @@ a:hover {
   overflow: visible;
   position: relative;
   max-width: 100%;
+  margin-top: 80px; 
 }
 
 .sidebar {
@@ -958,3 +959,32 @@ a:hover {
   font-weight: 500;
   transition: all 0.2s ease;
 }
+
+
+
+/* ───────────────────────────────────────────────────────
+   1) your fixed “KALAM” header
+   ─────────────────────────────────────────────────────── */
+   .app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;             /* ← adjust to exactly match your header’s real height */
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 1000;            /* higher than everything else */
+  }
+  
+  /* ───────────────────────────────────────────────────────
+     2) pin the filter bar **beneath** that header
+     ─────────────────────────────────────────────────────── */
+  .advanced-filter-bar.filter-sticky {
+    position: fixed !important;
+    top: 80px !important;     /* ← same 80px as header height */
+    left: 0;
+    width: 100%;
+    z-index: 100;             /* lower than 1000 so header always sits on top */
+    transform: translateY(0) !important;
+  }
+  
