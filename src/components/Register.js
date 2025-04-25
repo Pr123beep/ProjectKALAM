@@ -1,5 +1,6 @@
 // src/components/Register.js
 import React, { useState } from 'react';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { signUpWithEmail, signInWithGoogle } from '../supabaseClient';
 
@@ -20,6 +21,8 @@ const GoogleIcon = () => (
 const Register = ({ onRegisterSuccess }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [blink, setBlink]               = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -105,17 +108,29 @@ const Register = ({ onRegisterSuccess }) => {
           <div className="form-group">
             <label htmlFor="password" className="form-label">Password</label>
             <input
-              id="password"
-              type="password"
-              className="form-input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              minLength="6"
-            />
-            <small className="form-hint">Must be at least 6 characters</small>
-          </div>
+            id="password"
+            type={showPassword ? 'text' : 'password'}
+            className="form-input password-input"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            required
+            minLength="6"
+          />
+          <button
+            type="button"
+            className={`password-toggle${blink ? ' blink' : ''}`}
+            onClick={() => {
+              setBlink(true);
+              setShowPassword(v => !v);
+              setTimeout(() => setBlink(false), 300);
+            }}
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+          >
+            {showPassword ? <FiEyeOff /> : <FiEye />}
+          </button>
+           <small className="form-hint">Must be at least 6 characters</small>
+         </div>
 
           <button 
             type="submit" 

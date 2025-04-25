@@ -45,6 +45,7 @@
 }
 
 .form-group {
+  position: relative;
   margin-bottom: 1.25rem;
 }
 
@@ -354,6 +355,42 @@
 }
 
 /* only run when .blink is present */
+.password-toggle.blink svg {
+  animation: eyeBlink 0.3s ease-in-out;
+}
+/* ——————————————————————————————————— */
+/* Eye pulse + blink for password-toggle */
+
+/* slow, subtle “breathing” pulse */
+@keyframes eyePulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.15); }
+}
+
+/* fast vertical squash “blink” */
+@keyframes eyeBlink {
+  0%, 100% { transform: scale(1,1); }
+  50%       { transform: scale(1,0.2); }
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.password-toggle svg {
+  animation: eyePulse 3s ease-in-out infinite;
+}
+
+/* only when toggling */
 .password-toggle.blink svg {
   animation: eyeBlink 0.3s ease-in-out;
 }
