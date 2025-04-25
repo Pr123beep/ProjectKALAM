@@ -124,6 +124,7 @@ const LabelsPage = () => {
 
   // ── handlers ─────────────────────────
   const handleLabelClick = async name => {
+    setSelectedFounder(null)
     setSelectedLabel(name)
     if (!profilesByLabel[name]) await fetchProfilesForLabel(name)
   }
