@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { signInWithEmail, resetPassword, signInWithGoogle } from '../supabaseClient';
+import { FiEye, FiEyeOff } from 'react-icons/fi'; // ← feather icons
 import './Auth.css';
 
 // Official Google icon component
@@ -19,6 +20,8 @@ const GoogleIcon = () => (
 const Login = ({ onLoginSuccess }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [blink, setBlink]         = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -162,17 +165,33 @@ const Login = ({ onLoginSuccess }) => {
               />
             </div>
 
-            <div className="form-group">
+            <div className="form-group password-group">
               <label htmlFor="password" className="form-label">Password</label>
               <input
                 id="password"
-                type="password"
-                className="form-input"
+                type={showPassword ? 'text' : 'password'}
+                className="form-input password-input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
               />
+                        <button
+    type="button"
+    className={`password-toggle${blink ? ' blink' : ''}`}
+    onClick={() => {
+      // trigger blink
+      setBlink(true);
+      // flip visibility
+      setShowPassword(v => !v);
+      // remove blink class after animation
+      setTimeout(() => setBlink(false), 300);
+    }}
+    aria-label={showPassword ? 'Hide password' : 'Show password'}
+  >
+    {showPassword ? <FiEyeOff /> : <FiEye />}
+  </button>
+
               <div className="form-forgot">
                 <button
                   type="button"

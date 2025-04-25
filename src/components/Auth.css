@@ -305,3 +305,55 @@
     padding: 0.6rem 0.8rem;
   }
 } 
+
+/* make the password wrapper a positioning context */
+.password-group {
+  position: relative;
+}
+
+/* leave room on the right of the input so text never overlaps the icon */
+.password-input {
+  padding-right: 2.5rem;
+}
+
+/* absolutely position the toggle inside that wrapper */
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 2;           /* ensure it’s above the input’s background */
+  display: flex;
+  align-items: center;
+}
+
+/* tweak size/color of the feather icon */
+.password-toggle svg {
+  width: 1.2em;
+  height: 1.2em;
+  color: #555;
+}
+/* a slow, subtle scale in/out */
+@keyframes eyePulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.15); }
+}
+
+/* apply to the SVG inside the toggle button */
+.password-toggle svg {
+  animation: eyePulse 3s ease-in-out infinite;
+}
+/* the blink keyframes: a fast vertical squash */
+@keyframes eyeBlink {
+  0%, 100% { transform: scale(1,1); }
+  50%       { transform: scale(1,0.2); }
+}
+
+/* only run when .blink is present */
+.password-toggle.blink svg {
+  animation: eyeBlink 0.3s ease-in-out;
+}

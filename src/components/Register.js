@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { signUpWithEmail, signInWithGoogle } from '../supabaseClient';
+
 import './Auth.css';
 
 // Official Google icon component
