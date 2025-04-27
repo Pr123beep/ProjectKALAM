@@ -40,7 +40,17 @@ const normalizeCollegeName = (name) => {
     'bits': 'birla institute of technology and science',
     
     'inst': 'institute',
-    'mgmt': 'management'
+    'mgmt': 'management',
+    'mit': 'massachusetts institute of technology',
+    'stanford': 'stanford university',
+    'hbs': 'harvard business school',
+    'wharton': 'the wharton school',
+    'ucb': 'university of california, berkeley',
+    'cmu': 'carnegie mellon university',
+    'gatech': 'georgia institute of technology',
+    'ucla': 'UCLA Anderson School of Management',
+    'jhu': 'the johns hopkins university',
+    'nit': 'National Institute of Technology'
   };
   
   // Campus city abbreviations
