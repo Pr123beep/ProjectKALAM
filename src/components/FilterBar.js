@@ -248,7 +248,6 @@ const FilterBar = ({ onApplyFilters }) => {
       'W. P. Carey School of Business – Arizona State University',
 
 
-    'National Institute of Technology Calicut',
     'Visvesvaraya National Institute of Technology',
     'Visvesvaraya Technological University',
     'SRM IST Chennai',

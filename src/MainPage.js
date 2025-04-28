@@ -429,27 +429,20 @@ function MainPage({ user }) {
       }, {})
     );
     
-    // Shuffle the array randomly
-    deduped = shuffleArray(deduped);
-    
-    // Add debug logging for college data
-    console.log('Sample deduped data:', deduped.slice(0, 5).map(item => ({
-      name: `${item.firstName} ${item.lastName}`,
-      college: item.college,
-      colleges: item.colleges
-    })));
-    
-    // Only sort by ranking if enabled in filters
-    if (filters.sortByRanking) {
-      deduped = sortByRanking(deduped);
-      console.log('Initial data sorted by ranking');
-    }
-    
-    setData(deduped);
-    setFilteredData(deduped);
-    dataRef.current = deduped;
+    const sortedOnce = sortByRanking(deduped);
 
-  }, [filters.sortByRanking]);
+  // 2️⃣ Annotate every item with its permanent rank:
+  const withOriginalRank = sortedOnce.map((item, i) => ({
+    ...item,
+    originalRank:   i + 1,
+    originalPoints: Math.round(computeRuleBasedScore(item) * 100)
+  }));
+
+  // 3️⃣ Seed your state from that:
+  setData(withOriginalRank);
+  setFilteredData(withOriginalRank);
+  dataRef.current = withOriginalRank;
+}, []); // ← run only once, on mount
 
   useEffect(() => {
     if (data.length > 0) {

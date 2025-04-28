@@ -191,6 +191,7 @@ button {
 
 .header-container {
   display: flex;
+  padding-left: var(--spacing-8);
   align-items: center;
   justify-content: space-between;
   padding: var(--spacing-4) 0;
@@ -200,6 +201,7 @@ button {
 }
 
 .logo-container {
+  margin-left: var(--spacing-4);
   display: flex;
   align-items: center;
   gap: var(--spacing-3);
@@ -240,6 +242,7 @@ button {
 }
 
 .branding {
+  margin-left: var(--spacing-4);
   font-weight: 700;
   font-size: 1.5rem;
   color: var(--foreground);
