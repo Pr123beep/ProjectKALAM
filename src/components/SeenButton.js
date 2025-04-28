@@ -50,7 +50,7 @@ const SeenButton = ({ founderData, onSeenChange }) => {
       setIsLoading(false);
     }
   };
-
+  
   // Format the seen date if available
   const formatSeenDate = () => {
     if (!seenAt) return '';

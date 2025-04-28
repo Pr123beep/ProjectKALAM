@@ -320,6 +320,16 @@ const StartupCard = ({
   const [isSeen, setIsSeen] = useState(false);
   const [hasLabels, setHasLabels] = useState(false);
   const [profileLabels, setProfileLabels] = useState([]);
+
+
+
+  const handleExternalLinkClick = () => {
+        if (!isSeen) {
+          markProfileAsSeen(data)
+            .then(() => setIsSeen(true))
+            .catch(console.error);
+        }
+      };
   
 
   // if the prop flips to true later, make sure we open
@@ -855,6 +865,7 @@ const showRankingBadge = isSortByRankingEnabled && typeof rank === 'number';
             {/* Founder name and Wellfound profile link */}
             <a 
               href={data.linkedinProfileUrl} 
+              onClick={handleExternalLinkClick}
               target="_blank" 
               rel="noopener noreferrer"
             >
@@ -865,6 +876,8 @@ const showRankingBadge = isSortByRankingEnabled && typeof rank === 'number';
             {data.wellFoundProfileURL && (
               <a 
                 href={data.wellFoundProfileURL}
+                onClick={handleExternalLinkClick}
+
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="wellfound-badge"
@@ -879,6 +892,7 @@ const showRankingBadge = isSortByRankingEnabled && typeof rank === 'number';
             {/* Company link - only LinkedIn URL */}
             <a 
               href={data.linkedinCompanyUrl} 
+              onClick={handleExternalLinkClick}
               target="_blank" 
               rel="noopener noreferrer"
             >
