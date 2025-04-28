@@ -1,5 +1,5 @@
 // src/MainPage.js
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import wellfoundData from './wellfndAndphantom.json'; // Import Wellfound data
 import iitRedditData from './iit-reddit.json'; // Import Reddit data
@@ -447,7 +447,7 @@ function MainPage({ user }) {
   setData(initialList);
   setFilteredData(initialList);
   dataRef.current = withOriginalRank;
-}, []); // ← run only once, on mount
+}, [filters.sortByRanking]); // ← run only once, on mount
 
   useEffect(() => {
     if (data.length > 0) {
@@ -587,121 +587,97 @@ function MainPage({ user }) {
     });
   };
 
-  // Common filtering logic
-  const applyRegularFiltersToData = (dataToFilter, newFilters) => {
-    // Start with all data
-    let filteredResults = [...dataToFilter];
-    if (newFilters.searchQuery && newFilters.searchQuery.trim() !== '') {
-            const q = newFilters.searchQuery.trim().toLowerCase();
-            filteredResults = filteredResults.filter(item =>
-          searchInFields(item, q)
-           );
-          }
-        
-    // Apply stealth mode filter if enabled
-    if (newFilters.stealthMode) {
-      filteredResults = filteredResults.filter(item => isInStealthMode(item));
-    }
-    // ─── College filter ───
-if (newFilters.college && newFilters.college.length > 0) {
-  filteredResults = filteredResults.filter(item => {
-    const collegesArray = Array.isArray(item.colleges)
-      ? item.colleges
-      : (item.college || "")
-          .split(",")
-          .map(s => s.trim())
-          .filter(Boolean);
+// Common filtering logic
+const applyRegularFiltersToData = useCallback((dataToFilter, newFilters) => {
+  let filteredResults = [...dataToFilter];
 
-    const matches = filterCol =>
-      collegesArray.some(c =>
-        normalizeCollegeName(c) === normalizeCollegeName(filterCol)
-      );
+  // 1) Global search across all fields
+  if (newFilters.searchQuery && newFilters.searchQuery.trim() !== '') {
+    const q = newFilters.searchQuery.trim().toLowerCase();
+    filteredResults = filteredResults.filter(item =>
+      searchInFields(item, q)
+    );
+  }
 
-    return newFilters.collegeMatchAll
-      ? newFilters.college.every(matches)
-      : newFilters.college.some(matches);
-  });
-}
+  // 2) Stealth-mode filter
+  if (newFilters.stealthMode) {
+    filteredResults = filteredResults.filter(item => isInStealthMode(item));
+  }
 
-// ─── Industry filter ───
-if (newFilters.companyIndustry && newFilters.companyIndustry.length > 0) {
-  filteredResults = filteredResults.filter(item => {
-    const industry = (
-      item.companyIndustry ||
-      item.linkedinIndustry ||
-      ""
-    ).toLowerCase().trim();
-
-    return newFilters.companyIndustry.some(sel => {
-      sel = sel.toLowerCase().trim();
-      return industry === sel || industry.includes(sel);
-    });
-  });
-}
-
-    
-    // Apply college filter if any colleges are selected
-    
-      // Filter items that match ANY of the selected colleges
-      // Apply college filter if any colleges are selected
-      
-
-    // Apply location filter if specified
-    if (newFilters.currentLocation) {
-      filteredResults = filteredResults.filter(item => {
-        return item.location && 
-               item.location.toLowerCase().includes(newFilters.currentLocation.toLowerCase());
-        });
-    }
-    
-    // Apply followers range filter
+  // 3) College filter
+  if (newFilters.college && newFilters.college.length > 0) {
     filteredResults = filteredResults.filter(item => {
-      // Check if the item has followers count within the specified range
-      const followersCount = parseInt(item.linkedinFollowersCount) || 0;
-      return followersCount >= newFilters.followersMin && 
-            (newFilters.followersMax === 0 || followersCount <= newFilters.followersMax);
+      const collegesArray = Array.isArray(item.colleges)
+        ? item.colleges
+        : (item.college || "")
+            .split(',')
+            .map(s => s.trim())
+            .filter(Boolean);
+
+      const matchesOne = filterCol =>
+        collegesArray.some(c =>
+          normalizeCollegeName(c) === normalizeCollegeName(filterCol)
+        );
+
+      return newFilters.collegeMatchAll
+        ? newFilters.college.every(matchesOne)
+        : newFilters.college.some(matchesOne);
     });
-    
-    // Apply source filters
-   // Apply source filters
-const { linkedin, wellfound } = newFilters.profileSources;
-filteredResults = filteredResults.filter(item => {
-  const isFromLinkedin = Boolean(item.linkedinProfileUrl);
-  const isFromWellfound = Boolean(
-      item.wellFoundProfileURL ||
-      item.wellFoundURL
-     );
-  // 1) neither checked → everything passes
-  if (!linkedin && !wellfound) {
-    return true;
   }
 
-  // 2) LinkedIn only → any LinkedIn profile
-  if (linkedin && !wellfound) {
-    return isFromLinkedin && !isFromWellfound
+  // 4) Industry filter
+  if (newFilters.companyIndustry && newFilters.companyIndustry.length > 0) {
+    filteredResults = filteredResults.filter(item => {
+      const industry = (
+        item.companyIndustry ||
+        item.linkedinIndustry ||
+        ""
+      ).toLowerCase().trim();
+
+      return newFilters.companyIndustry.some(sel =>
+        industry.includes(sel.toLowerCase().trim())
+      );
+    });
   }
 
-  // 3) Wellfound only → require both sources
-  if (!linkedin && wellfound) {
-    return isFromLinkedin && isFromWellfound;
+  // 5) Location filter
+  if (newFilters.currentLocation) {
+    const loc = newFilters.currentLocation.toLowerCase();
+    filteredResults = filteredResults.filter(item =>
+      item.location?.toLowerCase().includes(loc)
+    );
   }
 
-  // 4) both checked → also require both
-  if (linkedin && wellfound) {
-    return isFromLinkedin && isFromWellfound;
-  }
+  // 6) Followers range filter
+  filteredResults = filteredResults.filter(item => {
+    const cnt = parseInt(item.linkedinFollowersCount, 10) || 0;
+    return cnt >= newFilters.followersMin &&
+           (newFilters.followersMax === 0 || cnt <= newFilters.followersMax);
+  });
 
-  // fallback
-  return true;
-});
+  // 7) Source (LinkedIn/Wellfound) filter
+  const { linkedin, wellfound } = newFilters.profileSources;
+  filteredResults = filteredResults.filter(item => {
+    const hasLI = Boolean(item.linkedinProfileUrl);
+    const hasWF = Boolean(item.wellFoundProfileURL || item.wellFoundURL);
+
+    if (!linkedin && !wellfound) return true;
+    if (linkedin && !wellfound) return hasLI && !hasWF;
+    if (!linkedin && wellfound) return hasLI && hasWF;
+    // both checked
+    return hasLI && hasWF;
+  });
+
+  // 8) (Optionally) downstream you can sort by ranking:
+
 
     
     // Apply ranking-based sorting if enabled
     return newFilters.sortByRanking
     ? sortByRanking(filteredResults)
     : filteredResults;
-  };
-
+  },[]);
+  
   // Update search functionality to use state
   const handleSearchChange = (e) => {
     const raw = e.target.value;
@@ -904,22 +880,13 @@ else if (showLinkedIn && showWellfound) {
       augmentedFilteredData = [ajiteshProfile, ...filteredData];
     }
   }
-  useEffect(() => {
+useEffect(() => {
   let results = applyRegularFiltersToData(data, filters);
-
-  if (searchQuery.trim() !== '') {
-    const q = searchQuery.trim().toLowerCase();
-    results = results.filter(item => searchInFields(item, q));
-  }
-
-  // if you still want sort-by-ranking to reorder _after_ both filter+search:
-  if (filters.sortByRanking) {
-    results = sortByRanking(results);
-  }
-
+  if (filters.sortByRanking) results = sortByRanking(results);
   setFilteredData(results);
   setCurrentPage(1);
-}, [data, filters, searchQuery]);
+}, [data, filters, applyRegularFiltersToData]);
+
   // Use the augmented data for pagination and items
   const augmentedTotalPages = Math.ceil(augmentedFilteredData.length / itemsPerPage);
   const currentItems = augmentedFilteredData.slice(startIndex, startIndex + itemsPerPage);
