@@ -232,7 +232,8 @@ function MainPage({ user }) {
       wellfound: false
     },
     stealthMode: false, // Add stealth mode filter
-    sortByRanking: false // Ranking sort disabled by default
+    sortByRanking: false, // Ranking sort disabled by default
+    searchQuery: ''
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [popupVisible, setPopupVisible] = useState(false);
@@ -595,43 +596,49 @@ function MainPage({ user }) {
     if (newFilters.stealthMode) {
       filteredResults = filteredResults.filter(item => isInStealthMode(item));
     }
+    // ─── College filter ───
+if (newFilters.college && newFilters.college.length > 0) {
+  filteredResults = filteredResults.filter(item => {
+    const collegesArray = Array.isArray(item.colleges)
+      ? item.colleges
+      : (item.college || "")
+          .split(",")
+          .map(s => s.trim())
+          .filter(Boolean);
+
+    const matches = filterCol =>
+      collegesArray.some(c =>
+        normalizeCollegeName(c) === normalizeCollegeName(filterCol)
+      );
+
+    return newFilters.collegeMatchAll
+      ? newFilters.college.every(matches)
+      : newFilters.college.some(matches);
+  });
+}
+
+// ─── Industry filter ───
+if (newFilters.companyIndustry && newFilters.companyIndustry.length > 0) {
+  filteredResults = filteredResults.filter(item => {
+    const industry = (
+      item.companyIndustry ||
+      item.linkedinIndustry ||
+      ""
+    ).toLowerCase().trim();
+
+    return newFilters.companyIndustry.some(sel => {
+      sel = sel.toLowerCase().trim();
+      return industry === sel || industry.includes(sel);
+    });
+  });
+}
+
     
     // Apply college filter if any colleges are selected
     
       // Filter items that match ANY of the selected colleges
       // Apply college filter if any colleges are selected
-      if (newFilters.college && newFilters.college.length > 0) {
-        filteredResults = filteredResults.filter(item => {
-          const yourColleges = Array.isArray(item.colleges)
-            ? item.colleges
-            : [ item.college ];
       
-          // 1️⃣ “Match All” mode: require a 1:1 fuzzy match
-          if (newFilters.collegeMatchAll) {
-            const sel = newFilters.college;
-            if (sel.length !== yourColleges.length) return false;
-      
-            // every selected tag matches at least one of the item’s colleges
-            const allSelMatch = sel.every(filterCollege =>
-              yourColleges.some(itemCollege =>
-                matchesCollege([ itemCollege ], filterCollege)
-              )
-            );
-            // and every item‐college matches at least one selected tag
-            const allYourMatch = yourColleges.every(itemCollege =>
-              sel.some(filterCollege =>
-                matchesCollege([ itemCollege ], filterCollege)
-              )
-            );
-            return allSelMatch && allYourMatch;
-          }
-      
-          // 2️⃣ “Match Any” mode: at least one selected tag fuzzy‐matches
-          return newFilters.college.some(filterCollege =>
-            matchesCollege(yourColleges, filterCollege)
-          );
-        });
-      }
 
     // Apply location filter if specified
     if (newFilters.currentLocation) {
