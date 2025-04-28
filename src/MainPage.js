@@ -591,6 +591,12 @@ function MainPage({ user }) {
   const applyRegularFiltersToData = (dataToFilter, newFilters) => {
     // Start with all data
     let filteredResults = [...dataToFilter];
+    if (newFilters.searchQuery && newFilters.searchQuery.trim() !== '') {
+            const q = newFilters.searchQuery.trim().toLowerCase();
+            filteredResults = filteredResults.filter(item =>
+          searchInFields(item, q)
+           );
+          }
         
     // Apply stealth mode filter if enabled
     if (newFilters.stealthMode) {
@@ -898,7 +904,22 @@ else if (showLinkedIn && showWellfound) {
       augmentedFilteredData = [ajiteshProfile, ...filteredData];
     }
   }
-  
+  useEffect(() => {
+  let results = applyRegularFiltersToData(data, filters);
+
+  if (searchQuery.trim() !== '') {
+    const q = searchQuery.trim().toLowerCase();
+    results = results.filter(item => searchInFields(item, q));
+  }
+
+  // if you still want sort-by-ranking to reorder _after_ both filter+search:
+  if (filters.sortByRanking) {
+    results = sortByRanking(results);
+  }
+
+  setFilteredData(results);
+  setCurrentPage(1);
+}, [data, filters, searchQuery]);
   // Use the augmented data for pagination and items
   const augmentedTotalPages = Math.ceil(augmentedFilteredData.length / itemsPerPage);
   const currentItems = augmentedFilteredData.slice(startIndex, startIndex + itemsPerPage);
