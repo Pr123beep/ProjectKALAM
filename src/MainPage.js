@@ -694,27 +694,25 @@ filteredResults = filteredResults.filter(item => {
 
   // Update search functionality to use state
   const handleSearchChange = (e) => {
-    const newSearchQuery = e.target.value;
-    setSearchQuery(newSearchQuery);
-    setCurrentPage(1); // Reset to first page when search changes
+    const raw = e.target.value;
+    setSearchQuery(raw);
+    setCurrentPage(1);
+    const q = raw.trim().toLowerCase();
     
     // Apply current filters with the new search query
-    let currentFilteredData = data.filter(item => {
-      // If search query exists, check if the item matches
-      if (newSearchQuery.trim() !== '') {
-        // Direct profile search by exact name
-        const exactNameSearch = `${item.firstName || ''} ${item.lastName || ''}`.toLowerCase() === newSearchQuery.toLowerCase().trim();
-        
-        // If this is an exact match, include it regardless of other filters
-        if (exactNameSearch) {
-          return true;
-        }
-        
-        // Otherwise, search across all fields
-        if (!searchInFields(item, newSearchQuery)) {
-          return false;
-        }
-      }
+        let currentFilteredData = data.filter(item => {
+            // If there's something to search…
+            if (q !== '') {
+              // 2.a) exact-name match shortcut
+              const fullName = `${item.firstName || ''} ${item.lastName || ''}`.toLowerCase();
+              if (fullName === q) return true;
+      
+              // 2.b) otherwise fuzzy across all fields
+              if (!searchInFields(item, q)) {
+                return false;
+              }
+            }
+            
       
       // Apply the rest of the filters
       // Source filtering logic
