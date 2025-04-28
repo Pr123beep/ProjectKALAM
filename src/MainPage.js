@@ -791,7 +791,7 @@ else if (showLinkedIn && showWellfound) {
       // Basic profile info
       `${item.firstName || ''} ${item.lastName || ''}`,
       item.companyName || '',
-      item.linkedinHeadline || item.wellfoundHeadline || '',
+     
       
       // Current job data
       item.linkedinJobTitle || '',
@@ -801,21 +801,20 @@ else if (showLinkedIn && showWellfound) {
       // Previous job data
       item.linkedinPreviousJobTitle || '',
       item.previousCompanyName || '',
-      item.linkedinPreviousJobDescription || '',
-      item.linkedinPreviousJobDateRange || '',
+      
+      
       
       // Education data
-      item.linkedinSchoolName || '',
-      item.linkedinSchoolDegree || '',
-      item.linkedinPreviousSchoolName || '',
-      item.linkedinPreviousSchoolDegree || '',
+      
+      
+      
       
       // Industry and location
-      item.companyIndustry || '',
-      item.location || item.currentLocation || '',
+      
+      // item.location || item.currentLocation || '',
       
       // Skills
-      item.linkedinSkillsLabel || '',
+     
       
       // Additional companies
       item.company3Name || '',
@@ -823,16 +822,16 @@ else if (showLinkedIn && showWellfound) {
       item.company5Name || '',
       item.company6Name || '',
       item.company7Name || '',
-      item.company3Designation || '',
-      item.company4Designation || '',
-      item.company5Designation || '',
-      item.company6Designation || '',
-      item.company7Designation || '',
+      item.company8Name || '',
+      item.company9Name || '',
+      item.company10Name || '',
+      item.company11Name || '',
+      item.company12Name || '',
+
+      
       
       // Additional education
-      item.education3Name || '',
-      item.education4Name || '',
-      item.education5Name || '',
+      
       
       // College information
       Array.isArray(item.colleges) ? item.colleges.join(' ') : (item.college || '')
@@ -880,12 +879,25 @@ else if (showLinkedIn && showWellfound) {
       augmentedFilteredData = [ajiteshProfile, ...filteredData];
     }
   }
-useEffect(() => {
-  let results = applyRegularFiltersToData(data, filters);
-  if (filters.sortByRanking) results = sortByRanking(results);
-  setFilteredData(results);
-  setCurrentPage(1);
-}, [data, filters, applyRegularFiltersToData]);
+  useEffect(() => {
+    // 1) baseline filter (college, industry, stealth, etc)
+    let results = applyRegularFiltersToData(data, filters);
+  
+    // 2) then apply the global searchQuery
+    if (searchQuery.trim() !== '') {
+      const q = searchQuery.trim().toLowerCase();
+      results = results.filter(item => searchInFields(item, q));
+    }
+  
+    // 3) then ranking
+    if (filters.sortByRanking) {
+      results = sortByRanking(results);
+    }
+  
+    setFilteredData(results);
+    setCurrentPage(1);
+  }, [data, filters, searchQuery, applyRegularFiltersToData]);
+  
 
   // Use the augmented data for pagination and items
   const augmentedTotalPages = Math.ceil(augmentedFilteredData.length / itemsPerPage);
