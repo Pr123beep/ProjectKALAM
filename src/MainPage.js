@@ -766,7 +766,6 @@ else if (showLinkedIn && showWellfound) {
     });
     
     // Apply ranking-based sorting to the filtered results
-    currentFilteredData = sortByRanking(currentFilteredData);
     
     // Apply seen profile filtering if needed
     if (filters.seenStatus && filters.seenStatus !== 'all' && seenProfileIds.length > 0) {
