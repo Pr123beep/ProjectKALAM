@@ -11,6 +11,7 @@ import { getUserSeenProfiles } from './supabaseClient';
 import ScrollToTop from './components/ScrollToTop';
 import ScrollButton from './components/ScrollButton';
 
+
 const DEFAULT_FILTERS = {
   college: [],
   companyIndustry: [],
@@ -437,10 +438,13 @@ function MainPage({ user }) {
     originalRank:   i + 1,
     originalPoints: Math.round(computeRuleBasedScore(item) * 100)
   }));
+  const initialList = filters.sortByRanking
+    ? withOriginalRank
+    : shuffleArray(withOriginalRank);
 
   // 3️⃣ Seed your state from that:
-  setData(withOriginalRank);
-  setFilteredData(withOriginalRank);
+  setData(initialList);
+  setFilteredData(initialList);
   dataRef.current = withOriginalRank;
 }, []); // ← run only once, on mount
 
