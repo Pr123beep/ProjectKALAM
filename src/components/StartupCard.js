@@ -1,3 +1,4 @@
+//src/components/StartupCard.js
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
@@ -7,6 +8,9 @@ import iitRedditData from "../iit-reddit.json";
 import { generateFounderSummary } from "../utils/geminiApi";
 import LabelButton from './LabelButton';
 import RankingBadge from './RankingBadge';
+import RankingDetails from './RankingDetails';
+
+
 import { markProfileAsSeen, isProfileSeen, markProfileAsUnseen, getProfileLabels } from '../supabaseClient';
 
 import "../App.css";
@@ -737,6 +741,8 @@ const showRankingBadge = isSortByRankingEnabled && typeof rank === 'number';
       {/* loading / error / aiSummary logic */}
     </div>
   </motion.div>
+  <RankingDetails data={data} />
+
 
   {/* Enhanced Description */}
   {data.linkedinDescription && (
@@ -1192,6 +1198,7 @@ const showRankingBadge = isSortByRankingEnabled && typeof rank === 'number';
                           >
                             Analyzing profile data and creating personalized insights
                           </motion.div>
+                          
                         </div>
                       ) : summaryError ? (
                         <div className="summary-error">
@@ -1212,6 +1219,7 @@ const showRankingBadge = isSortByRankingEnabled && typeof rank === 'number';
                           {formatSimpleDescription(aiSummary)}
                         </motion.div>
                       ) : null}
+                      <RankingDetails data={data} />
                     </div>
                   </motion.div>
 

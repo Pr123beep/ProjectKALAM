@@ -1,3 +1,4 @@
+//src/components/RankingBadge.js
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './RankingBadge.css';
