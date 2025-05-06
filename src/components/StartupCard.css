@@ -1754,4 +1754,74 @@ body.modal-open .detail-overlay {
   text-overflow: ellipsis;
   max-width: 120px;
 }
+.card {
+  position: relative;
+}
 
+.ranking-toggle-button {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  background: #2a9d8f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.ranking-toggle-button:hover {
+  background: #21867a;
+}
+
+.ranking-details-inline {
+  margin-top: 8px;
+  padding: 12px;
+  background: #f9f9f9;
+  border-radius: 4px;
+}
+/* ─── layout ─── */
+.card-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.ranking-details-inline {
+  margin: 12px 0;
+  padding: 16px;
+  background: #f7f9fa;
+  border-radius: 6px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* ─── button base ─── */
+.ranking-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  
+  /* little lift on hover */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ranking-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+/* ─── active / “hide” state ─── */
+.ranking-button.active {
+  background: linear-gradient(135deg, #fc466b 0%, #3f5efb 100%);
+}

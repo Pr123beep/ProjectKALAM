@@ -320,6 +320,8 @@ const StartupCard = ({
   const [isToggling, setIsToggling] = useState(false);
   const [aiSummary, setAiSummary] = useState(null);
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
+  const [showRankingDetails, setShowRankingDetails] = useState(false);
+
   const [summaryError, setSummaryError] = useState(null);
   const [isSeen, setIsSeen] = useState(false);
   const [hasLabels, setHasLabels] = useState(false);
@@ -741,7 +743,7 @@ const showRankingBadge = isSortByRankingEnabled && typeof rank === 'number';
       {/* loading / error / aiSummary logic */}
     </div>
   </motion.div>
-  <RankingDetails data={data} />
+  
 
 
   {/* Enhanced Description */}
@@ -804,7 +806,27 @@ const showRankingBadge = isSortByRankingEnabled && typeof rank === 'number';
     </motion.div>
   )}
 
-</motion.div>
+
+<div className="ranking-toggle-container">
+   <button
+     className="ranking-toggle-button"
+     onClick={() => setShowRankingDetails((v) => !v)}
+   >
+     📊 {showRankingDetails ? 'Hide' : 'Show'} Scoring
+   </button>
+</div>
+{showRankingDetails && (
+   <motion.div
+     className="detail-section ranking-section"
+     initial={{ opacity: 0, y: 10 }}
+     animate={{ opacity: 1, y: 0 }}
+     transition={{ duration: 0.2 }}
+   >
+     <h3 className="section-title">📊 Ranking</h3>
+     <RankingDetails data={data} />
+  </motion.div>
+ )}
+ </motion.div>
 
 
 
@@ -965,6 +987,20 @@ const showRankingBadge = isSortByRankingEnabled && typeof rank === 'number';
       <button onClick={toggleDetails} className="card-button">
         {showDetails ? "Hide Details" : "Show Details"}
       </button>
+        {/* ——— New “Show Ranking” toggle on the card itself ——— */}
+      {showRankingBadge && (
+        <button
+          className="ranking-toggle-button"
+          onClick={() => setShowRankingDetails(v => !v)}
+        >
+          📊 {showRankingDetails ? 'Hide' : 'Show'} Scoring
+        </button>
+      )}
+       { showRankingDetails && (
+        <div className="ranking-details-inline">
+          <RankingDetails data={data} />
+        </div>
+      )}
 
       {showDetails && 
         ReactDOM.createPortal(
@@ -1219,9 +1255,10 @@ const showRankingBadge = isSortByRankingEnabled && typeof rank === 'number';
                           {formatSimpleDescription(aiSummary)}
                         </motion.div>
                       ) : null}
-                      <RankingDetails data={data} />
+                      
                     </div>
                   </motion.div>
+                  
 
                   {/* Wrap each section in a motion.div for staggered appearance */}
                   {/* Example for the first section */}
