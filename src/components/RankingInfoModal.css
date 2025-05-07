@@ -1,0 +1,276 @@
+.ranking-info-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.ranking-info-modal {
+  background-color: #ffffff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  position: relative;
+  padding: 0;
+}
+
+.ranking-info-modal .close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(0, 0, 0, 0.1);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #333;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.ranking-info-modal .close-button:hover {
+  background: rgba(0, 0, 0, 0.2);
+  transform: scale(1.1);
+}
+
+.ranking-info-header {
+  background: linear-gradient(135deg, #f4f9fc, #e6f2f8);
+  padding: 30px;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.ranking-info-header h2 {
+  font-size: 24px;
+  margin: 0 0 10px 0;
+  color: #264653;
+}
+
+.ranking-info-header p {
+  margin: 0;
+  color: #555;
+  font-size: 16px;
+}
+
+.ranking-info-content {
+  padding: 30px;
+}
+
+.ranking-info-section {
+  margin-bottom: 30px;
+}
+
+.ranking-info-section h3 {
+  font-size: 20px;
+  margin: 0 0 15px 0;
+  color: #264653;
+  border-left: 4px solid #2a9d8f;
+  padding-left: 12px;
+}
+
+.ranking-info-section p {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #333;
+}
+
+.ranking-weight-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ranking-weight-table th,
+.ranking-weight-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.ranking-weight-table thead {
+  background-color: #2a9d8f;
+  color: white;
+}
+
+.ranking-weight-table tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+.ranking-weight-table .total-row {
+  font-weight: bold;
+  background-color: #e6f2f8;
+}
+
+.ranking-info-image-container {
+  width: 100%;
+  margin: 15px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background-color: #121212;
+  text-align: center;
+}
+
+.ranking-info-image {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
+/* Tier tables styling */
+.tier-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.tier-table th {
+  background-color: #333;
+  color: white;
+  padding: 10px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.tier-table td {
+  padding: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: left;
+  color: #fff;
+}
+
+/* Column widths */
+.tier-table th:nth-child(1),
+.tier-table td:nth-child(1) {
+  width: 15%;
+}
+
+.tier-table th:nth-child(2),
+.tier-table td:nth-child(2) {
+  width: 10%;
+}
+
+.tier-table th:nth-child(3),
+.tier-table td:nth-child(3) {
+  width: 75%;
+}
+
+/* Row colors - College Tiers */
+.college-tiers tr:nth-child(1) td { background-color: #1a1a1a; }
+.college-tiers tr:nth-child(2) td { background-color: #1f1f1f; }
+.college-tiers tr:nth-child(3) td { background-color: #242424; }
+.college-tiers tr:nth-child(4) td { background-color: #292929; }
+.college-tiers tr:nth-child(5) td { background-color: #2e2e2e; }
+.college-tiers tr:nth-child(6) td { background-color: #333333; }
+.college-tiers tr:nth-child(7) td { background-color: #383838; }
+.college-tiers tr:nth-child(8) td { background-color: #3d3d3d; }
+
+/* Row colors - Company Tiers */
+.company-tiers tr:nth-child(1) td { background-color: #1a1a1a; }
+.company-tiers tr:nth-child(2) td { background-color: #1f1f1f; }
+.company-tiers tr:nth-child(3) td { background-color: #242424; }
+.company-tiers tr:nth-child(4) td { background-color: #292929; }
+.company-tiers tr:nth-child(5) td { background-color: #2e2e2e; }
+.company-tiers tr:nth-child(6) td { background-color: #333333; }
+.company-tiers tr:nth-child(7) td { background-color: #383838; }
+.company-tiers tr:nth-child(8) td { background-color: #3d3d3d; }
+
+/* Row colors - Job Title Tiers */
+.job-title-tiers tr:nth-child(1) td { background-color: #1a1a1a; }
+.job-title-tiers tr:nth-child(2) td { background-color: #1f1f1f; }
+.job-title-tiers tr:nth-child(3) td { background-color: #242424; }
+.job-title-tiers tr:nth-child(4) td { background-color: #292929; }
+.job-title-tiers tr:nth-child(5) td { background-color: #2e2e2e; }
+.job-title-tiers tr:nth-child(6) td { background-color: #333333; }
+.job-title-tiers tr:nth-child(7) td { background-color: #383838; }
+.job-title-tiers tr:nth-child(8) td { background-color: #3d3d3d; }
+
+.ranking-note {
+  background-color: #fff8e1;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #ffc107;
+  font-style: italic;
+}
+
+/* Info button styles */
+.ranking-info-button {
+  background-color: #2a9d8f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  margin-left: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ranking-info-button:hover {
+  background-color: #218478;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.ranking-info-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .ranking-info-modal {
+    max-width: 95%;
+    max-height: 85vh;
+  }
+  
+  .ranking-info-header {
+    padding: 20px;
+  }
+  
+  .ranking-info-content {
+    padding: 20px;
+  }
+  
+  .ranking-info-section h3 {
+    font-size: 18px;
+  }
+  
+  .tier-table td {
+    padding: 8px;
+    font-size: 12px;
+  }
+  
+  .tier-table th {
+    padding: 8px;
+    font-size: 12px;
+  }
+} 
