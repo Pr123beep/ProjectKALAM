@@ -987,16 +987,14 @@ const showRankingBadge = isSortByRankingEnabled && typeof rank === 'number';
       <button onClick={toggleDetails} className="card-button">
         {showDetails ? "Hide Details" : "Show Details"}
       </button>
-        {/* ——— New “Show Ranking” toggle on the card itself ——— */}
-      {showRankingBadge && (
-        <button
-          className="ranking-toggle-button"
-          onClick={() => setShowRankingDetails(v => !v)}
-        >
-          📊 {showRankingDetails ? 'Hide' : 'Show'} Scoring
-        </button>
-      )}
-       { showRankingDetails && (
+        {/* ——— New "Show Ranking" toggle on the card itself ——— */}
+      <button
+        className="ranking-toggle-button"
+        onClick={() => setShowRankingDetails(v => !v)}
+      >
+        📊 {showRankingDetails ? 'Hide' : 'Show'} Scoring
+      </button>
+      { showRankingDetails && (
         <div className="ranking-details-inline">
           <RankingDetails data={data} />
         </div>
