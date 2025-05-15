@@ -327,24 +327,6 @@ const StartupCard = ({
   const [hasLabels, setHasLabels] = useState(false);
   const [profileLabels, setProfileLabels] = useState([]);
 
-  // Format score for display (e.g., 1000 -> 1K)
-  const formatScoreDisplay = (scoreValue) => {
-    if (!scoreValue) return "0";
-    const score = parseFloat(scoreValue);
-    
-    // Format with comma separators for large numbers
-    return score.toLocaleString(undefined, { maximumFractionDigits: 0 });
-  };
-  
-  // Calculate score percentage on a 0-100 scale for visualization
-  const calculateScorePercentage = (scoreValue) => {
-    if (!scoreValue) return 0;
-    const score = parseFloat(scoreValue);
-    
-    // Scale to percentage - maximum score is 50
-    return Math.min(100, (score / 50) * 100);
-  };
-
   const handleExternalLinkClick = () => {
         if (!isSeen) {
           markProfileAsSeen(data)
@@ -706,6 +688,12 @@ const showRankingBadge = isSortByRankingEnabled && typeof rank === 'number';
         transition={{ delay: 0.3, duration: 0.4 }}
       >
         {data.firstName} {data.lastName}
+        {/* Score Badge with explicit label */}
+        {data.originalPoints && (
+          <span className="founder-score-badge modal-score-badge" title={`Score: ${data.originalPoints}/50`}>
+            <span className="score-label-text">Score:</span> {data.originalPoints}
+          </span>
+        )}
       </motion.h2>
       
       <motion.p 
@@ -746,32 +734,6 @@ const showRankingBadge = isSortByRankingEnabled && typeof rank === 'number';
   animate={{ opacity: 1 }}
   transition={{ delay: 0.2 }}
 >
-
-  {/* Overall Score Display - Always visible at the top of modal */}
-  {data.originalPoints && (
-    <motion.div 
-      className="profile-score-display modal-score"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.25 }}
-    >
-      <div className="score-label">Score:</div>
-      <div className="score-value-row">
-        <div className="score-value">{formatScoreDisplay(data.originalPoints)}</div>
-        <div className="score-percentage">
-          {calculateScorePercentage(data.originalPoints).toFixed(0)}%
-        </div>
-      </div>
-      <div className="score-meter">
-        <div 
-          className="score-meter-fill" 
-          style={{ 
-            width: `${calculateScorePercentage(data.originalPoints)}%`
-          }}
-        ></div>
-      </div>
-    </motion.div>
-  )}
 
   {/* AI Summary Section */}
   <motion.div 
@@ -968,6 +930,13 @@ const showRankingBadge = isSortByRankingEnabled && typeof rank === 'number';
             >
               {data.companyName}
             </a>
+            
+            {/* Score Badge with explicit label */}
+            {data.originalPoints && (
+              <span className="founder-score-badge" title={`Score: ${data.originalPoints}/50`}>
+                <span className="score-label-text">Score:</span> {data.originalPoints}
+              </span>
+            )}
           </h4>
         </div>
         <p className="card-headline">{data.linkedinHeadline || data.wellfoundHeadline}</p>
@@ -983,27 +952,6 @@ const showRankingBadge = isSortByRankingEnabled && typeof rank === 'number';
         <p>
           <strong>Company:</strong> {data.companyName}
         </p>
-        
-        {/* Overall Score Display - Always visible, regardless of ranking sort */}
-        {data.originalPoints && (
-          <div className="profile-score-display">
-            <div className="score-label">Score:</div>
-            <div className="score-value-row">
-              <div className="score-value">{formatScoreDisplay(data.originalPoints)}</div>
-              <div className="score-percentage">
-                {calculateScorePercentage(data.originalPoints).toFixed(0)}%
-              </div>
-            </div>
-            <div className="score-meter">
-              <div 
-                className="score-meter-fill" 
-                style={{ 
-                  width: `${calculateScorePercentage(data.originalPoints)}%`
-                }}
-              ></div>
-            </div>
-          </div>
-        )}
         
         <div className="source-badges">
           {data.linkedinProfileUrl && (
@@ -1169,6 +1117,12 @@ const showRankingBadge = isSortByRankingEnabled && typeof rank === 'number';
                         transition={{ delay: 0.3, duration: 0.4 }}
                       >
                         {data.firstName} {data.lastName}
+                        {/* Score Badge with explicit label */}
+                        {data.originalPoints && (
+                          <span className="founder-score-badge modal-score-badge" title={`Score: ${data.originalPoints}/50`}>
+                            <span className="score-label-text">Score:</span> {data.originalPoints}
+                          </span>
+                        )}
                       </motion.h2>
                       
                       <motion.p 

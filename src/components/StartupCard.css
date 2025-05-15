@@ -589,15 +589,6 @@ body.modal-open .detail-overlay {
   background-color: #005e93;
 }
 
-.wellfound-link {
-  background-color: #34aa44;
-  color: white;
-}
-
-.wellfound-link:hover {
-  background-color: #2c9039;
-}
-
 .profile-followers-badge.inline-badge {
   font-size: 13px;
   padding: 4px 10px;
@@ -1927,4 +1918,52 @@ body.modal-open .detail-overlay {
 
 .profile-score-display.modal-score .score-meter-fill {
   background-image: linear-gradient(to right, #2a9d8f, #4CAF50);
+}
+
+/* Founder Score Badge - Score display with explicit label */
+.founder-score-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ff9900, #ff5722);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  height: 22px;
+  padding: 0 10px;
+  border-radius: 11px;
+  margin-left: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  position: relative;
+  top: -1px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+}
+
+.score-label-text {
+  font-weight: 500;
+  opacity: 0.9;
+  margin-right: 3px;
+  font-size: 11px;
+}
+
+.founder-score-badge:hover {
+  transform: translateY(-1px) scale(1.05);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25);
+  filter: brightness(1.05);
+}
+
+/* Modal version of the score badge */
+.founder-score-badge.modal-score-badge {
+  background: linear-gradient(135deg, #2a9d8f, #4CAF50);
+  font-size: 14px;
+  height: 26px;
+  padding: 0 10px;
+  margin-left: 12px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+.founder-score-badge.modal-score-badge .score-label-text {
+  font-size: 13px;
 }
