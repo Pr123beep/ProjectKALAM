@@ -612,6 +612,8 @@ const tier = `Tier ${tierNumber}`;
 
 // only show badge when sorting-by-ranking is enabled AND we have an originalRank
 const showRankingBadge = isSortByRankingEnabled && typeof rank === 'number';
+// only show score badge when we're NOT sorting by ranking
+const showScoreBadge = !isSortByRankingEnabled && score;
 
   if (modalOnly) {
     return ReactDOM.createPortal(
@@ -688,12 +690,6 @@ const showRankingBadge = isSortByRankingEnabled && typeof rank === 'number';
         transition={{ delay: 0.3, duration: 0.4 }}
       >
         {data.firstName} {data.lastName}
-        {/* Score Badge with explicit label */}
-        {data.originalPoints && (
-          <span className="founder-score-badge modal-score-badge" title={`Score: ${data.originalPoints}/50`}>
-            <span className="score-label-text">Score:</span> {data.originalPoints}
-          </span>
-        )}
       </motion.h2>
       
       <motion.p 
@@ -931,8 +927,8 @@ const showRankingBadge = isSortByRankingEnabled && typeof rank === 'number';
               {data.companyName}
             </a>
             
-            {/* Score Badge with explicit label */}
-            {data.originalPoints && (
+            {/* Score Badge with explicit label - only show when not sorting by ranking */}
+            {showScoreBadge && (
               <span className="founder-score-badge" title={`Score: ${data.originalPoints}/50`}>
                 <span className="score-label-text">Score:</span> {data.originalPoints}
               </span>
@@ -1117,12 +1113,6 @@ const showRankingBadge = isSortByRankingEnabled && typeof rank === 'number';
                         transition={{ delay: 0.3, duration: 0.4 }}
                       >
                         {data.firstName} {data.lastName}
-                        {/* Score Badge with explicit label */}
-                        {data.originalPoints && (
-                          <span className="founder-score-badge modal-score-badge" title={`Score: ${data.originalPoints}/50`}>
-                            <span className="score-label-text">Score:</span> {data.originalPoints}
-                          </span>
-                        )}
                       </motion.h2>
                       
                       <motion.p 
